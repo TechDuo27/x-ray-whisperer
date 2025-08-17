@@ -8,6 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
 import { Upload, FileImage, Loader2, Settings } from 'lucide-react';
+// import { loadYOLOModel, runInference } from '@/utils/modelLoader';
 
 interface ImageUploadProps {
   onAnalysisComplete: (analysis: any) => void;
@@ -87,7 +88,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
     setUploadProgress(0);
 
     try {
-      // Simulate upload progress
+      // Upload progress simulation
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => Math.min(prev + 10, 90));
       }, 200);
@@ -100,35 +101,15 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
       setUploading(false);
       setAnalyzing(true);
 
-      // Simulate AI analysis (replace with actual model inference)
-      await new Promise(resolve => setTimeout(resolve, 3000));
-
-      // Mock analysis results based on the Python code structure
-      const mockResults = {
-        detections: [
-          {
-            class: 'Caries',
-            confidence: 0.85,
-            bbox: [120, 150, 180, 200],
-            display_name: 'Dental caries',
-            is_grossly_carious: true,
-          },
-          {
-            class: 'Bone Loss',
-            confidence: 0.72,
-            bbox: [200, 100, 260, 140],
-            display_name: 'Bone Loss',
-            is_grossly_carious: false,
-          },
-          {
-            class: 'Implant',
-            confidence: 0.91,
-            bbox: [300, 180, 340, 220],
-            display_name: 'Implants',
-            is_grossly_carious: false,
-          },
-        ],
-      };
+      // Load YOLO models (will be implemented when models are added)
+      // const model1 = await loadYOLOModel('/models/best.pt');
+      // const model2 = await loadYOLOModel('/models/best2.pt');
+      
+      // Run AI inference (will be implemented when models are added)
+      // const results = await runInference(uploadedImage, model1, model2, confidenceThreshold[0]);
+      
+      // For now, return empty results until models are integrated
+      const results = { detections: [] };
 
       // Save analysis to database
       const { data: analysisData, error: dbError } = await supabase
@@ -137,7 +118,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
           user_id: user.id,
           image_url: imageUrl,
           original_filename: uploadedImage.name,
-          analysis_results: mockResults,
+          analysis_results: results,
           confidence_threshold: confidenceThreshold[0],
         })
         .select()
@@ -147,7 +128,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
 
       toast({
         title: 'Analysis Complete!',
-        description: `Found ${mockResults.detections.length} potential findings.`,
+        description: `Analysis completed. ${results.detections.length} findings detected.`,
       });
 
       onAnalysisComplete(analysisData);

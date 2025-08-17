@@ -5,12 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Download, FileText, Image as ImageIcon, Palette } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Palette } from 'lucide-react';
+import ImageAnnotationViewer from '@/components/ImageAnnotationViewer';
+import { getHexColor, DETECTION_COLORS } from '@/utils/modelLoader';
 
 interface Detection {
   class: string;
   confidence: number;
-  bbox: number[];
+  bbox: [number, number, number, number];
   display_name: string;
   is_grossly_carious?: boolean;
   is_internal_resorption?: boolean;
@@ -34,32 +36,7 @@ interface AnalysisViewProps {
   onBack: () => void;
 }
 
-// Color mappings from the Python code
-const TARGET_COLORS = {
-  'Caries': '#FFFFFF',              // white - Dental caries
-  'Bone Loss': '#FF0000',           // red
-  'Cyst': '#FFFF00',                // yellow
-  'impacted tooth': '#800080',      // purple - Impacted teeth
-  'Missing teeth': '#0000FF',       // blue
-  'Supra Eruption': '#00FF00',      // green - Supernumerary teeth
-  'attrition': '#FFC0CB',           // pink - Abrasion
-  'Malaligned': '#A52A2A',          // brown - Spacing
-  'Root resorption': '#000000',     // black
-  'Periapical lesion': '#FFDB58',   // mustard - Periapical pathology
-  'bone defect': '#8B0000',         // dark red - Bone fracture
-  'Fracture teeth': '#808080',      // grey - Tooth fracture
-  'Crown': '#006400',               // dark green - Crowns
-  'Implant': '#800000',             // maroon - Implants
-  'Root Canal Treatment': '#FFDCB1', // skin colour - RCT tooth
-  'Filling': '#EE82EE',             // violet - Restorations
-  'Primary teeth': '#000080',       // navy blue - Retained deciduous tooth
-  'Retained root': '#008080',       // teal - Root stump
-};
-
-const SPECIAL_COLORS = {
-  'Grossly carious': '#FFA500',     // orange - severe caries
-  'Internal resorption': '#CBC0FF', // dark pink - root resorption variant
-};
+// Color mappings moved to modelLoader utility
 
 export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
   const [activeTab, setActiveTab] = useState('results');
@@ -76,15 +53,6 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
     });
   };
 
-  const getDetectionColor = (detection: Detection) => {
-    if (detection.is_grossly_carious) {
-      return SPECIAL_COLORS['Grossly carious'];
-    }
-    if (detection.is_internal_resorption) {
-      return SPECIAL_COLORS['Internal resorption'];
-    }
-    return TARGET_COLORS[detection.class as keyof typeof TARGET_COLORS] || '#00FF00';
-  };
 
   const generateReport = () => {
     // Create HTML report content
@@ -134,7 +102,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
             ${detections.length === 0 ? 
               '<p>No significant findings detected above the confidence threshold.</p>' :
               detections.map(detection => `
-                <div class="finding" style="border-left-color: ${getDetectionColor(detection)};">
+                <div class="finding" style="border-left-color: ${getHexColor(detection)};">
                   <strong>${detection.display_name}</strong> - 
                   Confidence: ${(detection.confidence * 100).toFixed(1)}%
                 </div>
@@ -144,9 +112,9 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
           
           <div class="legend">
             <h2>Color Legend</h2>
-            ${Object.entries({...TARGET_COLORS, ...SPECIAL_COLORS}).map(([name, color]) => `
+            ${Object.entries(DETECTION_COLORS).map(([name, rgb]) => `
               <div class="legend-item">
-                <div class="color-box" style="background-color: ${color};"></div>
+                <div class="color-box" style="background-color: rgb(${rgb.join(',')});"></div>
                 <span>${name}</span>
               </div>
             `).join('')}
@@ -242,7 +210,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                         <div className="flex items-center space-x-3">
                           <div
                             className="w-4 h-4 border border-gray-400 rounded"
-                            style={{ backgroundColor: getDetectionColor(detection) }}
+                            style={{ backgroundColor: getHexColor(detection) }}
                           />
                           <div>
                             <div className="font-medium">{detection.display_name}</div>
@@ -270,20 +238,11 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
             </TabsContent>
 
             <TabsContent value="image" className="space-y-4">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-center">
-                    <img
-                      src={analysis.image_url}
-                      alt="X-ray analysis"
-                      className="max-w-full h-auto border rounded-lg"
-                    />
-                    <p className="text-sm text-muted-foreground mt-2">
-                      {analysis.original_filename}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <ImageAnnotationViewer 
+                originalImageUrl={analysis.image_url}
+                detections={detections}
+                filename={analysis.original_filename}
+              />
             </TabsContent>
 
             <TabsContent value="legend" className="space-y-4">
@@ -299,11 +258,11 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {Object.entries({...TARGET_COLORS, ...SPECIAL_COLORS}).map(([name, color]) => (
+                    {Object.entries(DETECTION_COLORS).map(([name, rgb]) => (
                       <div key={name} className="flex items-center space-x-3 p-2 rounded border">
                         <div
                           className="w-6 h-6 border border-gray-400 rounded"
-                          style={{ backgroundColor: color }}
+                          style={{ backgroundColor: `rgb(${rgb.join(',')})` }}
                         />
                         <span className="text-sm">{name}</span>
                       </div>

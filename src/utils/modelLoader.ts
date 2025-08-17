@@ -82,31 +82,22 @@ export const getHexColor = (detection: Detection): string => {
   return `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`;
 };
 
-// Load YOLO model from public/models directory using ONNX Runtime
+// Load YOLO model from public/models directory
 export const loadYOLOModel = async (modelPath: string): Promise<any> => {
   try {
-    const { InferenceSession } = await import('onnxruntime-web');
+    // TODO: Implement actual YOLO model loading
+    // This will depend on the specific framework used (ONNX.js, TensorFlow.js, etc.)
+    const response = await fetch(modelPath);
+    if (!response.ok) {
+      throw new Error(`Failed to load model from ${modelPath}`);
+    }
     
-    // Configure ONNX Runtime for web
-    InferenceSession.create.bind(InferenceSession);
-    
-    // Load the ONNX model
-    const session = await InferenceSession.create(modelPath, {
-      executionProviders: ['wasm'],
-      graphOptimizationLevel: 'all'
-    });
-    
-    console.log(`YOLO model loaded successfully from ${modelPath}`);
-    return {
-      session,
-      path: modelPath,
-      loaded: true,
-      inputNames: session.inputNames,
-      outputNames: session.outputNames
-    };
+    // Placeholder for model loading logic
+    console.log(`Model loaded from ${modelPath}`);
+    return { path: modelPath, loaded: true };
   } catch (error) {
-    console.error(`Error loading YOLO model from ${modelPath}:`, error);
-    throw new Error(`Failed to load YOLO model: ${error}`);
+    console.error(`Error loading model from ${modelPath}:`, error);
+    throw error;
   }
 };
 
@@ -166,91 +157,6 @@ export const filterTargetDetections = (rawDetections: any[]): Detection[] => {
   return filteredDetections;
 };
 
-// Preprocess image for YOLO inference
-const preprocessImage = async (imageFile: File): Promise<Float32Array> => {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d')!;
-      
-      // YOLO typically expects 640x640 input
-      canvas.width = 640;
-      canvas.height = 640;
-      
-      // Draw and resize image
-      ctx.drawImage(img, 0, 0, 640, 640);
-      
-      // Get image data and normalize
-      const imageData = ctx.getImageData(0, 0, 640, 640);
-      const { data } = imageData;
-      
-      // Convert to RGB and normalize to [0,1]
-      const input = new Float32Array(3 * 640 * 640);
-      for (let i = 0; i < 640 * 640; i++) {
-        input[i] = data[i * 4] / 255.0; // R
-        input[640 * 640 + i] = data[i * 4 + 1] / 255.0; // G
-        input[2 * 640 * 640 + i] = data[i * 4 + 2] / 255.0; // B
-      }
-      
-      resolve(input);
-    };
-    
-    img.src = URL.createObjectURL(imageFile);
-  });
-};
-
-// Post-process YOLO outputs to extract detections
-const postprocessOutputs = (outputs: any, confidenceThreshold: number) => {
-  const detections: any[] = [];
-  
-  // Assuming standard YOLO output format: [batch, boxes, 5+classes]
-  // outputs[0] contains [x, y, w, h, confidence, class_scores...]
-  const output = outputs[Object.keys(outputs)[0]];
-  const data = output.data;
-  const [, numBoxes, numFeatures] = output.dims;
-  
-  for (let i = 0; i < numBoxes; i++) {
-    const offset = i * numFeatures;
-    const confidence = data[offset + 4];
-    
-    if (confidence >= confidenceThreshold) {
-      // Find class with highest score
-      let maxClassScore = 0;
-      let classIndex = 0;
-      for (let j = 5; j < numFeatures; j++) {
-        const classScore = data[offset + j];
-        if (classScore > maxClassScore) {
-          maxClassScore = classScore;
-          classIndex = j - 5;
-        }
-      }
-      
-      const finalConfidence = confidence * maxClassScore;
-      if (finalConfidence >= confidenceThreshold) {
-        // Convert from center format to corner format
-        const centerX = data[offset];
-        const centerY = data[offset + 1];
-        const width = data[offset + 2];
-        const height = data[offset + 3];
-        
-        const x1 = centerX - width / 2;
-        const y1 = centerY - height / 2;
-        const x2 = centerX + width / 2;
-        const y2 = centerY + height / 2;
-        
-        detections.push({
-          class: `class_${classIndex}`, // Will be mapped to actual class names
-          confidence: finalConfidence,
-          bbox: [x1, y1, x2, y2]
-        });
-      }
-    }
-  }
-  
-  return detections;
-};
-
 // Run inference on both models with selective detection
 export const runInference = async (
   imageFile: File,
@@ -259,32 +165,25 @@ export const runInference = async (
   confidenceThreshold: number = 0.25
 ): Promise<ModelResults> => {
   try {
-    if (!model1?.session || !model2?.session) {
-      throw new Error('Models not properly loaded');
-    }
+    // TODO: Implement actual model inference
+    // This will process the image through both YOLO models
     
-    // 1. Preprocess image
-    const inputTensor = await preprocessImage(imageFile);
+    // 1. Preprocess image (resize, normalize)
+    // 2. Run inference on model1 (general conditions - 31 classes)
+    // 3. Run inference on model2 (implants/materials - 43 classes)
+    // 4. Combine results from both models
+    // 5. Filter by confidence threshold
+    // 6. Apply selective detection (only target classes)
+    // 7. Apply special case logic (grossly carious, internal resorption)
+    // 8. Apply NMS (Non-Maximum Suppression) to remove duplicates
     
-    // 2. Prepare input for ONNX models
-    const { Tensor } = await import('onnxruntime-web');
-    const feeds: Record<string, any> = {};
+    // Placeholder - will return actual model results when implemented
+    const rawDetections: any[] = [];
     
-    // 3. Run inference on model1
-    feeds[model1.inputNames[0]] = new Tensor('float32', inputTensor, [1, 3, 640, 640]);
-    const output1 = await model1.session.run(feeds);
-    const detections1 = postprocessOutputs(output1, confidenceThreshold);
-    
-    // 4. Run inference on model2
-    feeds[model2.inputNames[0]] = new Tensor('float32', inputTensor, [1, 3, 640, 640]);
-    const output2 = await model2.session.run(feeds);
-    const detections2 = postprocessOutputs(output2, confidenceThreshold);
-    
-    // 5. Combine results from both models
-    const allDetections = [...detections1, ...detections2];
-    
-    // 6. Filter detections to only include target classes
-    const filteredDetections = filterTargetDetections(allDetections);
+    // Filter detections to only include target classes
+    const filteredDetections = filterTargetDetections(
+      rawDetections.filter(d => d.confidence >= confidenceThreshold)
+    );
     
     return {
       detections: filteredDetections
@@ -292,7 +191,7 @@ export const runInference = async (
     
   } catch (error) {
     console.error('Inference error:', error);
-    throw new Error(`Failed to analyze image with AI models: ${error}`);
+    throw new Error('Failed to analyze image with AI models');
   }
 };
 

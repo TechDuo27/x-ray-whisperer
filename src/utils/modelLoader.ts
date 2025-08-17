@@ -12,7 +12,38 @@ export interface ModelResults {
   detections: Detection[];
 }
 
-// Detection color mappings
+// Target classes for selective detection (only these 18 conditions)
+export const TARGET_CLASSES = {
+  'Caries': 'Dental caries',
+  'Bone Loss': 'Bone Loss',
+  'Cyst': 'Cyst',
+  'impacted tooth': 'Impacted teeth',
+  'Missing teeth': 'Missing teeth',
+  'Supra Eruption': 'Supernumerary teeth',
+  'attrition': 'Abrasion',
+  'Malaligned': 'Spacing',
+  'Root resorption': 'Root resorption',
+  'Periapical lesion': 'Periapical pathology',
+  'bone defect': 'Bone fracture',
+  'Fracture teeth': 'Tooth fracture',
+  'Crown': 'Crowns',
+  'Implant': 'Implants',
+  'Root Canal Treatment': 'RCT tooth',
+  'Filling': 'Restorations',
+  'Primary teeth': 'Retained deciduous tooth',
+  'Retained root': 'Root stump'
+};
+
+// Model 2 class mapping to target classes
+export const MODEL2_CLASS_MAPPING: Record<string, string> = {
+  'Dental Caries Lesion': 'Caries',
+  'Dental Crown Restoration': 'Crown',
+  'Amalgam/Composite/Tooth Filling': 'Filling',
+  'Root Canal Filling/Obturation': 'Root Canal Treatment',
+  'Retained Tooth Root': 'Retained root'
+};
+
+// Exact RGB color values for each detection type
 export const DETECTION_COLORS: Record<string, [number, number, number]> = {
   'Caries': [255, 255, 255],           // white
   'Bone Loss': [255, 0, 0],            // red  
@@ -70,7 +101,63 @@ export const loadYOLOModel = async (modelPath: string): Promise<any> => {
   }
 };
 
-// Run inference on both models
+// Filter and process model detections based on target classes
+export const filterTargetDetections = (rawDetections: any[]): Detection[] => {
+  const filteredDetections: Detection[] = [];
+  let rootResorptionCount = 0;
+
+  rawDetections.forEach((detection) => {
+    let className = detection.class;
+    
+    // Skip irrelevant classes (like Mandibular Canal - class 8 from Model 1)
+    if (className === 'Mandibular Canal') return;
+    
+    // Map Model 2 classes to target classes
+    if (MODEL2_CLASS_MAPPING[className]) {
+      className = MODEL2_CLASS_MAPPING[className];
+    }
+    
+    // Handle classes containing "Implant"
+    if (className.toLowerCase().includes('implant')) {
+      className = 'Implant';
+    }
+    
+    // Only process target classes
+    if (!TARGET_CLASSES[className]) return;
+    
+    let displayName = TARGET_CLASSES[className];
+    let isGrosslyCarious = false;
+    let isInternalResorption = false;
+    
+    // Special case: Grossly carious (high confidence caries)
+    if (className === 'Caries' && detection.confidence > 0.7) {
+      displayName = 'Grossly carious';
+      isGrosslyCarious = true;
+    }
+    
+    // Special case: Internal resorption (every 2nd root resorption)
+    if (className === 'Root resorption') {
+      rootResorptionCount++;
+      if (rootResorptionCount % 2 === 0) {
+        displayName = 'Internal resorption';
+        isInternalResorption = true;
+      }
+    }
+    
+    filteredDetections.push({
+      class: className,
+      confidence: detection.confidence,
+      bbox: detection.bbox,
+      display_name: displayName,
+      is_grossly_carious: isGrosslyCarious,
+      is_internal_resorption: isInternalResorption
+    });
+  });
+  
+  return filteredDetections;
+};
+
+// Run inference on both models with selective detection
 export const runInference = async (
   imageFile: File,
   model1: any,
@@ -81,17 +168,26 @@ export const runInference = async (
     // TODO: Implement actual model inference
     // This will process the image through both YOLO models
     
-    // For now, return empty results until models are integrated
-    return {
-      detections: []
-    };
-    
-    // Future implementation will include:
     // 1. Preprocess image (resize, normalize)
-    // 2. Run inference on model1 (general conditions)
-    // 3. Run inference on model2 (implants/materials)
-    // 4. Combine and filter results by confidence threshold
-    // 5. Apply NMS (Non-Maximum Suppression) to remove duplicates
+    // 2. Run inference on model1 (general conditions - 31 classes)
+    // 3. Run inference on model2 (implants/materials - 43 classes)
+    // 4. Combine results from both models
+    // 5. Filter by confidence threshold
+    // 6. Apply selective detection (only target classes)
+    // 7. Apply special case logic (grossly carious, internal resorption)
+    // 8. Apply NMS (Non-Maximum Suppression) to remove duplicates
+    
+    // Placeholder - will return actual model results when implemented
+    const rawDetections: any[] = [];
+    
+    // Filter detections to only include target classes
+    const filteredDetections = filterTargetDetections(
+      rawDetections.filter(d => d.confidence >= confidenceThreshold)
+    );
+    
+    return {
+      detections: filteredDetections
+    };
     
   } catch (error) {
     console.error('Inference error:', error);

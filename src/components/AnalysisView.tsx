@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Download, FileText, Palette } from 'lucide-react';
 import ImageAnnotationViewer from '@/components/ImageAnnotationViewer';
 import { getHexColor, DETECTION_COLORS } from '@/utils/modelLoader';
+import { apiService } from '@/services/api';
 
 interface Detection {
   class: string;
@@ -54,9 +55,18 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
   };
 
 
-  const generateReport = () => {
-    // Create HTML report content
-    const reportContent = `
+  const generateReport = async () => {
+    try {
+      // Get original image file from URL for API call
+      const response = await fetch(analysis.image_url);
+      const imageBlob = await response.blob();
+      const file = new File([imageBlob], analysis.original_filename, { type: imageBlob.type });
+      
+      // Call backend API to generate report with annotated image
+      const reportData = await apiService.generateReport(file);
+      
+      // Create enhanced HTML report with annotated image
+      const reportContent = `
       <!DOCTYPE html>
       <html>
         <head>
@@ -97,15 +107,29 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
             <p>Confidence Threshold: ${(analysis.confidence_threshold * 100).toFixed(0)}%</p>
           </div>
           
+          <div style="text-align: center; margin: 2em 0;">
+            <h2>Annotated X-Ray Image</h2>
+            <img src="data:image/png;base64,${reportData.annotated_image_base64_png}" 
+                 style="max-width: 100%; height: auto; border: 1px solid #ccc;" 
+                 alt="Annotated X-Ray" />
+          </div>
+          
           <div class="findings">
             <h2>Findings Summary</h2>
-            ${detections.length === 0 ? 
+            ${reportData.detections.length === 0 ? 
               '<p>No significant findings detected above the confidence threshold.</p>' :
-              detections.map(detection => `
-                <div class="finding" style="border-left-color: ${getHexColor(detection)};">
-                  <strong>${detection.display_name}</strong> - 
-                  Confidence: ${(detection.confidence * 100).toFixed(1)}%
-                </div>
+              reportData.detections.map(detection => `
+                 <div class="finding" style="border-left-color: ${getHexColor({
+                   class: detection.class_,
+                   confidence: detection.confidence,
+                   bbox: [detection.bbox[0], detection.bbox[1], detection.bbox[2], detection.bbox[3]],
+                   display_name: detection.display_name,
+                   is_grossly_carious: detection.is_grossly_carious,
+                   is_internal_resorption: detection.is_internal_resorption
+                 })};">
+                   <strong>${detection.display_name}</strong> - 
+                   Confidence: ${(detection.confidence * 100).toFixed(1)}%
+                 </div>
               `).join('')
             }
           </div>
@@ -123,16 +147,21 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
       </html>
     `;
 
-    // Create and download the file
-    const blob = new Blob([reportContent], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `dental-analysis-${analysis.id}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+      // Create and download the file
+      const reportBlob = new Blob([reportContent], { type: 'text/html' });
+      const url = URL.createObjectURL(reportBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `dental-analysis-${analysis.id}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error generating report:', error);
+      // Fallback to basic report without backend data
+      alert('Error generating enhanced report. Please try again.');
+    }
   };
 
   return (

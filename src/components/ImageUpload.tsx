@@ -8,8 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
 import { Upload, FileImage, Loader2, Settings } from 'lucide-react';
-import { analyzeImageWithBackend } from '@/utils/modelLoader';
-
+// import { loadYOLOModel, runInference } from '@/utils/modelLoader';
 
 interface ImageUploadProps {
   onAnalysisComplete: (analysis: any) => void;
@@ -82,32 +81,44 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
     return publicUrl;
   };
 
-  // Replace your entire analyzeImage function with this one
-
   const analyzeImage = async () => {
     if (!uploadedImage || !user) return;
 
-    // We no longer need the 'uploading' state for the backend call,
-    // but we'll use 'analyzing' for the whole process.
-    setAnalyzing(true);
-    setUploadProgress(0); // You can keep this for UI feedback if you like
+    setUploading(true);
+    setUploadProgress(0);
 
     try {
-      // 1. Call your new backend function with the uploaded image
-      const detections = await analyzeImageWithBackend(uploadedImage);
+      // Upload progress simulation
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => Math.min(prev + 10, 90));
+      }, 200);
 
-      // This part is for saving the results to your Supabase database.
-      // We'll upload the image to storage first to get a URL.
+      // Upload image to storage
       const imageUrl = await uploadToStorage(uploadedImage);
+      setUploadProgress(100);
+      clearInterval(progressInterval);
 
-      // 2. Save the real analysis results to your database
+      setUploading(false);
+      setAnalyzing(true);
+
+      // Load YOLO models (will be implemented when models are added)
+      // const model1 = await loadYOLOModel('/models/best.pt');
+      // const model2 = await loadYOLOModel('/models/best2.pt');
+      
+      // Run AI inference (will be implemented when models are added)
+      // const results = await runInference(uploadedImage, model1, model2, confidenceThreshold[0]);
+      
+      // For now, return empty results until models are integrated
+      const results = { detections: [] };
+
+      // Save analysis to database
       const { data: analysisData, error: dbError } = await supabase
         .from('analyses')
         .insert({
           user_id: user.id,
           image_url: imageUrl,
           original_filename: uploadedImage.name,
-          analysis_results: { detections: detections }, // Use real detections
+          analysis_results: results,
           confidence_threshold: confidenceThreshold[0],
         })
         .select()
@@ -117,7 +128,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
 
       toast({
         title: 'Analysis Complete!',
-        description: `Analysis completed. ${detections.length} findings detected.`,
+        description: `Analysis completed. ${results.detections.length} findings detected.`,
       });
 
       onAnalysisComplete(analysisData);
@@ -133,6 +144,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
         variant: 'destructive',
       });
     } finally {
+      setUploading(false);
       setAnalyzing(false);
       setUploadProgress(0);
     }

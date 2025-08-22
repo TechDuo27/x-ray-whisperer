@@ -8,7 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
 import { Upload, FileImage, Loader2, Settings } from 'lucide-react';
-import { apiService } from '@/services/api';
+// import { loadYOLOModel, runInference } from '@/utils/modelLoader';
 
 interface ImageUploadProps {
   onAnalysisComplete: (analysis: any) => void;
@@ -101,22 +101,15 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
       setUploading(false);
       setAnalyzing(true);
 
-      // Call backend API for analysis
-      const analysisResult = await apiService.analyzeImage(uploadedImage);
-
-      // Convert API response to expected format
-      const results = {
-        detections: analysisResult.detections.map(detection => ({
-          class: detection.class_,
-          display_name: detection.display_name,
-          confidence: detection.confidence,
-          bbox: [detection.bbox[0], detection.bbox[1], detection.bbox[2], detection.bbox[3]],
-          is_grossly_carious: detection.is_grossly_carious,
-          is_internal_resorption: detection.is_internal_resorption
-        })),
-        width: analysisResult.width,
-        height: analysisResult.height
-      };
+      // Load YOLO models (will be implemented when models are added)
+      // const model1 = await loadYOLOModel('/models/best.pt');
+      // const model2 = await loadYOLOModel('/models/best2.pt');
+      
+      // Run AI inference (will be implemented when models are added)
+      // const results = await runInference(uploadedImage, model1, model2, confidenceThreshold[0]);
+      
+      // For now, return empty results until models are integrated
+      const results = { detections: [] };
 
       // Save analysis to database
       const { data: analysisData, error: dbError } = await supabase
@@ -125,7 +118,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
           user_id: user.id,
           image_url: imageUrl,
           original_filename: uploadedImage.name,
-          analysis_results: results as any,
+          analysis_results: results,
           confidence_threshold: confidenceThreshold[0],
         })
         .select()

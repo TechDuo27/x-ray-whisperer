@@ -66,6 +66,8 @@ export default function Dashboard() {
   };
 
   const handleAnalysisComplete = (analysisData: any) => {
+
+    console.log("COMPLETE ANALYSIS DATA RECEIVED:", JSON.stringify(analysisData, null, 2));
     setSelectedAnalysis(analysisData);
     setCurrentView('analysis');
     loadAnalyses(); // Refresh the list
@@ -86,7 +88,10 @@ export default function Dashboard() {
     });
   };
 
+  // Replace this function in your Dashboard.tsx file
+
   const getAnalysisCount = (results: any) => {
+    // The correct path is results.detections
     if (!results || !results.detections) return 0;
     return results.detections.length;
   };

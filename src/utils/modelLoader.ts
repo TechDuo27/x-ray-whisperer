@@ -83,21 +83,35 @@ export const getHexColor = (detection: Detection): string => {
 };
 
 // Load YOLO model from public/models directory
-export const loadYOLOModel = async (modelPath: string): Promise<any> => {
+// Add this new function to your modelLoader.ts file.
+// You can delete the old function that had 'fetch(modelPath)'.
+
+export const analyzeImageWithBackend = async (imageFile: File): Promise<any> => {
+  // 1. Create a FormData object to hold the image file.
+  const formData = new FormData();
+  formData.append('file', imageFile);
+
   try {
-    // TODO: Implement actual YOLO model loading
-    // This will depend on the specific framework used (ONNX.js, TensorFlow.js, etc.)
-    const response = await fetch(modelPath);
+    // 2. Send the request to your Python backend.
+    const response = await fetch('http://127.0.0.1:5000/predict', {
+      method: 'POST',
+      body: formData,
+    });
+
+    // 3. Check if the request was successful.
     if (!response.ok) {
-      throw new Error(`Failed to load model from ${modelPath}`);
+      // If the server responded with an error, throw an error.
+      throw new Error(`Server error: ${response.statusText}`);
     }
-    
-    // Placeholder for model loading logic
-    console.log(`Model loaded from ${modelPath}`);
-    return { path: modelPath, loaded: true };
+
+    // 4. Get the JSON data (the list of findings) from the response.
+    const detections = await response.json();
+    return detections;
+
   } catch (error) {
-    console.error(`Error loading model from ${modelPath}:`, error);
-    throw error;
+    console.error("Error analyzing image:", error);
+    // Return an empty array or handle the error as needed.
+    return [];
   }
 };
 

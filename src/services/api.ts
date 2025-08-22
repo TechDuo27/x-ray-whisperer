@@ -31,7 +31,7 @@ class ApiService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_API_BASE_URL;
+    this.baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://backend-service-cp46.onrender.com';
     if (!this.baseUrl) {
       throw new Error('VITE_API_BASE_URL environment variable is not set');
     }

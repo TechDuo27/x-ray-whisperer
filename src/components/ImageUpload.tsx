@@ -66,7 +66,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (file) {
-      // Validate file type
+      // Enhanced file validation for security
       if (!file.type.match(/^image\/(jpeg|jpg|png)$/)) {
         toast({
           title: 'Invalid file type',
@@ -81,6 +81,30 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
         toast({
           title: 'File too large',
           description: 'Please upload an image smaller than 10MB.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Additional security checks
+      const fileName = file.name.toLowerCase();
+      const allowedExtensions = ['.jpg', '.jpeg', '.png'];
+      const hasValidExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+      
+      if (!hasValidExtension) {
+        toast({
+          title: 'Invalid file extension',
+          description: 'File extension does not match content type.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Check for suspicious file names
+      if (fileName.includes('..') || fileName.includes('/') || fileName.includes('\\')) {
+        toast({
+          title: 'Invalid file name',
+          description: 'File name contains invalid characters.',
           variant: 'destructive',
         });
         return;

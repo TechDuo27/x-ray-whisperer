@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: AuthError | null }>;
+  signUp: (email: string, password: string, fullName?: string, metadata?: any) => Promise<{ error: AuthError | null }>;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
 }
@@ -26,14 +26,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Create profile when user signs up
-        if (event === 'SIGNED_IN' && session?.user) {
+        // Create profile when user signs up (not every sign in)
+        if (event === 'SIGNED_IN' && session?.user && !session.user.email_confirmed_at) {
+          // Only create profile for new signups (email not confirmed yet)
           setTimeout(async () => {
-            await supabase.from('profiles').insert({
-              user_id: session.user.id,
-              email: session.user.email,
-              full_name: session.user.user_metadata?.full_name,
-            });
+            try {
+              await supabase.from('profiles').insert({
+                user_id: session.user.id,
+                email: session.user.email,
+                full_name: session.user.user_metadata?.full_name,
+              });
+            } catch (error) {
+              console.log('Profile may already exist:', error);
+            }
           }, 0);
         }
       }
@@ -49,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName?: string) => {
+  const signUp = async (email: string, password: string, fullName?: string, metadata?: any) => {
     const redirectUrl = `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({
@@ -59,6 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
+          ...metadata,
         },
       },
     });

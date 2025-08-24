@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Download, FileText, Palette } from 'lucide-react';
 import ImageAnnotationViewer from '@/components/ImageAnnotationViewer';
 import { getHexColor, DETECTION_COLORS } from '@/utils/modelLoader';
+import { toast } from '@/hooks/use-toast';
 
 interface Detection {
   class: string;

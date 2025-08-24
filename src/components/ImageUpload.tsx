@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
-import { Upload, FileImage, Loader2, Settings } from 'lucide-react';
+import { Upload, FileImage, Loader2, Settings, AlertCircle } from 'lucide-react';
 import { dentalService } from '@/services/api';
 // import { loadYOLOModel, runInference } from '@/utils/modelLoader';
 
@@ -23,6 +23,44 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [confidenceThreshold, setConfidenceThreshold] = useState([0.25]);
+  const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
+  
+  // Check backend health on component mount
+  useEffect(() => {
+    const checkBackendHealth = async () => {
+      try {
+        console.log('Checking backend health...');
+        setBackendStatus('checking');
+        const healthStatus = await dentalService.getHealthStatus();
+        console.log('Backend health status:', healthStatus);
+        
+        if (healthStatus && healthStatus.status === 'ok') {
+          setBackendStatus('online');
+          toast({
+            title: 'Analysis Service Connected',
+            description: 'Successfully connected to the X-ray analysis service.',
+          });
+        } else {
+          setBackendStatus('offline');
+          toast({
+            title: 'Analysis Service Unavailable',
+            description: 'Could not connect to the X-ray analysis service. Some features may be limited.',
+            variant: 'destructive',
+          });
+        }
+      } catch (error) {
+        console.error('Backend health check failed:', error);
+        setBackendStatus('offline');
+        toast({
+          title: 'Analysis Service Unavailable',
+          description: 'Could not connect to the X-ray analysis service. Some features may be limited.',
+          variant: 'destructive',
+        });
+      }
+    };
+    
+    checkBackendHealth();
+  }, []);
 
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -104,30 +142,53 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
       setAnalyzing(true);
 
       // Use the API service to analyze the image
-      const results = await dentalService.analyzeImage(uploadedImage);
-      console.log('API analysis results:', results);
+      console.log('Sending image to backend for analysis:', uploadedImage.name, uploadedImage.type, uploadedImage.size);
+      
+      try {
+        const results = await dentalService.analyzeImage(uploadedImage);
+        console.log('API analysis results:', results);
+        
+        // Verify that we have valid results
+        if (!results || !results.detections) {
+          console.error('Invalid results format from API:', results);
+          throw new Error('Invalid response format from analysis API');
+        }
+        
+        // Save analysis to database
+        const { data: analysisData, error: dbError } = await supabase
+          .from('analyses')
+          .insert({
+            user_id: user.id,
+            image_url: imageUrl,
+            original_filename: uploadedImage.name,
+            analysis_results: results,
+            confidence_threshold: confidenceThreshold[0],
+          })
+          .select()
+          .single();
 
-      // Save analysis to database
-      const { data: analysisData, error: dbError } = await supabase
-        .from('analyses')
-        .insert({
-          user_id: user.id,
-          image_url: imageUrl,
-          original_filename: uploadedImage.name,
-          analysis_results: results,
-          confidence_threshold: confidenceThreshold[0],
-        })
-        .select()
-        .single();
+        if (dbError) throw dbError;
 
-      if (dbError) throw dbError;
+        toast({
+          title: 'Analysis Complete!',
+          description: `Analysis completed. ${results.detections?.length || 0} findings detected.`,
+        });
 
-      toast({
-        title: 'Analysis Complete!',
-        description: `Analysis completed. ${results.detections?.length || 0} findings detected.`,
-      });
-
-      onAnalysisComplete(analysisData);
+        onAnalysisComplete(analysisData);
+        
+        // Reset form
+        setUploadedImage(null);
+        setImagePreview(null);
+        
+      } catch (error) {
+        console.error('Error during API call:', error);
+        toast({
+          title: 'Analysis API Error',
+          description: `Error communicating with analysis service: ${error.message}`,
+          variant: 'destructive',
+        });
+        throw error;
+      }
       
       // Reset form
       setUploadedImage(null);
@@ -257,9 +318,19 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
             </div>
           </div>
 
+          {backendStatus === 'offline' && (
+            <div className="bg-destructive/10 text-destructive rounded-md p-3 mb-4 flex items-center">
+              <AlertCircle className="h-5 w-5 mr-2" />
+              <div>
+                <p className="font-medium">Analysis service unavailable</p>
+                <p className="text-sm">The X-ray analysis service is currently offline. Please try again later.</p>
+              </div>
+            </div>
+          )}
+          
           <Button
             onClick={analyzeImage}
-            disabled={!uploadedImage || uploading || analyzing}
+            disabled={!uploadedImage || uploading || analyzing || backendStatus === 'offline' || backendStatus === 'checking'}
             className="w-full"
             size="lg"
           >
@@ -272,6 +343,16 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Analyzing...
+              </>
+            ) : backendStatus === 'checking' ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Connecting to service...
+              </>
+            ) : backendStatus === 'offline' ? (
+              <>
+                <AlertCircle className="h-4 w-4 mr-2" />
+                Service Unavailable
               </>
             ) : (
               <>

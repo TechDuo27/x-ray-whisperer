@@ -2,7 +2,7 @@ export class DentalAnalysisService {
   baseUrl: string;
 
   constructor(baseUrl?: string) {
-    this.baseUrl = baseUrl || 'https://srv-d2kai9re5dus7391b03g.onrender.com';
+    this.baseUrl = baseUrl || 'https://backend-service-cp46.onrender.com';
   }
 
   /**
@@ -57,6 +57,35 @@ export class DentalAnalysisService {
       return await response.json();
     } catch (error) {
       console.error('API Health Check Error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Generate a report for an analysis
+   * @param {Object} analysisData - The analysis data to include in the report
+   * @returns {Promise<Object>} - The report data
+   */
+  async generateReport(analysisData: any) {
+    try {
+      console.log(`Calling API at ${this.baseUrl}/report`);
+      
+      const response = await fetch(`${this.baseUrl}/report`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(analysisData),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API Error: ${response.status} - ${errorText || response.statusText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error generating report:', error);
       throw error;
     }
   }

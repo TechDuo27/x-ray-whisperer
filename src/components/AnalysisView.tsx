@@ -162,7 +162,81 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
     }
   };
 
-  const generateReportWithImage = (imageUrl: string) => {
+  const generateReportWithImage = async (imageUrl: string) => {
+    try {
+      // Show loading toast
+      toast({
+        title: 'Generating Report',
+        description: 'Please wait while we generate your report...',
+      });
+      
+      // Import the dental service
+      const { dentalService } = await import('@/services/api');
+      
+      // Prepare the data for the report endpoint
+      const reportData = {
+        analysis_id: analysis.id,
+        image_url: imageUrl,
+        analysis_results: analysis.analysis_results,
+        original_filename: analysis.original_filename,
+        created_at: analysis.created_at,
+        confidence_threshold: analysis.confidence_threshold,
+        detections: detections,
+        uniqueDetections: uniqueDetections
+      };
+      
+      console.log('Sending report data to backend:', reportData);
+      
+      // Call the backend report endpoint
+      try {
+        const reportResponse = await dentalService.generateReport(reportData);
+        console.log('Report response:', reportResponse);
+        
+        if (reportResponse && reportResponse.report_url) {
+          // If the backend returns a URL to the report, open it
+          window.open(reportResponse.report_url, '_blank');
+        } else if (reportResponse && reportResponse.report_html) {
+          // If the backend returns HTML content, create and download the file
+          const blob = new Blob([reportResponse.report_html], { type: 'text/html' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `dental-analysis-${analysis.id}.html`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        } else {
+          throw new Error('Invalid report response format');
+        }
+        
+        toast({
+          title: 'Report Generated',
+          description: 'Your report has been successfully generated.',
+        });
+      } catch (error) {
+        console.error('Error generating report from backend:', error);
+        
+        // Fallback to client-side report generation if backend fails
+        fallbackReportGeneration(imageUrl);
+      }
+    } catch (error) {
+      console.error('Error in report generation:', error);
+      
+      // Fallback to client-side report generation
+      fallbackReportGeneration(imageUrl);
+    }
+  };
+  
+  // Fallback client-side report generation
+  const fallbackReportGeneration = (imageUrl: string) => {
+    console.log('Using fallback client-side report generation');
+    
+    toast({
+      title: 'Using Local Report Generation',
+      description: 'Backend report service unavailable. Generating report locally.',
+    });
+    
     // Create HTML report content
     const reportContent = `
       <!DOCTYPE html>

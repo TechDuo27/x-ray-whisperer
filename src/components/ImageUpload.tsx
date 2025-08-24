@@ -8,6 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
 import { Upload, FileImage, Loader2, Settings } from 'lucide-react';
+import { dentalService } from '@/services/api';
 // import { loadYOLOModel, runInference } from '@/utils/modelLoader';
 
 interface ImageUploadProps {
@@ -22,6 +23,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [confidenceThreshold, setConfidenceThreshold] = useState([0.25]);
+
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -101,15 +103,9 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
       setUploading(false);
       setAnalyzing(true);
 
-      // Load YOLO models (will be implemented when models are added)
-      // const model1 = await loadYOLOModel('/models/best.pt');
-      // const model2 = await loadYOLOModel('/models/best2.pt');
-      
-      // Run AI inference (will be implemented when models are added)
-      // const results = await runInference(uploadedImage, model1, model2, confidenceThreshold[0]);
-      
-      // For now, return empty results until models are integrated
-      const results = { detections: [] };
+      // Use the API service to analyze the image
+      const results = await dentalService.analyzeImage(uploadedImage);
+      console.log('API analysis results:', results);
 
       // Save analysis to database
       const { data: analysisData, error: dbError } = await supabase
@@ -128,7 +124,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
 
       toast({
         title: 'Analysis Complete!',
-        description: `Analysis completed. ${results.detections.length} findings detected.`,
+        description: `Analysis completed. ${results.detections?.length || 0} findings detected.`,
       });
 
       onAnalysisComplete(analysisData);
@@ -138,6 +134,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
       setImagePreview(null);
 
     } catch (error: any) {
+      console.error('Analysis error:', error);
       toast({
         title: 'Analysis Failed',
         description: error.message || 'An error occurred during analysis.',

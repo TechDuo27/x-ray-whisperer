@@ -1,30 +1,39 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
-import { Detection, drawAnnotations } from '@/utils/modelLoader';
+import { Detection, DETECTION_COLORS, drawAnnotations } from '@/utils/modelLoader';
 
 interface ImageAnnotationViewerProps {
   originalImageUrl: string;
   detections: Detection[];
   filename: string;
+  onAnnotated?: (dataUrl: string) => void;
 }
 
 export default function ImageAnnotationViewer({ 
   originalImageUrl, 
   detections, 
-  filename 
+  filename,
+  onAnnotated 
 }: ImageAnnotationViewerProps) {
   const [annotatedImageUrl, setAnnotatedImageUrl] = useState<string>('');
   const [zoom, setZoom] = useState(100);
   const [loading, setLoading] = useState(true);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const generateAnnotatedImage = async () => {
       setLoading(true);
       try {
+        // Use the drawAnnotations function from modelLoader.ts
         const annotated = await drawAnnotations(originalImageUrl, detections);
         setAnnotatedImageUrl(annotated);
+        
+        // Call onAnnotated callback with the data URL
+        if (onAnnotated) {
+          onAnnotated(annotated);
+        }
       } catch (error) {
         console.error('Failed to generate annotated image:', error);
       } finally {
@@ -32,8 +41,10 @@ export default function ImageAnnotationViewer({
       }
     };
 
-    generateAnnotatedImage();
-  }, [originalImageUrl, detections]);
+    if (originalImageUrl && detections.length > 0) {
+      generateAnnotatedImage();
+    }
+  }, [originalImageUrl, detections, onAnnotated]);
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 25, 200));
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 25, 50));
@@ -88,12 +99,21 @@ export default function ImageAnnotationViewer({
                   <div className="text-muted-foreground">Generating annotations...</div>
                 </div>
               ) : annotatedImageUrl ? (
-                <img
-                  src={annotatedImageUrl}
-                  alt={`Annotated ${filename}`}
-                  className="w-full h-auto transition-transform"
-                  style={{ transform: `scale(${zoom / 100})` }}
-                />
+                <>
+                  <img
+                    src={annotatedImageUrl}
+                    alt={`Annotated ${filename}`}
+                    className="w-full h-auto annotation-canvas transition-transform"
+                    style={{ transform: `scale(${zoom / 100})` }}
+                  />
+                  {/* Hidden canvas for capture */}
+                  <canvas 
+                    ref={canvasRef}
+                    className="annotation-canvas hidden"
+                    width={1000}
+                    height={1000}
+                  />
+                </>
               ) : (
                 <div className="flex items-center justify-center h-64">
                   <div className="text-muted-foreground">No annotations to display</div>

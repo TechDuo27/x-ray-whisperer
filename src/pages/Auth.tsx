@@ -12,6 +12,7 @@ import { Loader2 } from 'lucide-react';
 export default function Auth() {
   const { user, signIn, signUp } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [userType, setUserType] = useState<string>('');
 
   if (user) {
     return <Navigate to="/dashboard" replace />;
@@ -45,6 +46,16 @@ export default function Auth() {
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (!userType) {
+      toast({
+        title: 'User Type Required',
+        description: 'Please select whether you are a medical or non-medical user.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     setLoading(true);
     
     const formData = new FormData(e.currentTarget);
@@ -52,7 +63,8 @@ export default function Auth() {
     const password = formData.get('password') as string;
     const fullName = formData.get('fullName') as string;
 
-    const { error } = await signUp(email, password, fullName);
+    // Add user type to metadata
+    const { error } = await signUp(email, password, fullName, { user_type: userType });
     
     if (error) {
       toast({
@@ -153,6 +165,58 @@ export default function Auth() {
                     required
                   />
                 </div>
+                
+                {/* User Type Selection */}
+                <div className="space-y-2 mb-4">
+                  <Label>Select User Type</Label>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-medium text-muted-foreground">Medical</h4>
+                      <div className="space-y-2">
+                        <div
+                          className={`p-3 rounded-md border cursor-pointer hover:bg-accent transition-colors ${
+                            userType === 'medical-student' ? 'border-primary bg-accent' : 'border-input'
+                          }`}
+                          onClick={() => setUserType('medical-student')}
+                        >
+                          <span className="text-sm">Student</span>
+                        </div>
+                        <div
+                          className={`p-3 rounded-md border cursor-pointer hover:bg-accent transition-colors ${
+                            userType === 'medical-doctor' ? 'border-primary bg-accent' : 'border-input'
+                          }`}
+                          onClick={() => setUserType('medical-doctor')}
+                        >
+                          <span className="text-sm">Doctor</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-medium text-muted-foreground">Non-Medical</h4>
+                      <div className="space-y-2">
+                        <div
+                          className={`p-3 rounded-md border cursor-pointer hover:bg-accent transition-colors ${
+                            userType === 'non-medical-patient' ? 'border-primary bg-accent' : 'border-input'
+                          }`}
+                          onClick={() => setUserType('non-medical-patient')}
+                        >
+                          <span className="text-sm">Patient</span>
+                        </div>
+                        <div
+                          className={`p-3 rounded-md border cursor-pointer hover:bg-accent transition-colors ${
+                            userType === 'non-medical-tester' ? 'border-primary bg-accent' : 'border-input'
+                          }`}
+                          onClick={() => setUserType('non-medical-tester')}
+                        >
+                          <span className="text-sm">Tester</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? (
                     <>

@@ -179,24 +179,10 @@ export const drawAnnotations = (
         // Log color assignment for debugging
         console.log(`Drawing ${detection.display_name} with color ${colorKey}: ${colorStr}`);
         
-        // Draw bounding box
+        // Draw bounding box only (no labels)
         ctx.strokeStyle = colorStr;
         ctx.lineWidth = 3;
         ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
-        
-        // Draw label background
-        const label = `${detection.display_name} ${(detection.confidence * 100).toFixed(0)}%`;
-        ctx.font = '14px Arial';
-        const textMetrics = ctx.measureText(label);
-        const textHeight = 20;
-        
-        ctx.fillStyle = colorStr;
-        ctx.fillRect(x1, y1 - textHeight, textMetrics.width + 8, textHeight);
-        
-        // Draw label text with appropriate contrast
-        const brightness = (rgbArray[0] * 0.299 + rgbArray[1] * 0.587 + rgbArray[2] * 0.114);
-        ctx.fillStyle = brightness > 128 ? '#000000' : '#FFFFFF';
-        ctx.fillText(label, x1 + 4, y1 - 6);
       });
       
       // Convert canvas to data URL

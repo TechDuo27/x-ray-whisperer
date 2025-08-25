@@ -61,6 +61,11 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
 
   const detections = analysis.analysis_results?.detections || [];
   
+  // Filter detections by confidence threshold
+  const filteredDetections = detections.filter(detection => 
+    detection.confidence >= analysis.confidence_threshold
+  );
+  
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -105,8 +110,8 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
     return 'No description available.';
   };
 
-  // Group detections by display_name to avoid repetitive descriptions
-  const groupedDetections = detections.reduce((acc, detection) => {
+  // Group filtered detections by display_name to avoid repetitive descriptions
+  const groupedDetections = filteredDetections.reduce((acc, detection) => {
     const name = detection.display_name;
     if (!acc[name]) {
       acc[name] = {
@@ -182,7 +187,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
         original_filename: analysis.original_filename,
         created_at: analysis.created_at,
         confidence_threshold: analysis.confidence_threshold,
-        detections: detections,
+        detections: filteredDetections,
         uniqueDetections: uniqueDetections
       };
       
@@ -319,15 +324,15 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
 
           <div class="summary">
             <div class="summary-item">
-              <div class="summary-number">${detections.length}</div>
+              <div class="summary-number">${filteredDetections.length}</div>
               <p>Total Findings</p>
             </div>
             <div class="summary-item">
-              <div class="summary-number">${detections.filter(d => d.is_grossly_carious).length}</div>
+              <div class="summary-number">${filteredDetections.filter(d => d.is_grossly_carious).length}</div>
               <p>Severe Cases</p>
             </div>
             <div class="summary-item">
-              <div class="summary-number">${detections.filter(d => d.confidence > 0.8).length}</div>
+              <div class="summary-number">${filteredDetections.filter(d => d.confidence > 0.8).length}</div>
               <p>High Confidence</p>
             </div>
           </div>
@@ -409,7 +414,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-2xl font-bold text-primary">
-                      {detections.length}
+                      {filteredDetections.length}
                     </div>
                     <p className="text-sm text-muted-foreground">Total Findings</p>
                   </CardContent>
@@ -417,7 +422,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-2xl font-bold text-orange-500">
-                      {detections.filter(d => d.is_grossly_carious).length}
+                      {filteredDetections.filter(d => d.is_grossly_carious).length}
                     </div>
                     <p className="text-sm text-muted-foreground">Severe Cases</p>
                   </CardContent>
@@ -425,7 +430,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-2xl font-bold text-green-600">
-                      {detections.filter(d => d.confidence > 0.8).length}
+                      {filteredDetections.filter(d => d.confidence > 0.8).length}
                     </div>
                     <p className="text-sm text-muted-foreground">High Confidence</p>
                   </CardContent>
@@ -485,9 +490,9 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
             </TabsContent>
 
             <TabsContent value="image" className="space-y-4">
-              <ImageAnnotationViewer 
+              <ImageAnnotationViewer
                 originalImageUrl={analysis.image_url}
-                detections={detections}
+                detections={filteredDetections}
                 filename={analysis.original_filename}
                 onAnnotated={handleGetAnnotatedImage}
               />

@@ -9,6 +9,7 @@ import { ArrowLeft, Download, FileText, Palette } from 'lucide-react';
 import ImageAnnotationViewer from '@/components/ImageAnnotationViewer';
 import { getHexColor, DETECTION_COLORS } from '@/utils/modelLoader';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Detection {
   class: string;
@@ -56,6 +57,7 @@ const DISEASE_DESCRIPTIONS: Record<string, string> = {
 };
 
 export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('results');
   const [annotatedImageUrl, setAnnotatedImageUrl] = useState<string | null>(null);
 
@@ -179,8 +181,10 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
       // Create HTML report content directly
       const reportContent = `
         <!DOCTYPE html>
-        <html>
+        <html lang="en">
           <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Dental AI Analysis Report</title>
             <style>
               body { 
@@ -377,6 +381,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
             <div class="container">
               <div class="header">
                 <h1>🦷 Dental AI Analysis Report</h1>
+                <p>Patient: ${user?.user_metadata?.full_name || 'Unknown Patient'}</p>
                 <p>Analysis Date: ${formatDate(analysis.created_at)}</p>
                 <p>Image: ${analysis.original_filename}</p>
                 <p>Confidence Threshold: ${(analysis.confidence_threshold * 100).toFixed(0)}%</p>
@@ -447,12 +452,17 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
         </html>
       `;
 
-      // Create and download the file
-      const blob = new Blob([reportContent], { type: 'text/html' });
+      // Create and download the file with proper UTF-8 encoding
+      const blob = new Blob([reportContent], { 
+        type: 'text/html;charset=utf-8' 
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `dental-report-${analysis.original_filename.replace(/\.[^/.]+$/, "")}-${new Date().toISOString().split('T')[0]}.html`;
+      const filename = `dental-report-${analysis.original_filename.replace(/\.[^/.]+$/, "")}-${new Date().toISOString().split('T')[0]}.html`;
+      a.download = filename;
+      // Ensure proper encoding for mobile devices
+      a.setAttribute('charset', 'utf-8');
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

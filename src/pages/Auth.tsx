@@ -13,6 +13,7 @@ export default function Auth() {
   const { user, signIn, signUp } = useAuth();
   const [loading, setLoading] = useState(false);
   const [userType, setUserType] = useState<string>('');
+  const [activeTab, setActiveTab] = useState('signin');
 
   if (user) {
     return <Navigate to="/dashboard" replace />;
@@ -74,9 +75,14 @@ export default function Auth() {
       });
     } else {
       toast({
-        title: 'Account Created!',
-        description: 'Please check your email for verification.',
+        title: 'Check Your Email!',
+        description: 'We sent you a verification link. Please check your email to complete registration, then return to sign in.',
+        duration: 6000,
       });
+      // Switch to login tab after successful signup
+      setTimeout(() => {
+        setActiveTab('signin');
+      }, 1000);
     }
     
     setLoading(false);
@@ -92,7 +98,7 @@ export default function Auth() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>

@@ -26,18 +26,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Create profile when user signs up (not every sign in)
-        if (event === 'SIGNED_IN' && session?.user && !session.user.email_confirmed_at) {
-          // Only create profile for new signups (email not confirmed yet)
+        // Create profile when user signs up
+        if (event === 'SIGNED_IN' && session?.user) {
           setTimeout(async () => {
             try {
-              await supabase.from('profiles').insert({
-                user_id: session.user.id,
-                email: session.user.email,
-                full_name: session.user.user_metadata?.full_name,
-              });
+              // Check if profile exists first
+              const { data: existingProfile } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('user_id', session.user.id)
+                .single();
+
+              // Only create profile if it doesn't exist
+              if (!existingProfile) {
+                await supabase.from('profiles').insert({
+                  user_id: session.user.id,
+                  email: session.user.email,
+                  full_name: session.user.user_metadata?.full_name,
+                });
+              }
             } catch (error) {
-              console.log('Profile may already exist:', error);
+              console.log('Profile creation error:', error);
             }
           }, 0);
         }

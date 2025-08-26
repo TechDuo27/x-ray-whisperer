@@ -194,189 +194,42 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
       console.log('Sending report data to backend:', reportData);
       
       // Call the backend report endpoint
-      try {
-        const reportResponse = await dentalService.generateReport(reportData);
-        console.log('Report response:', reportResponse);
-        
-        if (reportResponse && reportResponse.report_url) {
-          // If the backend returns a URL to the report, open it
-          window.open(reportResponse.report_url, '_blank');
-        } else if (reportResponse && reportResponse.report_html) {
-          // If the backend returns HTML content, create and download the file
-          const blob = new Blob([reportResponse.report_html], { type: 'text/html' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `dental-analysis-${analysis.id}.html`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        } else {
-          throw new Error('Invalid report response format');
-        }
-        
-        toast({
-          title: 'Report Generated',
-          description: 'Your report has been successfully generated.',
-        });
-      } catch (error) {
-        console.error('Error generating report from backend:', error);
-        
-        // Fallback to client-side report generation if backend fails
-        fallbackReportGeneration(imageUrl);
-      }
-    } catch (error) {
-      console.error('Error in report generation:', error);
+      const reportResponse = await dentalService.generateReport(reportData);
+      console.log('Report response:', reportResponse);
       
-      // Fallback to client-side report generation
-      fallbackReportGeneration(imageUrl);
+      if (reportResponse && reportResponse.report_url) {
+        // If the backend returns a URL to the report, open it
+        window.open(reportResponse.report_url, '_blank');
+      } else if (reportResponse && reportResponse.report_html) {
+        // If the backend returns HTML content, create and download the file
+        const blob = new Blob([reportResponse.report_html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `dental-analysis-${analysis.id}.html`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } else {
+        throw new Error('Invalid report response format');
+      }
+      
+      toast({
+        title: 'Report Generated',
+        description: 'Your report has been successfully generated.',
+      });
+    } catch (error) {
+      console.error('Error generating report:', error);
+      
+      toast({
+        title: 'Report Generation Failed',
+        description: 'Unable to generate report. Please try again later.',
+        variant: 'destructive',
+      });
     }
   };
   
-  // Fallback client-side report generation
-  const fallbackReportGeneration = (imageUrl: string) => {
-    console.log('Using fallback client-side report generation');
-    
-    toast({
-      title: 'Using Local Report Generation',
-      description: 'Backend report service unavailable. Generating report locally.',
-    });
-    
-    // Create HTML report content
-    const reportContent = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Dental AI Analysis Report</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 2em; }
-            .header { text-align: center; margin-bottom: 2em; }
-            .image-container { text-align: center; margin: 2em 0; }
-            .image-container img { max-width: 100%; max-height: 500px; border: 1px solid #ddd; }
-            .findings { margin: 2em 0; }
-            .finding { 
-              padding: 10px; 
-              margin: 5px 0; 
-              border-left: 5px solid; 
-              background: #f9f9f9;
-            }
-            .description {
-              font-size: 0.9em;
-              margin-top: 5px;
-              color: #555;
-            }
-            .legend { 
-              display: flex; 
-              flex-wrap: wrap; 
-              gap: 10px; 
-              margin: 20px 0; 
-            }
-            .legend-item { 
-              display: flex; 
-              align-items: center; 
-              gap: 5px; 
-            }
-            .color-box { 
-              width: 20px; 
-              height: 20px; 
-              border: 1px solid #000; 
-            }
-            .summary { 
-              display: flex; 
-              justify-content: space-around; 
-              margin: 2em 0; 
-              text-align: center; 
-            }
-            .summary-item {
-              padding: 1em;
-              border-radius: 5px;
-              background-color: #f5f5f5;
-              min-width: 120px;
-            }
-            .summary-number {
-              font-size: 24px;
-              font-weight: bold;
-              color: #2563eb;
-            }
-            .count-badge {
-              display: inline-block;
-              padding: 2px 6px;
-              background-color: #e2e8f0;
-              border-radius: 9999px;
-              font-size: 0.75rem;
-              margin-left: 8px;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>🦷 Dental AI Analysis Report</h1>
-            <p>Analysis Date: ${formatDate(analysis.created_at)}</p>
-            <p>Image: ${analysis.original_filename}</p>
-            <p>Confidence Threshold: ${(analysis.confidence_threshold * 100).toFixed(0)}%</p>
-          </div>
-          
-          <div class="image-container">
-            <h2>Analyzed Image with Annotations</h2>
-            <img src="${imageUrl}" alt="Annotated Dental X-Ray" />
-          </div>
-
-          <div class="summary">
-            <div class="summary-item">
-              <div class="summary-number">${filteredDetections.length}</div>
-              <p>Total Findings</p>
-            </div>
-            <div class="summary-item">
-              <div class="summary-number">${filteredDetections.filter(d => d.is_grossly_carious).length}</div>
-              <p>Severe Cases</p>
-            </div>
-            <div class="summary-item">
-              <div class="summary-number">${filteredDetections.filter(d => d.confidence > 0.8).length}</div>
-              <p>High Confidence</p>
-            </div>
-          </div>
-          
-          <div class="findings">
-            <h2>Findings Summary</h2>
-            ${uniqueDetections.length === 0 ? 
-              '<p>No significant findings detected above the confidence threshold.</p>' :
-              uniqueDetections.map(detection => `
-                <div class="finding" style="border-left-color: ${detection.color};">
-                  <strong>${detection.display_name}</strong>
-                  ${detection.count > 1 ? `<span class="count-badge">${detection.count}×</span>` : ''}
-                  <span style="float: right">Confidence: ${(detection.highest_confidence * 100).toFixed(1)}%</span>
-                  <div class="description">${detection.description}</div>
-                </div>
-              `).join('')
-            }
-          </div>
-          
-          <div class="legend">
-            <h2>Color Legend</h2>
-            ${Object.entries(DETECTION_COLORS).map(([name, rgb]) => `
-              <div class="legend-item">
-                <div class="color-box" style="background-color: rgb(${rgb.join(',')});"></div>
-                <span>${name}</span>
-              </div>
-            `).join('')}
-          </div>
-        </body>
-      </html>
-    `;
-
-    // Create and download the file
-    const blob = new Blob([reportContent], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `dental-analysis-${analysis.id}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">

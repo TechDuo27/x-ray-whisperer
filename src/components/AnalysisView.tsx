@@ -482,7 +482,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
         </Button>
         <Button onClick={generateReport}>
           <Download className="h-4 w-4 mr-2" />
-          Download Report
+          Download PDF Report
         </Button>
       </div>
 

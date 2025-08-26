@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
-import { Upload, FileImage, Loader2, Settings, AlertCircle } from 'lucide-react';
+import { Upload, FileImage, Loader2, AlertCircle } from 'lucide-react';
 import { dentalService } from '@/services/api';
 // import { loadYOLOModel, runInference } from '@/utils/modelLoader';
 
@@ -22,7 +22,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [confidenceThreshold, setConfidenceThreshold] = useState([0.25]);
+  const [confidenceThreshold] = useState([0.4]); // Fixed at 40%
   const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
   
   // Check backend health on component mount
@@ -315,33 +315,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Settings className="h-5 w-5 mr-2" />
-            Analysis Settings
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">Confidence Threshold</label>
-              <span className="text-sm text-muted-foreground">
-                {(confidenceThreshold[0] * 100).toFixed(0)}%
-              </span>
-            </div>
-            <Slider
-              value={confidenceThreshold}
-              onValueChange={setConfidenceThreshold}
-              max={1}
-              min={0}
-              step={0.05}
-              className="w-full"
-            />
-            <div className="text-xs text-muted-foreground">
-              Only show detections with confidence above this threshold
-            </div>
-          </div>
-
+        <CardContent className="space-y-4 pt-6">
           {backendStatus === 'offline' && (
             <div className="bg-destructive/10 text-destructive rounded-md p-3 mb-4 flex items-center">
               <AlertCircle className="h-5 w-5 mr-2" />
@@ -381,7 +355,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
             ) : (
               <>
                 <Upload className="h-4 w-4 mr-2" />
-                Analyze X-Ray
+                Analyze X-Ray (40% confidence threshold)
               </>
             )}
           </Button>

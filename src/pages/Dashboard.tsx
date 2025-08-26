@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import { Upload, FileText, LogOut, Brain, Calendar, Download } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
 import AnalysisView from '@/components/AnalysisView';
+import { DarkModeToggle } from '@/components/DarkModeToggle';
 
 interface Analysis {
   id: string;
@@ -93,6 +94,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
+      <DarkModeToggle />
       {/* Header */}
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4">

@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Brain, Upload, FileText, Shield, Zap } from 'lucide-react';
+import { DarkModeToggle } from '@/components/DarkModeToggle';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -24,6 +25,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <DarkModeToggle />
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-primary/10 to-background">
         <div className="container mx-auto px-4 py-16">

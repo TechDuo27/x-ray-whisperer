@@ -43,6 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   user_id: session.user.id,
                   email: session.user.email,
                   full_name: session.user.user_metadata?.full_name,
+                  user_type: session.user.user_metadata?.user_type,
                 });
               }
             } catch (error) {

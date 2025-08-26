@@ -168,63 +168,306 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
     }
   };
 
-  const generateReportWithImage = async (imageUrl: string) => {
+  const generateReportWithImage = (imageUrl: string) => {
     try {
       // Show loading toast
       toast({
         title: 'Generating Report',
-        description: 'Please wait while we generate your report...',
+        description: 'Creating your report...',
       });
       
-      // Import the dental service
-      const { dentalService } = await import('@/services/api');
-      
-      // Prepare the data for the report endpoint
-      const reportData = {
-        analysis_id: analysis.id,
-        image_url: imageUrl,
-        analysis_results: analysis.analysis_results,
-        original_filename: analysis.original_filename,
-        created_at: analysis.created_at,
-        confidence_threshold: analysis.confidence_threshold,
-        detections: filteredDetections,
-        uniqueDetections: uniqueDetections
-      };
-      
-      console.log('Sending report data to backend:', reportData);
-      
-      // Call the backend report endpoint
-      const reportResponse = await dentalService.generateReport(reportData);
-      console.log('Report response:', reportResponse);
-      
-      if (reportResponse && reportResponse.report_url) {
-        // If the backend returns a URL to the report, open it
-        window.open(reportResponse.report_url, '_blank');
-      } else if (reportResponse && reportResponse.report_html) {
-        // If the backend returns HTML content, create and download the file
-        const blob = new Blob([reportResponse.report_html], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `dental-analysis-${analysis.id}.html`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      } else {
-        throw new Error('Invalid report response format');
-      }
+      // Create HTML report content directly
+      const reportContent = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Dental AI Analysis Report</title>
+            <style>
+              body { 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; 
+                margin: 0; 
+                padding: 2em; 
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: #333;
+              }
+              .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 16px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                overflow: hidden;
+              }
+              .header { 
+                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                color: white;
+                text-align: center; 
+                padding: 2em;
+              }
+              .header h1 {
+                margin: 0;
+                font-size: 2.5em;
+                font-weight: 700;
+              }
+              .header p {
+                margin: 0.5em 0 0 0;
+                opacity: 0.9;
+                font-size: 1.1em;
+              }
+              .content {
+                padding: 2em;
+              }
+              .image-container { 
+                text-align: center; 
+                margin: 2em 0; 
+                background: #f8fafc;
+                border-radius: 12px;
+                padding: 2em;
+              }
+              .image-container img { 
+                max-width: 100%; 
+                max-height: 600px; 
+                border-radius: 8px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+              }
+              .summary { 
+                display: grid; 
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1.5em; 
+                margin: 2em 0; 
+              }
+              .summary-item {
+                background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+                padding: 1.5em;
+                border-radius: 12px;
+                text-align: center;
+                border: 1px solid #e2e8f0;
+              }
+              .summary-number {
+                font-size: 2.5em;
+                font-weight: 700;
+                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                margin-bottom: 0.2em;
+              }
+              .summary-label {
+                font-size: 0.9em;
+                color: #64748b;
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+              }
+              .findings { 
+                margin: 2em 0; 
+              }
+              .findings h2 {
+                font-size: 1.8em;
+                color: #1e293b;
+                margin-bottom: 1em;
+                padding-bottom: 0.5em;
+                border-bottom: 2px solid #e2e8f0;
+              }
+              .finding { 
+                padding: 1.5em; 
+                margin: 1em 0; 
+                border-left: 4px solid; 
+                background: #fefefe;
+                border-radius: 0 8px 8px 0;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                transition: transform 0.2s ease;
+              }
+              .finding:hover {
+                transform: translateX(4px);
+              }
+              .finding-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 0.5em;
+              }
+              .finding-title {
+                font-weight: 600;
+                font-size: 1.1em;
+                color: #1e293b;
+              }
+              .confidence-badge {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                color: white;
+                padding: 0.3em 0.8em;
+                border-radius: 20px;
+                font-size: 0.85em;
+                font-weight: 500;
+              }
+              .count-badge {
+                display: inline-block;
+                padding: 0.2em 0.6em;
+                background: #e2e8f0;
+                border-radius: 12px;
+                font-size: 0.8em;
+                margin-left: 0.5em;
+                color: #475569;
+                font-weight: 500;
+              }
+              .description {
+                font-size: 0.95em;
+                line-height: 1.6;
+                color: #64748b;
+                margin-top: 0.8em;
+              }
+              .legend { 
+                background: #f8fafc;
+                border-radius: 12px;
+                padding: 2em;
+                margin: 2em 0;
+              }
+              .legend h2 {
+                font-size: 1.8em;
+                color: #1e293b;
+                margin-bottom: 1em;
+                text-align: center;
+              }
+              .legend-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1em;
+              }
+              .legend-item { 
+                display: flex; 
+                align-items: center; 
+                gap: 0.8em;
+                padding: 0.8em;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+              }
+              .color-box { 
+                width: 24px; 
+                height: 24px; 
+                border-radius: 4px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                flex-shrink: 0;
+              }
+              .legend-text {
+                font-weight: 500;
+                color: #374151;
+              }
+              .no-findings {
+                text-align: center;
+                padding: 3em;
+                color: #64748b;
+                font-size: 1.1em;
+              }
+              .footer {
+                background: #f8fafc;
+                padding: 2em;
+                text-align: center;
+                color: #64748b;
+                font-size: 0.9em;
+                border-top: 1px solid #e2e8f0;
+              }
+              @media print {
+                body { background: white; }
+                .container { box-shadow: none; }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <h1>🦷 Dental AI Analysis Report</h1>
+                <p>Analysis Date: ${formatDate(analysis.created_at)}</p>
+                <p>Image: ${analysis.original_filename}</p>
+                <p>Confidence Threshold: ${(analysis.confidence_threshold * 100).toFixed(0)}%</p>
+              </div>
+              
+              <div class="content">
+                <div class="image-container">
+                  <h2 style="margin-top: 0; color: #1e293b;">Analyzed Image with Annotations</h2>
+                  <img src="${imageUrl}" alt="Annotated Dental X-Ray" />
+                </div>
+
+                <div class="summary">
+                  <div class="summary-item">
+                    <div class="summary-number">${filteredDetections.length}</div>
+                    <div class="summary-label">Total Findings</div>
+                  </div>
+                  <div class="summary-item">
+                    <div class="summary-number">${filteredDetections.filter(d => d.is_grossly_carious).length}</div>
+                    <div class="summary-label">Severe Cases</div>
+                  </div>
+                  <div class="summary-item">
+                    <div class="summary-number">${filteredDetections.filter(d => d.confidence > 0.8).length}</div>
+                    <div class="summary-label">High Confidence</div>
+                  </div>
+                  <div class="summary-item">
+                    <div class="summary-number">${uniqueDetections.length}</div>
+                    <div class="summary-label">Unique Conditions</div>
+                  </div>
+                </div>
+                
+                <div class="findings">
+                  <h2>Detailed Findings</h2>
+                  ${uniqueDetections.length === 0 ? 
+                    '<div class="no-findings">No significant findings detected above the confidence threshold.</div>' :
+                    uniqueDetections.map(detection => `
+                      <div class="finding" style="border-left-color: ${detection.color};">
+                        <div class="finding-header">
+                          <div class="finding-title">
+                            ${detection.display_name}
+                            ${detection.count > 1 ? `<span class="count-badge">${detection.count}× detected</span>` : ''}
+                          </div>
+                          <div class="confidence-badge">${(detection.highest_confidence * 100).toFixed(1)}% confidence</div>
+                        </div>
+                        <div class="description">${detection.description}</div>
+                      </div>
+                    `).join('')
+                  }
+                </div>
+                
+                <div class="legend">
+                  <h2>Color Legend</h2>
+                  <div class="legend-grid">
+                    ${Object.entries(DETECTION_COLORS).map(([name, rgb]) => `
+                      <div class="legend-item">
+                        <div class="color-box" style="background-color: rgb(${rgb.join(',')});"></div>
+                        <span class="legend-text">${name}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+              
+              <div class="footer">
+                <p>Generated by Dental AI Analysis System • ${new Date().toLocaleDateString()}</p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `;
+
+      // Create and download the file
+      const blob = new Blob([reportContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `dental-report-${analysis.original_filename.replace(/\.[^/.]+$/, "")}-${new Date().toISOString().split('T')[0]}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
       
       toast({
-        title: 'Report Generated',
-        description: 'Your report has been successfully generated.',
+        title: 'Report Downloaded',
+        description: 'Your dental analysis report has been successfully generated and downloaded.',
       });
     } catch (error) {
       console.error('Error generating report:', error);
       
       toast({
         title: 'Report Generation Failed',
-        description: 'Unable to generate report. Please try again later.',
+        description: 'Unable to generate report. Please try again.',
         variant: 'destructive',
       });
     }

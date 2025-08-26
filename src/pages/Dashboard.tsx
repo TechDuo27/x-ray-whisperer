@@ -7,10 +7,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { Upload, FileText, LogOut, Brain, Calendar, Download } from 'lucide-react';
+import { Upload, FileText, User, Brain, Calendar, Download } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
 import AnalysisView from '@/components/AnalysisView';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
+import ProfileModal from '@/components/ProfileModal';
 
 interface Analysis {
   id: string;
@@ -22,11 +23,12 @@ interface Analysis {
 }
 
 export default function Dashboard() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentView, setCurrentView] = useState<'upload' | 'analysis'>('upload');
   const [selectedAnalysis, setSelectedAnalysis] = useState<Analysis | null>(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -58,13 +60,6 @@ export default function Dashboard() {
     }
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    toast({
-      title: 'Signed Out',
-      description: 'Successfully signed out of your account.',
-    });
-  };
 
   const handleAnalysisComplete = (analysisData: any) => {
     setSelectedAnalysis(analysisData);
@@ -110,9 +105,9 @@ export default function Dashboard() {
               <span className="text-sm text-muted-foreground">
                 Welcome, {user.user_metadata?.full_name || user.email}
               </span>
-              <Button variant="outline" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
+              <Button variant="outline" onClick={() => setIsProfileModalOpen(true)}>
+                <User className="h-4 w-4 mr-2" />
+                Profile
               </Button>
             </div>
           </div>
@@ -194,6 +189,11 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      
+      <ProfileModal 
+        isOpen={isProfileModalOpen} 
+        onClose={() => setIsProfileModalOpen(false)} 
+      />
     </div>
   );
 }

@@ -69,9 +69,16 @@ export default function Auth() {
     const { error } = await signUp(email, password, fullName, { user_type: userType });
     
     if (error) {
+      // Check if it's a duplicate email error
+      const isEmailExists = error.message.toLowerCase().includes('user already registered') || 
+                           error.message.toLowerCase().includes('email already exists') ||
+                           error.message.toLowerCase().includes('already registered');
+      
       toast({
         title: 'Sign Up Failed',
-        description: error.message,
+        description: isEmailExists 
+          ? 'This email address is already registered. Please use a different email or try signing in instead.'
+          : error.message,
         variant: 'destructive',
       });
     } else {

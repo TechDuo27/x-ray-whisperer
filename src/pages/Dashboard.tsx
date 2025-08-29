@@ -140,7 +140,7 @@ export default function Dashboard() {
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center">
                     <FileText className="h-5 w-5 mr-2" />
-                    Recent Analyses
+                    Recent Analysis History
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">

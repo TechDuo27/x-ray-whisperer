@@ -509,13 +509,29 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="results">Results</TabsTrigger>
-              <TabsTrigger value="image">Image View</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="results">Image & Results</TabsTrigger>
               <TabsTrigger value="legend">Color Legend</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="results" className="space-y-4">
+            <TabsContent value="results" className="space-y-6">
+              {/* Image View Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Annotated Image</h3>
+                <ImageAnnotationViewer
+                  originalImageUrl={analysis.image_url}
+                  detections={filteredDetections}
+                  filename={analysis.original_filename}
+                  onAnnotated={handleGetAnnotatedImage}
+                />
+              </div>
+
+              {/* Separator */}
+              <Separator />
+
+              {/* Results Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Analysis Results</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <Card>
                   <CardContent className="pt-6">
@@ -593,15 +609,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                   ))
                 )}
               </div>
-            </TabsContent>
-
-            <TabsContent value="image" className="space-y-4">
-              <ImageAnnotationViewer
-                originalImageUrl={analysis.image_url}
-                detections={filteredDetections}
-                filename={analysis.original_filename}
-                onAnnotated={handleGetAnnotatedImage}
-              />
+              </div>
             </TabsContent>
 
             <TabsContent value="legend" className="space-y-4">

@@ -20,7 +20,13 @@ export default function ImageAnnotationViewer({
   const [annotatedImageUrl, setAnnotatedImageUrl] = useState<string>('');
   const [zoom, setZoom] = useState(100);
   const [loading, setLoading] = useState(true);
+  const [panX, setPanX] = useState(0);
+  const [panY, setPanY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const originalImageRef = useRef<HTMLImageElement>(null);
+  const annotatedImageRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     const generateAnnotatedImage = async () => {
@@ -46,9 +52,28 @@ export default function ImageAnnotationViewer({
     }
   }, [originalImageUrl, detections, onAnnotated]);
 
-  const handleZoomIn = () => setZoom(prev => Math.min(prev + 25, 200));
+  const handleZoomIn = () => setZoom(prev => Math.min(prev + 25, 400));
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 25, 50));
-  const handleResetZoom = () => setZoom(100);
+  const handleResetZoom = () => {
+    setZoom(100);
+    setPanX(0);
+    setPanY(0);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - panX, y: e.clientY - panY });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    setPanX(e.clientX - dragStart.x);
+    setPanY(e.clientY - dragStart.y);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
 
   return (
     <div className="space-y-4">
@@ -58,7 +83,7 @@ export default function ImageAnnotationViewer({
           <ZoomOut className="h-4 w-4" />
         </Button>
         <span className="text-sm font-medium min-w-16 text-center">{zoom}%</span>
-        <Button variant="outline" size="sm" onClick={handleZoomIn} disabled={zoom >= 200}>
+        <Button variant="outline" size="sm" onClick={handleZoomIn} disabled={zoom >= 400}>
           <ZoomIn className="h-4 w-4" />
         </Button>
         <Button variant="outline" size="sm" onClick={handleResetZoom}>
@@ -74,12 +99,23 @@ export default function ImageAnnotationViewer({
             <CardTitle className="text-lg">Original X-Ray</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-auto max-h-96 border rounded-lg">
+            <div 
+              className="overflow-auto max-h-96 border rounded-lg cursor-grab active:cursor-grabbing select-none"
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+            >
               <img
+                ref={originalImageRef}
                 src={originalImageUrl}
                 alt={`Original ${filename}`}
-                className="w-full h-auto transition-transform"
-                style={{ transform: `scale(${zoom / 100})` }}
+                className="w-full h-auto transition-transform pointer-events-none"
+                style={{ 
+                  transform: `scale(${zoom / 100}) translate(${panX}px, ${panY}px)`,
+                  transformOrigin: 'center center'
+                }}
+                draggable={false}
               />
             </div>
           </CardContent>
@@ -93,7 +129,13 @@ export default function ImageAnnotationViewer({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-auto max-h-96 border rounded-lg">
+            <div 
+              className="overflow-auto max-h-96 border rounded-lg cursor-grab active:cursor-grabbing select-none"
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+            >
               {loading ? (
                 <div className="flex items-center justify-center h-64">
                   <div className="text-muted-foreground">Generating annotations...</div>
@@ -101,10 +143,15 @@ export default function ImageAnnotationViewer({
               ) : annotatedImageUrl ? (
                 <>
                   <img
+                    ref={annotatedImageRef}
                     src={annotatedImageUrl}
                     alt={`Annotated ${filename}`}
-                    className="w-full h-auto annotation-canvas transition-transform"
-                    style={{ transform: `scale(${zoom / 100})` }}
+                    className="w-full h-auto annotation-canvas transition-transform pointer-events-none"
+                    style={{ 
+                      transform: `scale(${zoom / 100}) translate(${panX}px, ${panY}px)`,
+                      transformOrigin: 'center center'
+                    }}
+                    draggable={false}
                   />
                   {/* Hidden canvas for capture */}
                   <canvas 

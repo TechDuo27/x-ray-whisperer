@@ -100,30 +100,6 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     }
   };
 
-  const handleResetPassword = async () => {
-    if (!user?.email) return;
-
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-        redirectTo: `${window.location.origin}/reset-password`
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: 'Reset Email Sent',
-        description: 'Check your email for the password reset link.',
-      });
-      onClose();
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to send reset password email',
-        variant: 'destructive',
-      });
-    }
-  };
-
   const handleSignOut = async () => {
     await signOut();
     toast({
@@ -198,43 +174,60 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 className="bg-muted text-muted-foreground cursor-not-allowed"
               />
             </div>
+
+            <div className="space-y-2">
+              <Label>Account Created (Read-only)</Label>
+              <Input
+                value={formatDate(profile.created_at)}
+                disabled
+                className="bg-muted text-muted-foreground cursor-not-allowed"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Last Updated (Read-only)</Label>
+              <Input
+                value={formatDate(profile.updated_at)}
+                disabled
+                className="bg-muted text-muted-foreground cursor-not-allowed"
+              />
+            </div>
           </div>
         ) : null}
 
-        <DialogFooter className="flex flex-col gap-3 pt-6">
+        <DialogFooter className="flex-col sm:flex-row gap-2">
           <Button
-            onClick={handleSave}
-            disabled={saving}
-            className="w-full"
+            variant="outline"
+            onClick={handleSignOut}
+            className="w-full sm:w-auto"
           >
-            {saving ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4 mr-2" />
-                Save Changes
-              </>
-            )}
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign Out
           </Button>
-          
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full sm:w-auto">
             <Button
               variant="outline"
-              onClick={handleResetPassword}
-              className="flex-1"
+              onClick={onClose}
+              className="flex-1 sm:flex-none"
             >
-              Reset Password
+              Cancel
             </Button>
             <Button
-              variant="outline"
-              onClick={handleSignOut}
-              className="flex-1"
+              onClick={handleSave}
+              disabled={saving}
+              className="flex-1 sm:flex-none"
             >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
+              {saving ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Changes
+                </>
+              )}
             </Button>
           </div>
         </DialogFooter>

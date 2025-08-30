@@ -18,8 +18,6 @@ interface Profile {
   full_name: string | null;
   user_type: string | null;
   email: string | null;
-  created_at: string;
-  updated_at: string;
 }
 
 export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
@@ -109,15 +107,6 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     onClose();
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -170,24 +159,6 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
               <Label>Email (Read-only)</Label>
               <Input
                 value={profile.email || 'Not available'}
-                disabled
-                className="bg-muted text-muted-foreground cursor-not-allowed"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Account Created (Read-only)</Label>
-              <Input
-                value={formatDate(profile.created_at)}
-                disabled
-                className="bg-muted text-muted-foreground cursor-not-allowed"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Last Updated (Read-only)</Label>
-              <Input
-                value={formatDate(profile.updated_at)}
                 disabled
                 className="bg-muted text-muted-foreground cursor-not-allowed"
               />

@@ -65,46 +65,43 @@ export default function AdminFeedback() {
 
   const fetchFeedbackData = async () => {
     try {
-      // First fetch analyses data
-      const { data: analysesData, error: analysesError } = await supabase
+      // Single optimized query with join to get all data at once
+      const { data: feedbackWithProfiles, error } = await supabase
         .from('analyses')
-        .select('id, user_id, created_at, feedback_type, feedback_text, feedback_submitted_at, original_filename')
+        .select(`
+          id,
+          user_id,
+          created_at,
+          feedback_type,
+          feedback_text,
+          feedback_submitted_at,
+          original_filename,
+          profiles!inner(
+            user_id,
+            full_name,
+            email
+          )
+        `)
         .not('feedback_type', 'is', null)
-        .order('feedback_submitted_at', { ascending: false });
+        .order('feedback_submitted_at', { ascending: false })
+        .limit(1000); // Reasonable limit for admin dashboard
 
-      if (analysesError) throw analysesError;
+      if (error) throw error;
 
-      // Get unique user IDs
-      const userIds = Array.from(new Set(analysesData?.map(item => item.user_id) || []));
+      // Transform the data to flatten the profile information
+      const transformedData: FeedbackData[] = (feedbackWithProfiles || []).map(item => ({
+        id: item.id,
+        user_id: item.user_id,
+        user_name: item.profiles?.full_name || null,
+        user_email: item.profiles?.email || null,
+        created_at: item.created_at,
+        feedback_type: item.feedback_type as 'up' | 'down',
+        feedback_text: item.feedback_text,
+        feedback_submitted_at: item.feedback_submitted_at,
+        original_filename: item.original_filename
+      }));
       
-      // Fetch profile data for those users
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, email')
-        .in('user_id', userIds);
-
-      if (profilesError) {
-        console.warn('Could not fetch profiles data:', profilesError);
-      }
-
-      // Create a map of user profiles for easy lookup
-      const profilesMap = new Map();
-      profilesData?.forEach(profile => {
-        profilesMap.set(profile.user_id, profile);
-      });
-
-      // Merge the data
-      const typedData = (analysesData || []).map(item => {
-        const profile = profilesMap.get(item.user_id);
-        return {
-          ...item,
-          feedback_type: item.feedback_type as 'up' | 'down',
-          user_name: profile?.full_name || null,
-          user_email: profile?.email || null
-        };
-      });
-      
-      setFeedbackData(typedData);
+      setFeedbackData(transformedData);
     } catch (error) {
       console.error('Error fetching feedback:', error);
       toast({
@@ -218,6 +215,12 @@ export default function AdminFeedback() {
       : '0'
   };
 
+  // Pagination for filtered data
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+
+  
   const uniqueUsers = Array.from(new Set(feedbackData.map(f => ({ 
     id: f.user_id, 
     name: f.user_name 

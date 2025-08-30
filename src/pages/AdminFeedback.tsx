@@ -33,23 +33,26 @@ interface TrendData {
   date: string;
   up: number;
   down: number;
-  total: number;
+}
+
+interface WordFrequency {
+  word: string;
+  count: number;
 }
 
 export default function AdminFeedback() {
+  const [loading, setLoading] = useState(true);
   const [feedbackData, setFeedbackData] = useState<FeedbackData[]>([]);
   const [filteredData, setFilteredData] = useState<FeedbackData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedUser, setSelectedUser] = useState<string>('all');
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(subDays(new Date(), 30));
-  const [dateTo, setDateTo] = useState<Date | undefined>(new Date());
+  const [filterUser, setFilterUser] = useState<string>('all');
+  const [filterDateFrom, setFilterDateFrom] = useState<Date | undefined>();
+  const [filterDateTo, setFilterDateTo] = useState<Date | undefined>();
   const [chartDateFrom, setChartDateFrom] = useState<Date | undefined>(subDays(new Date(), 30));
   const [chartDateTo, setChartDateTo] = useState<Date | undefined>(new Date());
-  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
-  const [trendData, setTrendData] = useState<TrendData[]>([]);
-  const itemsPerPage = 10;
+  const itemsPerPage = 50;
 
   useEffect(() => {
     fetchFeedbackData();
@@ -57,49 +60,52 @@ export default function AdminFeedback() {
 
   useEffect(() => {
     applyFilters();
-  }, [feedbackData, searchTerm, selectedUser, dateFrom, dateTo]);
-
-  useEffect(() => {
-    generateTrendData();
-  }, [feedbackData, chartDateFrom, chartDateTo]);
+  }, [feedbackData, searchTerm, filterUser, filterDateFrom, filterDateTo]);
 
   const fetchFeedbackData = async () => {
     try {
-      // Single optimized query with join to get all data at once
-      const { data: feedbackWithProfiles, error } = await supabase
+      // Optimized query - fetch data separately to avoid join issues
+      const { data: analysesData, error: analysesError } = await supabase
         .from('analyses')
-        .select(`
-          id,
-          user_id,
-          created_at,
-          feedback_type,
-          feedback_text,
-          feedback_submitted_at,
-          original_filename,
-          profiles!inner(
-            user_id,
-            full_name,
-            email
-          )
-        `)
+        .select('id, user_id, created_at, feedback_type, feedback_text, feedback_submitted_at, original_filename')
         .not('feedback_type', 'is', null)
         .order('feedback_submitted_at', { ascending: false })
-        .limit(1000); // Reasonable limit for admin dashboard
+        .limit(1000);
 
-      if (error) throw error;
+      if (analysesError) throw analysesError;
 
-      // Transform the data to flatten the profile information
-      const transformedData: FeedbackData[] = (feedbackWithProfiles || []).map(item => ({
-        id: item.id,
-        user_id: item.user_id,
-        user_name: item.profiles?.full_name || null,
-        user_email: item.profiles?.email || null,
-        created_at: item.created_at,
-        feedback_type: item.feedback_type as 'up' | 'down',
-        feedback_text: item.feedback_text,
-        feedback_submitted_at: item.feedback_submitted_at,
-        original_filename: item.original_filename
-      }));
+      // Get unique user IDs for profile lookup
+      const userIds = Array.from(new Set(analysesData?.map(item => item.user_id) || []));
+      
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, email')
+        .in('user_id', userIds);
+
+      if (profilesError) {
+        console.warn('Could not fetch profiles data:', profilesError);
+      }
+
+      // Create optimized lookup map
+      const profilesMap = new Map(
+        profilesData?.map(profile => [profile.user_id, profile]) || []
+      );
+
+      // Transform data efficiently
+      const transformedData: FeedbackData[] = (analysesData || []).map(item => {
+        const profile = profilesMap.get(item.user_id);
+        return {
+          id: item.id,
+          user_id: item.user_id,
+          user_name: profile?.full_name || null,
+          user_email: profile?.email || null,
+          created_at: item.created_at,
+          feedback_type: item.feedback_type as 'up' | 'down',
+          feedback_text: item.feedback_text,
+          feedback_submitted_at: item.feedback_submitted_at,
+          original_filename: item.original_filename
+        };
+      });
       
       setFeedbackData(transformedData);
     } catch (error) {
@@ -116,82 +122,86 @@ export default function AdminFeedback() {
 
   const applyFilters = () => {
     let filtered = feedbackData;
-
-    // Text search
+    
     if (searchTerm) {
-      filtered = filtered.filter(item =>
-        item.feedback_text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.original_filename?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.user_id.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // User filter
-    if (selectedUser !== 'all') {
-      filtered = filtered.filter(item => item.user_id === selectedUser);
-    }
-
-    // Date range filter
-    if (dateFrom) {
+      const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter(item => 
-        new Date(item.feedback_submitted_at) >= dateFrom
+        item.feedback_text.toLowerCase().includes(searchLower) ||
+        item.user_name?.toLowerCase().includes(searchLower) ||
+        item.user_email?.toLowerCase().includes(searchLower) ||
+        item.original_filename.toLowerCase().includes(searchLower)
       );
     }
-    if (dateTo) {
+    
+    if (filterUser !== 'all') {
+      filtered = filtered.filter(item => item.user_id === filterUser);
+    }
+    
+    if (filterDateFrom) {
       filtered = filtered.filter(item => 
-        new Date(item.feedback_submitted_at) <= dateTo
+        new Date(item.feedback_submitted_at) >= filterDateFrom
       );
     }
-
+    
+    if (filterDateTo) {
+      filtered = filtered.filter(item => 
+        new Date(item.feedback_submitted_at) <= filterDateTo
+      );
+    }
+    
     setFilteredData(filtered);
     setCurrentPage(1);
   };
 
-  const generateTrendData = () => {
-    if (!feedbackData.length || !chartDateFrom || !chartDateTo) return;
-
-    const startDate = chartDateFrom;
-    const endDate = chartDateTo;
-    const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+  const getTrendData = (): TrendData[] => {
+    if (!chartDateFrom || !chartDateTo) return [];
     
-    const dateRange = Array.from({ length: daysDiff }, (_, i) => {
-      const date = new Date(startDate);
-      date.setDate(startDate.getDate() + i);
-      return {
-        date: format(date, 'yyyy-MM-dd'),
-        up: 0,
-        down: 0,
-        total: 0
-      };
+    const chartFiltered = feedbackData.filter(item => {
+      const itemDate = new Date(item.feedback_submitted_at);
+      return itemDate >= chartDateFrom && itemDate <= chartDateTo;
     });
 
-    feedbackData.forEach(item => {
-      const itemDate = format(parseISO(item.feedback_submitted_at), 'yyyy-MM-dd');
-      const dayData = dateRange.find(day => day.date === itemDate);
-      if (dayData) {
-        if (item.feedback_type === 'up') dayData.up++;
-        else dayData.down++;
-        dayData.total++;
+    const dailyData = new Map<string, { up: number; down: number }>();
+    
+    chartFiltered.forEach(item => {
+      const date = format(parseISO(item.feedback_submitted_at), 'yyyy-MM-dd');
+      const current = dailyData.get(date) || { up: 0, down: 0 };
+      
+      if (item.feedback_type === 'up') {
+        current.up++;
+      } else {
+        current.down++;
       }
+      
+      dailyData.set(date, current);
     });
 
-    setTrendData(dateRange);
+    return Array.from(dailyData.entries())
+      .map(([date, counts]) => ({
+        date,
+        ...counts
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
   };
 
-  const getWordFrequency = () => {
-    const words: Record<string, number> = {};
+  const getWordFrequency = (): WordFrequency[] => {
+    const words = new Map<string, number>();
+    const stopWords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'is', 'are', 'was', 'were', 'be', 'been', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'can', 'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them', 'my', 'your', 'his', 'her', 'its', 'our', 'their']);
+    
     filteredData.forEach(item => {
       const text = item.feedback_text.toLowerCase();
-      const wordsArray = text.match(/\b\w+\b/g) || [];
-      wordsArray.forEach(word => {
-        if (word.length > 3) { // Only count words longer than 3 characters
-          words[word] = (words[word] || 0) + 1;
+      const wordList = text.match(/\b\w+\b/g) || [];
+      
+      wordList.forEach(word => {
+        if (word.length > 3 && !stopWords.has(word)) {
+          words.set(word, (words.get(word) || 0) + 1);
         }
       });
     });
 
-    return Object.entries(words)
-      .sort(([,a], [,b]) => b - a)
+    return Array.from(words.entries())
+      .map(([word, count]) => ({ word, count }))
+      .sort((a, b) => b.count - a.count)
       .slice(0, 20);
   };
 
@@ -215,11 +225,11 @@ export default function AdminFeedback() {
       : '0'
   };
 
-  // Pagination for filtered data
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  // Pagination calculations
+  const totalItems = filteredData.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
-
   
   const uniqueUsers = Array.from(new Set(feedbackData.map(f => ({ 
     id: f.user_id, 
@@ -236,17 +246,16 @@ export default function AdminFeedback() {
     setExpandedRows(newExpanded);
   };
 
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const trendData = getTrendData();
+  const wordFrequency = getWordFrequency();
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-lg">Loading feedback data...</p>
+        </div>
       </div>
     );
   }
@@ -270,71 +279,29 @@ export default function AdminFeedback() {
           </Button>
         </div>
 
-      {/* Summary Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Total Feedback</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.total}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <ThumbsUp className="h-4 w-4 text-green-600" />
-              Positive
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{metrics.upCount}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <ThumbsDown className="h-4 w-4 text-red-600" />
-              Negative
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{metrics.downCount}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Approval Ratio</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.approvalRatio}%</div>
-          </CardContent>
-        </Card>
-      </div>
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="trends">Trends</TabsTrigger>
+            <TabsTrigger value="insights">Text Insights</TabsTrigger>
+            <TabsTrigger value="data">Raw Data</TabsTrigger>
+          </TabsList>
 
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="trends">Trends</TabsTrigger>
-          <TabsTrigger value="insights">Text Insights</TabsTrigger>
-          <TabsTrigger value="raw">Raw Data</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-4">
-          {/* Chart Date Range Controls */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Chart Date Range</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">From Date</label>
+          <TabsContent value="overview" className="space-y-6">
+            {/* Date Range Selector for Charts */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Chart Date Range</CardTitle>
+                <CardDescription>Select date range for overview metrics and charts</CardDescription>
+              </CardHeader>
+              <CardContent className="flex gap-4 items-center">
+                <div className="flex gap-2 items-center">
+                  <label className="text-sm font-medium">From:</label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                      <Button variant="outline" className="justify-start text-left font-normal">
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {chartDateFrom ? format(chartDateFrom, 'MMM dd, yyyy') : 'Pick a date'}
+                        {chartDateFrom ? format(chartDateFrom, 'MMM dd, yyyy') : 'Select date'}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -347,13 +314,13 @@ export default function AdminFeedback() {
                     </PopoverContent>
                   </Popover>
                 </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">To Date</label>
+                <div className="flex gap-2 items-center">
+                  <label className="text-sm font-medium">To:</label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                      <Button variant="outline" className="justify-start text-left font-normal">
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {chartDateTo ? format(chartDateTo, 'MMM dd, yyyy') : 'Pick a date'}
+                        {chartDateTo ? format(chartDateTo, 'MMM dd, yyyy') : 'Select date'}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -366,54 +333,101 @@ export default function AdminFeedback() {
                     </PopoverContent>
                   </Popover>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Feedback Distribution</CardTitle>
-              <CardDescription>
-                {chartDateFrom && chartDateTo 
-                  ? `${format(chartDateFrom, 'MMM dd, yyyy')} - ${format(chartDateTo, 'MMM dd, yyyy')}`
-                  : 'All time'
-                }
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer config={{
-                up: { label: "Positive", color: "hsl(var(--chart-1))" },
-                down: { label: "Negative", color: "hsl(var(--chart-2))" }
-              }} className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={[{ name: 'Feedback', up: metrics.upCount, down: metrics.downCount }]}>
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="up" fill="hsl(var(--chart-1))" />
-                    <Bar dataKey="down" fill="hsl(var(--chart-2))" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-        </TabsContent>
+              </CardContent>
+            </Card>
 
-        <TabsContent value="trends" className="space-y-4">
-          {/* Chart Date Range Controls */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Chart Date Range</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">From Date</label>
+            {/* Summary Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Feedback</CardTitle>
+                  <Badge variant="secondary">{metrics.total}</Badge>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{metrics.total}</div>
+                  <p className="text-xs text-muted-foreground">feedback entries</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Positive Feedback</CardTitle>
+                  <ThumbsUp className="h-4 w-4 text-green-600" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-600">{metrics.upCount}</div>
+                  <p className="text-xs text-muted-foreground">thumbs up</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Negative Feedback</CardTitle>
+                  <ThumbsDown className="h-4 w-4 text-red-600" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-red-600">{metrics.downCount}</div>
+                  <p className="text-xs text-muted-foreground">thumbs down</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Approval Ratio</CardTitle>
+                  <Badge variant={Number(metrics.approvalRatio) >= 70 ? "default" : "destructive"}>
+                    {metrics.approvalRatio}%
+                  </Badge>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{metrics.approvalRatio}%</div>
+                  <p className="text-xs text-muted-foreground">positive feedback</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Feedback Distribution */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Feedback Distribution</CardTitle>
+                <CardDescription>Visual breakdown of positive vs negative feedback</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer
+                  config={{
+                    up: { label: "Positive", color: "#22c55e" },
+                    down: { label: "Negative", color: "#ef4444" },
+                  }}
+                  className="h-[200px]"
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={[{ name: 'Feedback', up: metrics.upCount, down: metrics.downCount }]}>
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Bar dataKey="up" fill="#22c55e" name="Positive" />
+                      <Bar dataKey="down" fill="#ef4444" name="Negative" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="trends" className="space-y-6">
+            {/* Date Range Selector for Trends */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Trend Date Range</CardTitle>
+                <CardDescription>Select date range for trend analysis</CardDescription>
+              </CardHeader>
+              <CardContent className="flex gap-4 items-center">
+                <div className="flex gap-2 items-center">
+                  <label className="text-sm font-medium">From:</label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                      <Button variant="outline" className="justify-start text-left font-normal">
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {chartDateFrom ? format(chartDateFrom, 'MMM dd, yyyy') : 'Pick a date'}
+                        {chartDateFrom ? format(chartDateFrom, 'MMM dd, yyyy') : 'Select date'}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -426,13 +440,13 @@ export default function AdminFeedback() {
                     </PopoverContent>
                   </Popover>
                 </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">To Date</label>
+                <div className="flex gap-2 items-center">
+                  <label className="text-sm font-medium">To:</label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                      <Button variant="outline" className="justify-start text-left font-normal">
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {chartDateTo ? format(chartDateTo, 'MMM dd, yyyy') : 'Pick a date'}
+                        {chartDateTo ? format(chartDateTo, 'MMM dd, yyyy') : 'Select date'}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -445,254 +459,280 @@ export default function AdminFeedback() {
                     </PopoverContent>
                   </Popover>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Feedback Trends Over Time</CardTitle>
-              <CardDescription>
-                {chartDateFrom && chartDateTo 
-                  ? `${format(chartDateFrom, 'MMM dd, yyyy')} - ${format(chartDateTo, 'MMM dd, yyyy')}`
-                  : 'Select date range'
-                }
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer config={{
-                up: { label: "Positive", color: "hsl(var(--chart-1))" },
-                down: { label: "Negative", color: "hsl(var(--chart-2))" },
-                total: { label: "Total", color: "hsl(var(--chart-3))" }
-              }} className="h-[400px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={trendData}>
-                    <XAxis 
-                      dataKey="date" 
-                      tickFormatter={(date) => format(parseISO(date), 'MMM dd')}
-                    />
-                    <YAxis />
-                    <ChartTooltip 
-                      content={<ChartTooltipContent />}
-                      labelFormatter={(date) => format(parseISO(date), 'MMM dd, yyyy')}
-                    />
-                    <Line type="monotone" dataKey="up" stroke="hsl(var(--chart-1))" strokeWidth={2} />
-                    <Line type="monotone" dataKey="down" stroke="hsl(var(--chart-2))" strokeWidth={2} />
-                    <Line type="monotone" dataKey="total" stroke="hsl(var(--chart-3))" strokeWidth={2} strokeDasharray="5 5" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="insights" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Frequent Words in Feedback</CardTitle>
-              <CardDescription>Most common words (4+ characters) from feedback text</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {getWordFrequency().slice(0, 16).map(([word, count]) => (
-                  <div key={word} className="flex justify-between items-center p-2 bg-muted rounded">
-                    <span className="font-medium">{word}</span>
-                    <Badge variant="secondary">{count}</Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="raw" className="space-y-4">
-          {/* Filters */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Filter className="h-4 w-4" />
-                Filters
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Search</label>
-                  <Input
-                    placeholder="Search feedback..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">User</label>
-                  <Select value={selectedUser} onValueChange={setSelectedUser}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Users</SelectItem>
-                      {uniqueUsers.map(user => (
-                        <SelectItem key={user.id} value={user.id}>
-                          {user.name || `${user.id.substring(0, 8)}...`}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">From Date</label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start text-left font-normal">
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {dateFrom ? format(dateFrom, 'MMM dd, yyyy') : 'Pick a date'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={dateFrom}
-                        onSelect={setDateFrom}
-                        initialFocus
+            <Card>
+              <CardHeader>
+                <CardTitle>Feedback Trends Over Time</CardTitle>
+                <CardDescription>Daily feedback volume showing positive and negative trends</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer
+                  config={{
+                    up: { label: "Positive", color: "#22c55e" },
+                    down: { label: "Negative", color: "#ef4444" },
+                  }}
+                  className="h-[400px]"
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={trendData}>
+                      <XAxis 
+                        dataKey="date" 
+                        tickFormatter={(value) => format(parseISO(value), 'MMM dd')}
                       />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">To Date</label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start text-left font-normal">
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {dateTo ? format(dateTo, 'MMM dd, yyyy') : 'Pick a date'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={dateTo}
-                        onSelect={setDateTo}
-                        initialFocus
+                      <YAxis />
+                      <ChartTooltip 
+                        content={<ChartTooltipContent />}
+                        labelFormatter={(label) => format(parseISO(label as string), 'MMM dd, yyyy')}
                       />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                      <Line 
+                        type="monotone" 
+                        dataKey="up" 
+                        stroke="#22c55e" 
+                        strokeWidth={2}
+                        name="Positive"
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="down" 
+                        stroke="#ef4444" 
+                        strokeWidth={2}
+                        name="Negative"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-          {/* Data Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Feedback Entries ({filteredData.length})</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>User</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Image</TableHead>
-                    <TableHead>Feedback</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginatedData.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>
-                        {format(parseISO(item.feedback_submitted_at), 'MMM dd, yyyy HH:mm')}
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="font-medium text-sm">
-                            {item.user_name || 'Anonymous'}
-                          </div>
-                          <div className="font-mono text-xs text-muted-foreground">
-                            {item.user_id}
-                          </div>
-                          {item.user_email && (
-                            <div className="text-xs text-muted-foreground">
-                              {item.user_email}
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {item.feedback_type === 'up' ? (
-                          <Badge className="bg-green-100 text-green-800">
-                            <ThumbsUp className="h-3 w-3 mr-1" />
-                            Positive
-                          </Badge>
-                        ) : (
-                          <Badge className="bg-red-100 text-red-800">
-                            <ThumbsDown className="h-3 w-3 mr-1" />
-                            Negative
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="max-w-[100px] truncate">
-                        {item.original_filename || 'N/A'}
-                      </TableCell>
-                      <TableCell className="max-w-[200px]">
-                        {expandedRows.has(item.id) ? (
-                          <div className="whitespace-pre-wrap text-sm">
-                            {item.feedback_text}
-                          </div>
-                        ) : (
-                          <div className="truncate text-sm">
-                            {item.feedback_text.substring(0, 100)}...
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleRowExpansion(item.id)}
-                        >
-                          {expandedRows.has(item.id) ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
+          <TabsContent value="insights" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Most Frequent Words</CardTitle>
+                <CardDescription>Common words and phrases from feedback text (filtered data)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {wordFrequency.slice(0, 12).map((item, index) => (
+                    <div key={item.word} className="p-3 bg-muted rounded-md">
+                      <div className="font-medium capitalize">{item.word}</div>
+                      <div className="text-sm text-muted-foreground">{item.count} occurrences</div>
+                    </div>
                   ))}
-                </TableBody>
-              </Table>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center space-x-2 mt-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                  >
-                    Previous
-                  </Button>
-                  <span className="text-sm text-muted-foreground">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                  </Button>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="data" className="space-y-6">
+            {/* Filters */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Filter className="h-5 w-5" />
+                  Filters
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Search</label>
+                    <Input
+                      placeholder="Search feedback, user, or filename..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">User</label>
+                    <Select value={filterUser} onValueChange={setFilterUser}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All users" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All users</SelectItem>
+                        {uniqueUsers.map((user) => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.name || 'Unknown User'}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">From Date</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full justify-start text-left font-normal">
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {filterDateFrom ? format(filterDateFrom, 'MMM dd, yyyy') : 'Select date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={filterDateFrom}
+                          onSelect={setFilterDateFrom}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">To Date</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full justify-start text-left font-normal">
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {filterDateTo ? format(filterDateTo, 'MMM dd, yyyy') : 'Select date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={filterDateTo}
+                          onSelect={setFilterDateTo}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Results Summary */}
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-muted-foreground">
+                Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, totalItems)} of {totalItems} results
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </div>
+            </div>
+
+            {/* Raw Data Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Feedback Data</CardTitle>
+                <CardDescription>Raw feedback entries with user information</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="rounded-md border overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[50px]"></TableHead>
+                        <TableHead>User ID</TableHead>
+                        <TableHead>User Name</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Filename</TableHead>
+                        <TableHead>Preview</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {paginatedData.map((feedback) => (
+                        <>
+                          <TableRow key={feedback.id} className="cursor-pointer hover:bg-muted/50">
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => toggleRowExpansion(feedback.id)}
+                              >
+                                {expandedRows.has(feedback.id) ? (
+                                  <EyeOff className="h-4 w-4" />
+                                ) : (
+                                  <Eye className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </TableCell>
+                            <TableCell className="font-mono text-xs">
+                              {feedback.user_id}
+                            </TableCell>
+                            <TableCell>
+                              <div>
+                                <div className="font-medium">{feedback.user_name || 'Unknown'}</div>
+                                <div className="text-xs text-muted-foreground">{feedback.user_email}</div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {format(parseISO(feedback.feedback_submitted_at), 'MMM dd, yyyy HH:mm')}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={feedback.feedback_type === 'up' ? 'default' : 'destructive'}>
+                                {feedback.feedback_type === 'up' ? (
+                                  <><ThumbsUp className="w-3 h-3 mr-1" /> Positive</>
+                                ) : (
+                                  <><ThumbsDown className="w-3 h-3 mr-1" /> Negative</>
+                                )}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-xs text-muted-foreground">
+                              {feedback.original_filename}
+                            </TableCell>
+                            <TableCell className="max-w-xs">
+                              <div className="truncate text-sm">
+                                {feedback.feedback_text.substring(0, 100)}
+                                {feedback.feedback_text.length > 100 && '...'}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                          {expandedRows.has(feedback.id) && (
+                            <TableRow>
+                              <TableCell colSpan={7} className="p-4 bg-muted/30">
+                                <div className="space-y-2">
+                                  <h4 className="font-medium">Full Feedback Text:</h4>
+                                  <p className="text-sm whitespace-pre-wrap">{feedback.feedback_text}</p>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between space-x-2 py-4">
+                    <div className="text-sm text-muted-foreground">
+                      Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, totalItems)} of {totalItems} results
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        Previous
+                      </Button>
+                      <span className="flex items-center px-3 py-1 text-sm">
+                        Page {currentPage} of {totalPages}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                        disabled={currentPage === totalPages}
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

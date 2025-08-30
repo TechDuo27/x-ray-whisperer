@@ -18,6 +18,8 @@ import { format, parseISO, subDays } from 'date-fns';
 interface FeedbackData {
   id: string;
   user_id: string;
+  user_name: string | null;
+  user_email: string | null;
   created_at: string;
   feedback_type: 'up' | 'down';
   feedback_text: string;
@@ -40,6 +42,8 @@ export default function AdminFeedback() {
   const [selectedUser, setSelectedUser] = useState<string>('all');
   const [dateFrom, setDateFrom] = useState<Date | undefined>(subDays(new Date(), 30));
   const [dateTo, setDateTo] = useState<Date | undefined>(new Date());
+  const [chartDateFrom, setChartDateFrom] = useState<Date | undefined>(subDays(new Date(), 30));
+  const [chartDateTo, setChartDateTo] = useState<Date | undefined>(new Date());
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const [trendData, setTrendData] = useState<TrendData[]>([]);
@@ -51,22 +55,53 @@ export default function AdminFeedback() {
 
   useEffect(() => {
     applyFilters();
-    generateTrendData();
   }, [feedbackData, searchTerm, selectedUser, dateFrom, dateTo]);
+
+  useEffect(() => {
+    generateTrendData();
+  }, [feedbackData, chartDateFrom, chartDateTo]);
 
   const fetchFeedbackData = async () => {
     try {
-      const { data, error } = await supabase
+      // First fetch analyses data
+      const { data: analysesData, error: analysesError } = await supabase
         .from('analyses')
         .select('id, user_id, created_at, feedback_type, feedback_text, feedback_submitted_at, original_filename')
         .not('feedback_type', 'is', null)
         .order('feedback_submitted_at', { ascending: false });
 
-      if (error) throw error;
-      const typedData = (data || []).map(item => ({
-        ...item,
-        feedback_type: item.feedback_type as 'up' | 'down'
-      }));
+      if (analysesError) throw analysesError;
+
+      // Get unique user IDs
+      const userIds = Array.from(new Set(analysesData?.map(item => item.user_id) || []));
+      
+      // Fetch profile data for those users
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, email')
+        .in('user_id', userIds);
+
+      if (profilesError) {
+        console.warn('Could not fetch profiles data:', profilesError);
+      }
+
+      // Create a map of user profiles for easy lookup
+      const profilesMap = new Map();
+      profilesData?.forEach(profile => {
+        profilesMap.set(profile.user_id, profile);
+      });
+
+      // Merge the data
+      const typedData = (analysesData || []).map(item => {
+        const profile = profilesMap.get(item.user_id);
+        return {
+          ...item,
+          feedback_type: item.feedback_type as 'up' | 'down',
+          user_name: profile?.full_name || null,
+          user_email: profile?.email || null
+        };
+      });
+      
       setFeedbackData(typedData);
     } catch (error) {
       console.error('Error fetching feedback:', error);
@@ -114,10 +149,15 @@ export default function AdminFeedback() {
   };
 
   const generateTrendData = () => {
-    if (!feedbackData.length) return;
+    if (!feedbackData.length || !chartDateFrom || !chartDateTo) return;
 
-    const last30Days = Array.from({ length: 30 }, (_, i) => {
-      const date = subDays(new Date(), 29 - i);
+    const startDate = chartDateFrom;
+    const endDate = chartDateTo;
+    const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    
+    const dateRange = Array.from({ length: daysDiff }, (_, i) => {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
       return {
         date: format(date, 'yyyy-MM-dd'),
         up: 0,
@@ -128,7 +168,7 @@ export default function AdminFeedback() {
 
     feedbackData.forEach(item => {
       const itemDate = format(parseISO(item.feedback_submitted_at), 'yyyy-MM-dd');
-      const dayData = last30Days.find(day => day.date === itemDate);
+      const dayData = dateRange.find(day => day.date === itemDate);
       if (dayData) {
         if (item.feedback_type === 'up') dayData.up++;
         else dayData.down++;
@@ -136,7 +176,7 @@ export default function AdminFeedback() {
       }
     });
 
-    setTrendData(last30Days);
+    setTrendData(dateRange);
   };
 
   const getWordFrequency = () => {
@@ -156,16 +196,30 @@ export default function AdminFeedback() {
       .slice(0, 20);
   };
 
+  const getChartFilteredData = () => {
+    if (!chartDateFrom || !chartDateTo) return feedbackData;
+    
+    return feedbackData.filter(item => {
+      const itemDate = new Date(item.feedback_submitted_at);
+      return itemDate >= chartDateFrom && itemDate <= chartDateTo;
+    });
+  };
+
+  const chartFilteredData = getChartFilteredData();
+  
   const metrics = {
-    total: filteredData.length,
-    upCount: filteredData.filter(f => f.feedback_type === 'up').length,
-    downCount: filteredData.filter(f => f.feedback_type === 'down').length,
-    approvalRatio: filteredData.length > 0 
-      ? (filteredData.filter(f => f.feedback_type === 'up').length / filteredData.length * 100).toFixed(1)
+    total: chartFilteredData.length,
+    upCount: chartFilteredData.filter(f => f.feedback_type === 'up').length,
+    downCount: chartFilteredData.filter(f => f.feedback_type === 'down').length,
+    approvalRatio: chartFilteredData.length > 0 
+      ? (chartFilteredData.filter(f => f.feedback_type === 'up').length / chartFilteredData.length * 100).toFixed(1)
       : '0'
   };
 
-  const uniqueUsers = Array.from(new Set(feedbackData.map(f => f.user_id)));
+  const uniqueUsers = Array.from(new Set(feedbackData.map(f => ({ 
+    id: f.user_id, 
+    name: f.user_name 
+  }))));
 
   const toggleRowExpansion = (id: string) => {
     const newExpanded = new Set(expandedRows);
@@ -252,9 +306,64 @@ export default function AdminFeedback() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
+          {/* Chart Date Range Controls */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Chart Date Range</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">From Date</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {chartDateFrom ? format(chartDateFrom, 'MMM dd, yyyy') : 'Pick a date'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={chartDateFrom}
+                        onSelect={setChartDateFrom}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">To Date</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {chartDateTo ? format(chartDateTo, 'MMM dd, yyyy') : 'Pick a date'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={chartDateTo}
+                        onSelect={setChartDateTo}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
           <Card>
             <CardHeader>
               <CardTitle>Feedback Distribution</CardTitle>
+              <CardDescription>
+                {chartDateFrom && chartDateTo 
+                  ? `${format(chartDateFrom, 'MMM dd, yyyy')} - ${format(chartDateTo, 'MMM dd, yyyy')}`
+                  : 'All time'
+                }
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={{
@@ -276,10 +385,64 @@ export default function AdminFeedback() {
         </TabsContent>
 
         <TabsContent value="trends" className="space-y-4">
+          {/* Chart Date Range Controls */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Chart Date Range</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">From Date</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {chartDateFrom ? format(chartDateFrom, 'MMM dd, yyyy') : 'Pick a date'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={chartDateFrom}
+                        onSelect={setChartDateFrom}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">To Date</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {chartDateTo ? format(chartDateTo, 'MMM dd, yyyy') : 'Pick a date'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={chartDateTo}
+                        onSelect={setChartDateTo}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Feedback Trends Over Time</CardTitle>
-              <CardDescription>Last 30 days</CardDescription>
+              <CardDescription>
+                {chartDateFrom && chartDateTo 
+                  ? `${format(chartDateFrom, 'MMM dd, yyyy')} - ${format(chartDateTo, 'MMM dd, yyyy')}`
+                  : 'Select date range'
+                }
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={{
@@ -354,9 +517,9 @@ export default function AdminFeedback() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Users</SelectItem>
-                      {uniqueUsers.map(userId => (
-                        <SelectItem key={userId} value={userId}>
-                          {userId.substring(0, 8)}...
+                      {uniqueUsers.map(user => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.name || `${user.id.substring(0, 8)}...`}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -427,8 +590,20 @@ export default function AdminFeedback() {
                       <TableCell>
                         {format(parseISO(item.feedback_submitted_at), 'MMM dd, yyyy HH:mm')}
                       </TableCell>
-                      <TableCell className="font-mono text-xs">
-                        {item.user_id.substring(0, 8)}...
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="font-medium text-sm">
+                            {item.user_name || 'Anonymous'}
+                          </div>
+                          <div className="font-mono text-xs text-muted-foreground">
+                            {item.user_id}
+                          </div>
+                          {item.user_email && (
+                            <div className="text-xs text-muted-foreground">
+                              {item.user_email}
+                            </div>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         {item.feedback_type === 'up' ? (

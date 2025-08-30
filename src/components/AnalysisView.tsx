@@ -7,9 +7,11 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Download, FileText, Palette } from 'lucide-react';
 import ImageAnnotationViewer from '@/components/ImageAnnotationViewer';
+import FeedbackForm from '@/components/FeedbackForm';
 import { getHexColor, DETECTION_COLORS } from '@/utils/modelLoader';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Detection {
   class: string;
@@ -31,6 +33,9 @@ interface Analysis {
   confidence_threshold: number;
   created_at: string;
   image_url: string;
+  feedback_type?: 'up' | 'down' | null;
+  feedback_text?: string | null;
+  feedback_submitted_at?: string | null;
 }
 
 interface AnalysisViewProps {
@@ -60,12 +65,34 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('results');
   const [annotatedImageUrl, setAnnotatedImageUrl] = useState<string | null>(null);
+  const [currentAnalysis, setCurrentAnalysis] = useState(analysis);
 
-  const detections = analysis.analysis_results?.detections || [];
+  const detections = currentAnalysis.analysis_results?.detections || [];
+
+  const refreshAnalysis = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('analyses')
+        .select('*')
+        .eq('id', analysis.id)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setCurrentAnalysis({
+          ...data,
+          analysis_results: data.analysis_results as unknown as AnalysisResults,
+          feedback_type: data.feedback_type as 'up' | 'down' | null
+        });
+      }
+    } catch (error) {
+      console.error('Error refreshing analysis:', error);
+    }
+  };
   
   // Filter detections by confidence threshold
   const filteredDetections = detections.filter(detection => 
-    detection.confidence >= analysis.confidence_threshold
+    detection.confidence >= currentAnalysis.confidence_threshold
   );
   
   const formatDate = (dateString: string) => {
@@ -641,6 +668,18 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
           </Tabs>
         </CardContent>
       </Card>
+
+      <FeedbackForm
+        analysisId={currentAnalysis.id}
+        onFeedbackSubmitted={refreshAnalysis}
+        existingFeedback={
+          currentAnalysis.feedback_type ? {
+            feedback_type: currentAnalysis.feedback_type,
+            feedback_text: currentAnalysis.feedback_text || '',
+            feedback_submitted_at: currentAnalysis.feedback_submitted_at || ''
+          } : null
+        }
+      />
     </div>
   );
 }

@@ -19,6 +19,9 @@ export type Database = {
           analysis_results: Json | null
           confidence_threshold: number | null
           created_at: string
+          feedback_submitted_at: string | null
+          feedback_text: string | null
+          feedback_type: string | null
           id: string
           image_url: string
           original_filename: string | null
@@ -28,6 +31,9 @@ export type Database = {
           analysis_results?: Json | null
           confidence_threshold?: number | null
           created_at?: string
+          feedback_submitted_at?: string | null
+          feedback_text?: string | null
+          feedback_type?: string | null
           id?: string
           image_url: string
           original_filename?: string | null
@@ -37,6 +43,9 @@ export type Database = {
           analysis_results?: Json | null
           confidence_threshold?: number | null
           created_at?: string
+          feedback_submitted_at?: string | null
+          feedback_text?: string | null
+          feedback_type?: string | null
           id?: string
           image_url?: string
           original_filename?: string | null

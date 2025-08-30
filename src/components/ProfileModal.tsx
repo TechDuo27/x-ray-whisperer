@@ -45,15 +45,29 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         .from('profiles')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       
-      setProfile(data);
-      setFormData({
-        full_name: data.full_name || '',
-        user_type: data.user_type || ''
-      });
+      if (data) {
+        setProfile(data);
+        setFormData({
+          full_name: data.full_name || '',
+          user_type: data.user_type || ''
+        });
+      } else {
+        // No profile found, create default state
+        const defaultProfile = {
+          full_name: user.user_metadata?.full_name || user.email || '',
+          user_type: null,
+          email: user.email
+        };
+        setProfile(defaultProfile);
+        setFormData({
+          full_name: defaultProfile.full_name,
+          user_type: ''
+        });
+      }
     } catch (error) {
       toast({
         title: 'Error',
@@ -143,10 +157,10 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 value={formData.user_type} 
                 onValueChange={(value) => setFormData(prev => ({ ...prev, user_type: value }))}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-background">
                   <SelectValue placeholder="Select user type" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background border border-border z-50">
                   <SelectItem value="dentist">Dentist</SelectItem>
                   <SelectItem value="patient">Patient</SelectItem>
                   <SelectItem value="technician">Technician</SelectItem>

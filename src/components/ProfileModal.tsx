@@ -100,6 +100,30 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     }
   };
 
+  const handleResetPassword = async () => {
+    if (!user?.email) return;
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+        redirectTo: `${window.location.origin}/reset-password`
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Reset Email Sent',
+        description: 'Check your email for the password reset link.',
+      });
+      onClose();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to send reset password email',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleSignOut = async () => {
     await signOut();
     toast({
@@ -174,24 +198,6 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 className="bg-muted text-muted-foreground cursor-not-allowed"
               />
             </div>
-
-            <div className="space-y-2">
-              <Label>Account Created (Read-only)</Label>
-              <Input
-                value={formatDate(profile.created_at)}
-                disabled
-                className="bg-muted text-muted-foreground cursor-not-allowed"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Last Updated (Read-only)</Label>
-              <Input
-                value={formatDate(profile.updated_at)}
-                disabled
-                className="bg-muted text-muted-foreground cursor-not-allowed"
-              />
-            </div>
           </div>
         ) : null}
 
@@ -207,10 +213,10 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           <div className="flex gap-2 w-full sm:w-auto">
             <Button
               variant="outline"
-              onClick={onClose}
+              onClick={handleResetPassword}
               className="flex-1 sm:flex-none"
             >
-              Cancel
+              Reset Password
             </Button>
             <Button
               onClick={handleSave}

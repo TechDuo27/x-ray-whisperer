@@ -201,39 +201,40 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           </div>
         ) : null}
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
+        <DialogFooter className="flex flex-col gap-3 pt-6">
           <Button
-            variant="outline"
-            onClick={handleSignOut}
-            className="w-full sm:w-auto"
+            onClick={handleSave}
+            disabled={saving}
+            className="w-full"
           >
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign Out
+            {saving ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 mr-2" />
+                Save Changes
+              </>
+            )}
           </Button>
-          <div className="flex gap-2 w-full sm:w-auto">
+          
+          <div className="flex gap-2">
             <Button
               variant="outline"
               onClick={handleResetPassword}
-              className="flex-1 sm:flex-none"
+              className="flex-1"
             >
               Reset Password
             </Button>
             <Button
-              onClick={handleSave}
-              disabled={saving}
-              className="flex-1 sm:flex-none"
+              variant="outline"
+              onClick={handleSignOut}
+              className="flex-1"
             >
-              {saving ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
-                </>
-              )}
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
             </Button>
           </div>
         </DialogFooter>

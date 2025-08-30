@@ -63,6 +63,7 @@ export default function AdminFeedback() {
   }, [feedbackData, searchTerm, filterUser, filterDateFrom, filterDateTo]);
 
   const fetchFeedbackData = async () => {
+    setLoading(true);
     try {
       // Optimized query - fetch data separately to avoid join issues
       const { data: analysesData, error: analysesError } = await supabase
@@ -108,6 +109,10 @@ export default function AdminFeedback() {
       });
       
       setFeedbackData(transformedData);
+      toast({
+        title: 'Success',
+        description: 'Feedback data refreshed successfully',
+      });
     } catch (error) {
       console.error('Error fetching feedback:', error);
       toast({
@@ -565,12 +570,12 @@ export default function AdminFeedback() {
                             <TableCell className="font-mono text-xs">
                               {feedback.user_id}
                             </TableCell>
-                            <TableCell>
-                              <div>
-                                <div className="font-medium">{feedback.user_name || 'Unknown'}</div>
-                                <div className="text-xs text-muted-foreground">{feedback.user_email}</div>
-                              </div>
-                            </TableCell>
+                             <TableCell>
+                               <div>
+                                 <div className="font-medium">{feedback.user_name || `User ID: ${feedback.user_id.slice(0, 8)}...`}</div>
+                                 <div className="text-xs text-muted-foreground">{feedback.user_email}</div>
+                               </div>
+                             </TableCell>
                             <TableCell>
                               {format(parseISO(feedback.feedback_submitted_at), 'MMM dd, yyyy HH:mm')}
                             </TableCell>

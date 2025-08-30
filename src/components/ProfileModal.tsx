@@ -162,10 +162,10 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                   <SelectValue placeholder="Select user type" />
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border z-50">
-                  <SelectItem value="dentist">Dentist</SelectItem>
-                  <SelectItem value="patient">Patient</SelectItem>
-                  <SelectItem value="technician">Technician</SelectItem>
-                  <SelectItem value="student">Student</SelectItem>
+                  <SelectItem value="medical-student">Medical Student</SelectItem>
+                  <SelectItem value="medical-doctor">Medical Doctor</SelectItem>
+                  <SelectItem value="non-medical-patient">Non-Medical Patient</SelectItem>
+                  <SelectItem value="non-medical-tester">Non-Medical Tester</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -10,11 +10,12 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { ThumbsUp, ThumbsDown, Calendar as CalendarIcon, Filter, Eye, EyeOff } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Calendar as CalendarIcon, Filter, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { format, parseISO, subDays } from 'date-fns';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
+import { Link } from 'react-router-dom';
 
 interface FeedbackData {
   id: string;
@@ -252,11 +253,19 @@ export default function AdminFeedback() {
       <DarkModeToggle />
       <div className="container mx-auto p-6 space-y-6">
         <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Feedback Dashboard</h1>
-        <Button onClick={fetchFeedbackData} disabled={loading}>
-          Refresh Data
-        </Button>
-      </div>
+          <div className="flex items-center space-x-4">
+            <Button variant="outline" asChild>
+              <Link to="/dashboard">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Dashboard
+              </Link>
+            </Button>
+            <h1 className="text-3xl font-bold text-foreground">Admin Feedback Dashboard</h1>
+          </div>
+          <Button onClick={fetchFeedbackData} disabled={loading}>
+            Refresh Data
+          </Button>
+        </div>
 
       {/* Summary Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

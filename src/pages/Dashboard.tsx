@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { Upload, FileText, User, Brain, Calendar, Download } from 'lucide-react';
+import { Upload, FileText, User, Brain, Calendar, Download, Users } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
 import AnalysisView from '@/components/AnalysisView';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
@@ -29,10 +29,12 @@ export default function Dashboard() {
   const [currentView, setCurrentView] = useState<'upload' | 'analysis'>('upload');
   const [selectedAnalysis, setSelectedAnalysis] = useState<Analysis | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
 
   useEffect(() => {
     if (user) {
       loadAnalyses();
+      loadUserProfile();
     }
   }, [user]);
 
@@ -57,6 +59,21 @@ export default function Dashboard() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadUserProfile = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user?.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') throw error;
+      setUserProfile(data);
+    } catch (error) {
+      console.error('Failed to load user profile:', error);
     }
   };
 
@@ -132,6 +149,18 @@ export default function Dashboard() {
                     <Upload className="h-4 w-4 mr-2" />
                     Upload & Analyze
                   </Button>
+                  {userProfile?.admin && (
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
+                      asChild
+                    >
+                      <Link to="/admin/feedback">
+                        <Users className="h-4 w-4 mr-2" />
+                        View Feedback Page
+                      </Link>
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
 

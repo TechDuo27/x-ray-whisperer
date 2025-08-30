@@ -55,6 +55,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          admin: boolean
           created_at: string
           email: string | null
           full_name: string | null
@@ -64,6 +65,7 @@ export type Database = {
           user_type: string | null
         }
         Insert: {
+          admin?: boolean
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -73,6 +75,7 @@ export type Database = {
           user_type?: string | null
         }
         Update: {
+          admin?: boolean
           created_at?: string
           email?: string | null
           full_name?: string | null

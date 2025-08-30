@@ -14,6 +14,7 @@ import { ThumbsUp, ThumbsDown, Calendar as CalendarIcon, Filter, Eye, EyeOff } f
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { format, parseISO, subDays } from 'date-fns';
+import { DarkModeToggle } from '@/components/DarkModeToggle';
 
 interface FeedbackData {
   id: string;
@@ -247,8 +248,10 @@ export default function AdminFeedback() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="min-h-screen bg-background">
+      <DarkModeToggle />
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Feedback Dashboard</h1>
         <Button onClick={fetchFeedbackData} disabled={loading}>
           Refresh Data
@@ -678,6 +681,7 @@ export default function AdminFeedback() {
           </Card>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }

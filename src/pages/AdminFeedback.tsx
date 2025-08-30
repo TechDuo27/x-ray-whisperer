@@ -231,10 +231,14 @@ export default function AdminFeedback() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
   
-  const uniqueUsers = Array.from(new Set(feedbackData.map(f => ({ 
-    id: f.user_id, 
-    name: f.user_name 
-  }))));
+  // Get unique users with proper names - filter out entries without names
+  const uniqueUsers = Array.from(
+    new Map(
+      feedbackData
+        .filter(f => f.user_name) // Only include users with names
+        .map(f => [f.user_id, { id: f.user_id, name: f.user_name }])
+    ).values()
+  ).sort((a, b) => a.name!.localeCompare(b.name!));
 
   const toggleRowExpansion = (id: string) => {
     const newExpanded = new Set(expandedRows);
@@ -280,9 +284,8 @@ export default function AdminFeedback() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="trends">Trends</TabsTrigger>
             <TabsTrigger value="insights">Text Insights</TabsTrigger>
             <TabsTrigger value="data">Raw Data</TabsTrigger>
           </TabsList>
@@ -413,100 +416,6 @@ export default function AdminFeedback() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="trends" className="space-y-6">
-            {/* Date Range Selector for Trends */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Trend Date Range</CardTitle>
-                <CardDescription>Select date range for trend analysis</CardDescription>
-              </CardHeader>
-              <CardContent className="flex gap-4 items-center">
-                <div className="flex gap-2 items-center">
-                  <label className="text-sm font-medium">From:</label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="justify-start text-left font-normal">
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {chartDateFrom ? format(chartDateFrom, 'MMM dd, yyyy') : 'Select date'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={chartDateFrom}
-                        onSelect={setChartDateFrom}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div className="flex gap-2 items-center">
-                  <label className="text-sm font-medium">To:</label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="justify-start text-left font-normal">
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {chartDateTo ? format(chartDateTo, 'MMM dd, yyyy') : 'Select date'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={chartDateTo}
-                        onSelect={setChartDateTo}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Feedback Trends Over Time</CardTitle>
-                <CardDescription>Daily feedback volume showing positive and negative trends</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer
-                  config={{
-                    up: { label: "Positive", color: "#22c55e" },
-                    down: { label: "Negative", color: "#ef4444" },
-                  }}
-                  className="h-[400px]"
-                >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={trendData}>
-                      <XAxis 
-                        dataKey="date" 
-                        tickFormatter={(value) => format(parseISO(value), 'MMM dd')}
-                      />
-                      <YAxis />
-                      <ChartTooltip 
-                        content={<ChartTooltipContent />}
-                        labelFormatter={(label) => format(parseISO(label as string), 'MMM dd, yyyy')}
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="up" 
-                        stroke="#22c55e" 
-                        strokeWidth={2}
-                        name="Positive"
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="down" 
-                        stroke="#ef4444" 
-                        strokeWidth={2}
-                        name="Negative"
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           <TabsContent value="insights" className="space-y-6">
             <Card>
               <CardHeader>
@@ -552,11 +461,11 @@ export default function AdminFeedback() {
                       <SelectTrigger>
                         <SelectValue placeholder="All users" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-background border border-border z-50">
                         <SelectItem value="all">All users</SelectItem>
                         {uniqueUsers.map((user) => (
                           <SelectItem key={user.id} value={user.id}>
-                            {user.name || 'Unknown User'}
+                            {user.name}
                           </SelectItem>
                         ))}
                       </SelectContent>

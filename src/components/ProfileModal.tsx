@@ -80,18 +80,19 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   };
 
   const handleSave = async () => {
-    if (!user || !profile) return;
+    if (!user) return;
 
     setSaving(true);
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          user_id: user.id,
+          email: user.email,
           full_name: formData.full_name,
           user_type: formData.user_type,
           updated_at: new Date().toISOString()
-        })
-        .eq('user_id', user.id);
+        });
 
       if (error) throw error;
       

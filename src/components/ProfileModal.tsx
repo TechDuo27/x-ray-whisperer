@@ -154,7 +154,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             <div className="space-y-2">
               <Label htmlFor="user_type">User Type</Label>
               <Select 
-                value={formData.user_type} 
+                value={formData.user_type || ""} 
                 onValueChange={(value) => setFormData(prev => ({ ...prev, user_type: value }))}
               >
                 <SelectTrigger className="bg-background">

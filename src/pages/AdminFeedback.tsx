@@ -46,7 +46,7 @@ export default function AdminFeedback() {
   const [filteredData, setFilteredData] = useState<FeedbackData[]>([]);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterUser, setFilterUser] = useState<string>('all');
+  
   const [filterDateFrom, setFilterDateFrom] = useState<Date | undefined>();
   const [filterDateTo, setFilterDateTo] = useState<Date | undefined>();
   const [chartDateFrom, setChartDateFrom] = useState<Date | undefined>(subDays(new Date(), 30));
@@ -60,7 +60,7 @@ export default function AdminFeedback() {
 
   useEffect(() => {
     applyFilters();
-  }, [feedbackData, searchTerm, filterUser, filterDateFrom, filterDateTo]);
+  }, [feedbackData, searchTerm, filterDateFrom, filterDateTo]);
 
   const fetchFeedbackData = async () => {
     setLoading(true);
@@ -138,9 +138,6 @@ export default function AdminFeedback() {
       );
     }
     
-    if (filterUser !== 'all') {
-      filtered = filtered.filter(item => item.user_id === filterUser);
-    }
     
     if (filterDateFrom) {
       filtered = filtered.filter(item => 
@@ -236,14 +233,6 @@ export default function AdminFeedback() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
   
-  // Get unique users with proper names - filter out entries without names
-  const uniqueUsers = Array.from(
-    new Map(
-      feedbackData
-        .filter(f => f.user_name) // Only include users with names
-        .map(f => [f.user_id, { id: f.user_id, name: f.user_name }])
-    ).values()
-  ).sort((a, b) => a.name!.localeCompare(b.name!));
 
   const toggleRowExpansion = (id: string) => {
     const newExpanded = new Set(expandedRows);
@@ -450,7 +439,7 @@ export default function AdminFeedback() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Search</label>
                     <Input
@@ -460,22 +449,6 @@ export default function AdminFeedback() {
                     />
                   </div>
                   
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">User</label>
-                    <Select value={filterUser} onValueChange={setFilterUser}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="All users" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-background border border-border z-50">
-                        <SelectItem value="all">All users</SelectItem>
-                        {uniqueUsers.map((user) => (
-                          <SelectItem key={user.id} value={user.id}>
-                            {user.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium">From Date</label>
@@ -542,9 +515,8 @@ export default function AdminFeedback() {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-[50px]"></TableHead>
-                        <TableHead>User ID</TableHead>
-                        <TableHead>User Name</TableHead>
-                        <TableHead>Date</TableHead>
+                      <TableHead>User ID</TableHead>
+                      <TableHead>Date</TableHead>
                         <TableHead>Type</TableHead>
                         <TableHead>Filename</TableHead>
                         <TableHead>Preview</TableHead>
@@ -570,12 +542,6 @@ export default function AdminFeedback() {
                             <TableCell className="font-mono text-xs">
                               {feedback.user_id}
                             </TableCell>
-                             <TableCell>
-                               <div>
-                                 <div className="font-medium">{feedback.user_name || `User ID: ${feedback.user_id.slice(0, 8)}...`}</div>
-                                 <div className="text-xs text-muted-foreground">{feedback.user_email}</div>
-                               </div>
-                             </TableCell>
                             <TableCell>
                               {format(parseISO(feedback.feedback_submitted_at), 'MMM dd, yyyy HH:mm')}
                             </TableCell>

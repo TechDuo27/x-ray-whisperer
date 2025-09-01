@@ -23,9 +23,6 @@ const Index = () => {
     );
   }
 
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  }
 
   return (
     <div className="min-h-screen bg-background">

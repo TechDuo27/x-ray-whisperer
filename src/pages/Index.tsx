@@ -4,6 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Brain, Upload, FileText, Shield, Zap } from 'lucide-react';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
+import swarajImage from '@/assets/swaraj.png';
+import anuskaImage from '@/assets/anuska.png';
+import thirumalaImage from '@/assets/thirumala.png';
+import placeholderImage from '@/assets/team-placeholder.png';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -46,7 +50,7 @@ const Index = () => {
                 <a href="/auth">Get Started</a>
               </Button>
               <Button variant="outline" size="lg" asChild>
-                <a href="#features">Learn More</a>
+                <a href="#about">About Us</a>
               </Button>
             </div>
           </div>
@@ -171,6 +175,107 @@ const Index = () => {
                 </ul>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* About Us Section */}
+      <section id="about" className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">About Our Team</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Meet the experts behind our AI-powered dental analysis platform, bringing together cutting-edge technology and deep domain expertise.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+            {/* Swaraj */}
+            <div className="text-center">
+              <div className="mb-4">
+                <img 
+                  src={swarajImage} 
+                  alt="Swaraj Khan" 
+                  className="w-48 h-48 rounded-full mx-auto object-cover border-4 border-primary/20"
+                />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Swaraj Khan</h3>
+              <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                AI specialist with 5 research papers and deep expertise in RAG, agents, and data engineering. From building intelligent systems to optimizing pipelines, I bring cutting-edge AI solutions to life.
+              </p>
+              <a 
+                href="https://www.linkedin.com/in/swaraj-khan/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:text-primary/80 text-sm font-medium"
+              >
+                LinkedIn Profile →
+              </a>
+            </div>
+
+            {/* Anuska */}
+            <div className="text-center">
+              <div className="mb-4">
+                <img 
+                  src={anuskaImage} 
+                  alt="Anuska Saxena" 
+                  className="w-48 h-48 rounded-full mx-auto object-cover border-4 border-primary/20"
+                />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Anuska Saxena</h3>
+              <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                Turning raw data into impactful insights—I'm a Data Science MSc student with a sharp eye for patterns and a love for machine learning. With a strong math/stats background, I bridge numbers and narratives to drive smarter decisions.
+              </p>
+              <a 
+                href="https://www.linkedin.com/in/anushka-saxena04/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:text-primary/80 text-sm font-medium"
+              >
+                LinkedIn Profile →
+              </a>
+            </div>
+
+            {/* Thirumala */}
+            <div className="text-center">
+              <div className="mb-4">
+                <img 
+                  src={thirumalaImage} 
+                  alt="Thirumala Peddireddy" 
+                  className="w-48 h-48 rounded-full mx-auto object-cover border-4 border-primary/20"
+                />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Thirumala Peddireddy</h3>
+              <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                Data Management Manager with 20+ years of expertise in data migration, master data governance, and ERP solutions. From leading global teams to partnering with Accenture, Capgemini, and Wipro, I deliver seamless integrations and data strategies that drive transformation.
+              </p>
+              <a 
+                href="https://www.linkedin.com/in/thiru1976/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:text-primary/80 text-sm font-medium"
+              >
+                LinkedIn Profile →
+              </a>
+            </div>
+
+            {/* Placeholder Team Member */}
+            <div className="text-center">
+              <div className="mb-4">
+                <img 
+                  src={placeholderImage} 
+                  alt="Team Member Coming Soon" 
+                  className="w-48 h-48 rounded-full mx-auto object-cover border-4 border-primary/20 opacity-60"
+                />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Coming Soon</h3>
+              <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                We're expanding our team with another expert to bring even more value to our platform. Stay tuned for updates!
+              </p>
+              <span className="text-muted-foreground text-sm">
+                More info coming soon
+              </span>
+            </div>
           </div>
         </div>
       </section>

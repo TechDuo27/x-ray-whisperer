@@ -2,12 +2,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Brain, Upload, FileText, Shield, Zap } from 'lucide-react';
+import { Upload, FileText, Shield, Zap, Cpu } from 'lucide-react';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
 import swarajImage from '@/assets/swaraj.png';
 import anuskaImage from '@/assets/anushka.png';
 import thirumalaImage from '@/assets/thirumala.png';
 import placeholderImage from '@/assets/team-placeholder.png';
+import toothIcon from '@/assets/tooth-icon.png';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -32,7 +33,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-16">
           <div className="text-center max-w-4xl mx-auto">
             <div className="flex items-center justify-center mb-6">
-              <Brain className="h-16 w-16 text-primary mr-4" />
+              <img src={toothIcon} alt="Tooth icon" className="h-16 w-16 mr-4" />
               <h1 className="text-5xl font-bold text-primary">Dental AI</h1>
             </div>
             <h2 className="text-3xl font-bold mb-6">
@@ -85,7 +86,7 @@ const Index = () => {
 
             <Card>
               <CardHeader>
-                <Brain className="h-10 w-10 text-primary mb-2" />
+                <Cpu className="h-10 w-10 text-primary mb-2" />
                 <CardTitle>AI Detection</CardTitle>
                 <CardDescription>
                   Dual YOLO model system detecting 18+ dental conditions with confidence scoring

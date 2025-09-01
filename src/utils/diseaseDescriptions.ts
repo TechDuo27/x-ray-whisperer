@@ -5,6 +5,8 @@ export const DISEASE_DESCRIPTIONS: Record<string, string> = {
   
   'GROSSLY DECAYED': 'Grossly decayed tooth is a tooth in which dental caries has progressed extensively, leading to the destruction of a large portion of the tooth structure, often involving both enamel and dentin and in many cases extending close to or into the pulp.',
   
+  'GROSSLY CARIOUS': 'Grossly carious refers to teeth with extensive dental caries that have caused significant destruction of the tooth structure, often involving multiple surfaces and approaching or reaching the pulp chamber. This severe form of caries requires immediate treatment to prevent further complications such as pulpal necrosis, abscess formation, or tooth loss.',
+  
   'SPACING': 'Spacing is a type of malocclusion characterised by the presence of spaces or gaps between two or more teeth in the arch, due to descrepency between tooth size & jaw size, missing teeth or abnormal dental development.',
   
   'ROOT RESORPTION': 'Root resorption is a process in which hard tissues of a root like cementum and dentin are broken down & absorbed by the body, usually due to the activity of odontoclasts.',

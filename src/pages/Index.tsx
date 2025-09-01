@@ -187,6 +187,30 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+            {/* Thirumala */}
+            <div className="text-center">
+              <div className="mb-4">
+                <img 
+                  src={thirumalaImage} 
+                  alt="Thirumala Peddireddy" 
+                  className="w-48 h-48 rounded-full mx-auto object-cover border-4 border-primary/20"
+                />
+              </div>
+              <h3 className="text-lg font-semibold mb-1">Thirumala Peddireddy</h3>
+              <p className="text-sm text-primary font-medium mb-3">CEO</p>
+              <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                Brings over 20 years of extensive experience in data management, specializing in data migration, master data governance, and ERP solutions. Has led global teams and collaborated with top-tier consulting firms like Accenture, Capgemini, and Wipro to deliver seamless data integrations and transformative data strategies that fuel business growth and operational excellence.
+              </p>
+              <a 
+                href="https://www.linkedin.com/in/thiru1976/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:text-primary/80 text-sm font-medium"
+              >
+                LinkedIn Profile →
+              </a>
+            </div>
+
             {/* Swaraj */}
             <div className="text-center">
               <div className="mb-4">
@@ -196,9 +220,10 @@ const Index = () => {
                   className="w-48 h-48 rounded-full mx-auto object-cover border-4 border-primary/20"
                 />
               </div>
-              <h3 className="text-lg font-semibold mb-2">Swaraj Khan</h3>
+              <h3 className="text-lg font-semibold mb-1">Swaraj Khan</h3>
+              <p className="text-sm text-primary font-medium mb-3">CTO</p>
               <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-                AI specialist with 5 research papers and deep expertise in RAG, agents, and data engineering. From building intelligent systems to optimizing pipelines, I bring cutting-edge AI solutions to life.
+                Brings strong expertise in artificial intelligence, with a proven track record demonstrated by multiple research publications. Skilled in designing and implementing robust end-to-end machine learning pipelines, with deep experience in computer vision and predictive model development for solving complex challenges effectively.
               </p>
               <a 
                 href="https://www.linkedin.com/in/swaraj-khan/" 
@@ -210,44 +235,22 @@ const Index = () => {
               </a>
             </div>
 
-            {/* Anuska */}
+            {/* Anushka */}
             <div className="text-center">
               <div className="mb-4">
                 <img 
                   src={anuskaImage} 
-                  alt="Anuska Saxena" 
+                  alt="Anushka Saxena" 
                   className="w-48 h-48 rounded-full mx-auto object-cover border-4 border-primary/20"
                 />
               </div>
-              <h3 className="text-lg font-semibold mb-2">Anuska Saxena</h3>
+              <h3 className="text-lg font-semibold mb-1">Anushka Saxena</h3>
+              <p className="text-sm text-primary font-medium mb-3">Architect</p>
               <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-                Turning raw data into impactful insights—I'm a Data Science MSc student with a sharp eye for patterns and a love for machine learning. With a strong math/stats background, I bridge numbers and narratives to drive smarter decisions.
+                Possesses a strong foundation in data science and machine learning, with a passion for transforming raw data into actionable insights. Skilled in pattern recognition, statistical analysis, and machine learning model development, with a particular focus on bridging complex data with clear, impactful decision-making.
               </p>
               <a 
                 href="https://www.linkedin.com/in/anushka-saxena04/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary hover:text-primary/80 text-sm font-medium"
-              >
-                LinkedIn Profile →
-              </a>
-            </div>
-
-            {/* Thirumala */}
-            <div className="text-center">
-              <div className="mb-4">
-                <img 
-                  src={thirumalaImage} 
-                  alt="Thirumala Peddireddy" 
-                  className="w-48 h-48 rounded-full mx-auto object-cover border-4 border-primary/20"
-                />
-              </div>
-              <h3 className="text-lg font-semibold mb-2">Thirumala Peddireddy</h3>
-              <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-                Data Management Manager with 20+ years of expertise in data migration, master data governance, and ERP solutions. From leading global teams to partnering with Accenture, Capgemini, and Wipro, I deliver seamless integrations and data strategies that drive transformation.
-              </p>
-              <a 
-                href="https://www.linkedin.com/in/thiru1976/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-primary hover:text-primary/80 text-sm font-medium"

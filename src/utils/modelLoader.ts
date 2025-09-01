@@ -12,7 +12,7 @@ export interface ModelResults {
   detections: Detection[];
 }
 
-// Target classes for selective detection (only these 18 conditions)
+// Target classes for selective detection (only these 20 conditions)
 export const TARGET_CLASSES = {
   'Caries': 'Dental caries',
   'Bone Loss': 'Bone Loss',
@@ -43,71 +43,77 @@ export const MODEL2_CLASS_MAPPING: Record<string, string> = {
   'Retained Tooth Root': 'Retained root'
 };
 
-// Exact RGB color values for each detection type
+// Exact RGB color values for each detection type (using display names as keys)
 export const DETECTION_COLORS: Record<string, [number, number, number]> = {
-  'Caries': [255, 255, 255],           // white
-  'Bone Loss': [255, 0, 0],            // red  
-  'Cyst': [255, 255, 0],               // yellow
-  'impacted tooth': [128, 0, 128],     // purple
-  'Missing teeth': [0, 0, 255],        // blue
-  'Supra Eruption': [0, 255, 0],       // green
-  'attrition': [255, 192, 203],        // pink
-  'Malaligned': [165, 42, 42],         // brown
-  'Root resorption': [0, 0, 0],        // black
-  'Periapical lesion': [255, 219, 88], // mustard
-  'bone defect': [139, 0, 0],          // dark red
-  'Fracture teeth': [128, 128, 128],   // grey
-  'Crown': [0, 100, 0],                // dark green
-  'Implant': [128, 0, 0],              // maroon
+  // Primary detection classes
+  'Dental caries': [255, 255, 255],        // white
+  'Bone Loss': [255, 0, 0],                // red  
+  'Cyst': [255, 255, 0],                   // yellow
+  'Impacted teeth': [128, 0, 128],         // purple
+  'Missing teeth': [0, 0, 255],            // blue
+  'Supernumerary teeth': [0, 255, 0],      // green
+  'Abrasion': [255, 192, 203],             // pink
+  'Spacing': [165, 42, 42],                // brown
+  'Root resorption': [0, 0, 0],            // black
+  'Periapical pathology': [255, 219, 88],  // mustard
+  'Bone fracture': [139, 0, 0],            // dark red
+  'Tooth fracture': [128, 128, 128],       // grey
+  'Crowns': [0, 100, 0],                   // dark green
+  'Implants': [128, 0, 0],                 // maroon
+  'RCT tooth': [255, 220, 177],            // skin color (beige/cream)
+  'Restorations': [238, 130, 238],         // violet
+  'Retained deciduous tooth': [0, 0, 128], // navy blue
+  'Root stump': [0, 128, 128],             // teal
+  
+  // Special variants
+  'Grossly carious': [255, 165, 0],        // orange
+  'Internal resorption': [203, 192, 255],  // dark pink
+  
+  // Legacy class name mappings for backward compatibility
+  'Caries': [255, 255, 255],               // white
+  'impacted tooth': [128, 0, 128],         // purple
+  'Supra Eruption': [0, 255, 0],           // green
+  'attrition': [255, 192, 203],            // pink
+  'Malaligned': [165, 42, 42],             // brown
+  'Periapical lesion': [255, 219, 88],     // mustard
+  'bone defect': [139, 0, 0],              // dark red
+  'Fracture teeth': [128, 128, 128],       // grey
+  'Crown': [0, 100, 0],                    // dark green
+  'Implant': [128, 0, 0],                  // maroon
   'Root Canal Treatment': [255, 220, 177], // skin color
-  'Filling': [238, 130, 238],          // violet
-  'Primary teeth': [0, 0, 128],        // navy blue
-  'Retained root': [0, 128, 128],      // teal
-  // Special variants:
-  'Grossly carious': [255, 165, 0],    // orange
-  'Internal resorption': [203, 192, 255] // dark pink
+  'Filling': [238, 130, 238],              // violet
+  'Primary teeth': [0, 0, 128],            // navy blue
+  'Retained root': [0, 128, 128]           // teal
 };
 
 // Convert RGB to hex for CSS
 export const getHexColor = (detection: Detection): string => {
-  // First, determine the appropriate color key based on detection class or special cases
-  let colorKey = detection.class;
+  // First, determine the appropriate color key based on detection display_name or special cases
+  let colorKey = detection.display_name;
   
-  // Handle special cases
+  // Handle special cases first
   if (detection.is_grossly_carious) {
     colorKey = 'Grossly carious';
   } else if (detection.is_internal_resorption) {
     colorKey = 'Internal resorption';
-  } 
-  // Handle specific mappings for common detections
-  else if (detection.display_name === 'Impacted teeth' || 
-           detection.class === 'impacted tooth' || 
-           detection.display_name.toLowerCase().includes('impact')) {
-    colorKey = 'impacted tooth';
-  } 
-  else if (detection.display_name === 'Crowns' || 
-           detection.class === 'Crown' || 
-           detection.display_name.toLowerCase().includes('crown')) {
-    colorKey = 'Crown';
-  }
-  else if (detection.display_name === 'Restorations' || 
-           detection.class === 'Filling' || 
-           detection.display_name.toLowerCase().includes('restoration') ||
-           detection.display_name.toLowerCase().includes('filling')) {
-    colorKey = 'Filling';
   }
   
   // Log for debugging
   console.log(`Getting color for ${detection.display_name} (class: ${detection.class}), using key: ${colorKey}`);
   
-  // Get RGB color from the mapping
-  const rgb = DETECTION_COLORS[colorKey];
+  // Try to get RGB color from the mapping using display_name first
+  let rgb = DETECTION_COLORS[colorKey];
+  
+  // If not found, try using the class name as fallback
+  if (!rgb) {
+    rgb = DETECTION_COLORS[detection.class];
+  }
   
   // Convert RGB to hex or use green if no matching color found
   if (rgb) {
     return `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`;
   } else {
-    console.warn(`No color found for key: ${colorKey}`);
+    console.warn(`No color found for display_name: ${detection.display_name} or class: ${detection.class}`);
     return '#00ff00'; // Default to green
   }
 };
@@ -139,38 +145,26 @@ export const drawAnnotations = (
       detections.forEach((detection) => {
         const [x1, y1, x2, y2] = detection.bbox;
         
-        // Determine the correct color key based on the detection
-        let colorKey = detection.class;
+        // Determine the correct color key based on detection display_name or special cases
+        let colorKey = detection.display_name;
         
-        // Handle special cases
+        // Handle special cases first
         if (detection.is_grossly_carious) {
           colorKey = 'Grossly carious';
         } else if (detection.is_internal_resorption) {
           colorKey = 'Internal resorption';
-        } 
-        // Handle specific mappings for common detections
-        else if (detection.display_name === 'Impacted teeth' || 
-                detection.class === 'impacted tooth' || 
-                detection.display_name.toLowerCase().includes('impact')) {
-          colorKey = 'impacted tooth';
-        } 
-        else if (detection.display_name === 'Crowns' || 
-                detection.class === 'Crown' || 
-                detection.display_name.toLowerCase().includes('crown')) {
-          colorKey = 'Crown';
-        }
-        else if (detection.display_name === 'Restorations' || 
-                detection.class === 'Filling' || 
-                detection.display_name.toLowerCase().includes('restoration') ||
-                detection.display_name.toLowerCase().includes('filling')) {
-          colorKey = 'Filling';
         }
         
-        // Get RGB color or default to green
-        const rgb = DETECTION_COLORS[colorKey];
+        // Try to get RGB color from the mapping using display_name first
+        let rgb = DETECTION_COLORS[colorKey];
+        
+        // If not found, try using the class name as fallback
+        if (!rgb) {
+          rgb = DETECTION_COLORS[detection.class];
+        }
         
         if (!rgb) {
-          console.warn(`No color found for key: ${colorKey} (display_name: ${detection.display_name}, class: ${detection.class})`);
+          console.warn(`No color found for display_name: ${detection.display_name} or class: ${detection.class}`);
         }
         
         const rgbArray = rgb || [0, 255, 0]; // Default to green if not found

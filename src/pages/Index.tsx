@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Brain, Upload, FileText, Shield, Zap } from 'lucide-react';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
 import swarajImage from '@/assets/swaraj.png';
-import anuskaImage from '@/assets/anuska.png';
+import anuskaImage from '@/assets/anushka.png';
 import thirumalaImage from '@/assets/thirumala.png';
 import placeholderImage from '@/assets/team-placeholder.png';
 

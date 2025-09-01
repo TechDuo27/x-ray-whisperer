@@ -43,9 +43,9 @@ export const MODEL2_CLASS_MAPPING: Record<string, string> = {
   'Retained Tooth Root': 'Retained root'
 };
 
-// Exact RGB color values for each detection type (using display names as keys)
+// Canonical detection colors - using only the proper medical terminology
 export const DETECTION_COLORS: Record<string, [number, number, number]> = {
-  // Primary detection classes
+  // Primary detection classes with correct medical terminology
   'Dental caries': [255, 255, 255],        // white
   'Bone Loss': [255, 0, 0],                // red  
   'Cyst': [255, 255, 0],                   // yellow
@@ -67,27 +67,29 @@ export const DETECTION_COLORS: Record<string, [number, number, number]> = {
   
   // Special variants
   'Grossly carious': [255, 165, 0],        // orange
-  'Internal resorption': [203, 192, 255],  // dark pink
-  
-  // Legacy class name mappings for backward compatibility
-  'Caries': [255, 255, 255],               // white
-  'impacted tooth': [128, 0, 128],         // purple
-  'Supra Eruption': [0, 255, 0],           // green
-  'attrition': [255, 192, 203],            // pink
-  'Malaligned': [165, 42, 42],             // brown
-  'Periapical lesion': [255, 219, 88],     // mustard
-  'bone defect': [139, 0, 0],              // dark red
-  'Fracture teeth': [128, 128, 128],       // grey
-  'Crown': [0, 100, 0],                    // dark green
-  'Implant': [128, 0, 0],                  // maroon
-  'Root Canal Treatment': [255, 220, 177], // skin color
-  'Filling': [238, 130, 238],              // violet
-  'Primary teeth': [0, 0, 128],            // navy blue
-  'Retained root': [0, 128, 128]           // teal
+  'Internal resorption': [203, 192, 255]   // dark pink
 };
 
 // Convert RGB to hex for CSS
 export const getHexColor = (detection: Detection): string => {
+  // Mapping for backward compatibility - convert old class names to canonical display names
+  const canonicalNameMap: Record<string, string> = {
+    'Caries': 'Dental caries',
+    'impacted tooth': 'Impacted teeth',
+    'Supra Eruption': 'Supernumerary teeth',
+    'attrition': 'Abrasion',
+    'Malaligned': 'Spacing',
+    'Periapical lesion': 'Periapical pathology',
+    'bone defect': 'Bone fracture',
+    'Fracture teeth': 'Tooth fracture',
+    'Crown': 'Crowns',
+    'Implant': 'Implants',
+    'Root Canal Treatment': 'RCT tooth',
+    'Filling': 'Restorations',
+    'Primary teeth': 'Retained deciduous tooth',
+    'Retained root': 'Root stump'
+  };
+
   // First, determine the appropriate color key based on detection display_name or special cases
   let colorKey = detection.display_name;
   
@@ -98,16 +100,26 @@ export const getHexColor = (detection: Detection): string => {
     colorKey = 'Internal resorption';
   }
   
-  // Log for debugging
-  console.log(`Getting color for ${detection.display_name} (class: ${detection.class}), using key: ${colorKey}`);
-  
   // Try to get RGB color from the mapping using display_name first
   let rgb = DETECTION_COLORS[colorKey];
   
-  // If not found, try using the class name as fallback
+  // If not found, try using canonical mapping from class name
+  if (!rgb) {
+    const canonicalName = canonicalNameMap[detection.class];
+    if (canonicalName) {
+      rgb = DETECTION_COLORS[canonicalName];
+      colorKey = canonicalName;
+    }
+  }
+  
+  // If still not found, try using the class name directly
   if (!rgb) {
     rgb = DETECTION_COLORS[detection.class];
+    colorKey = detection.class;
   }
+  
+  // Log for debugging
+  console.log(`Getting color for ${detection.display_name} (class: ${detection.class}), using key: ${colorKey}`);
   
   // Convert RGB to hex or use green if no matching color found
   if (rgb) {
@@ -145,6 +157,24 @@ export const drawAnnotations = (
       detections.forEach((detection) => {
         const [x1, y1, x2, y2] = detection.bbox;
         
+        // Mapping for backward compatibility - convert old class names to canonical display names
+        const canonicalNameMap: Record<string, string> = {
+          'Caries': 'Dental caries',
+          'impacted tooth': 'Impacted teeth',
+          'Supra Eruption': 'Supernumerary teeth',
+          'attrition': 'Abrasion',
+          'Malaligned': 'Spacing',
+          'Periapical lesion': 'Periapical pathology',
+          'bone defect': 'Bone fracture',
+          'Fracture teeth': 'Tooth fracture',
+          'Crown': 'Crowns',
+          'Implant': 'Implants',
+          'Root Canal Treatment': 'RCT tooth',
+          'Filling': 'Restorations',
+          'Primary teeth': 'Retained deciduous tooth',
+          'Retained root': 'Root stump'
+        };
+        
         // Determine the correct color key based on detection display_name or special cases
         let colorKey = detection.display_name;
         
@@ -158,9 +188,19 @@ export const drawAnnotations = (
         // Try to get RGB color from the mapping using display_name first
         let rgb = DETECTION_COLORS[colorKey];
         
-        // If not found, try using the class name as fallback
+        // If not found, try using canonical mapping from class name
+        if (!rgb) {
+          const canonicalName = canonicalNameMap[detection.class];
+          if (canonicalName) {
+            rgb = DETECTION_COLORS[canonicalName];
+            colorKey = canonicalName;
+          }
+        }
+        
+        // If still not found, try using the class name directly
         if (!rgb) {
           rgb = DETECTION_COLORS[detection.class];
+          colorKey = detection.class;
         }
         
         if (!rgb) {

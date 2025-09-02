@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .from('profiles')
       .select('email')
       .eq('email', email)
-      .single();
+      .maybeSingle();
 
     if (existingProfile) {
       return { 
@@ -94,6 +94,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
       },
     });
+
+    // Handle the specific case where Supabase returns user already registered error
+    if (error && error.message.includes('User already registered')) {
+      return { 
+        error: { 
+          message: 'User already registered with this email address',
+          status: 400 
+        } as AuthError 
+      };
+    }
+
     return { error };
   };
 

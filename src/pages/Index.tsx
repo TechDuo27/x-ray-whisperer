@@ -26,50 +26,43 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="relative">
-        <DarkModeToggle />
-      </header>
-      
+      <DarkModeToggle />
       {/* Hero Section */}
-      <main>
-        <section className="bg-gradient-to-b from-primary/10 to-background">
-          <div className="container mx-auto px-4 py-16">
-            <div className="text-center max-w-4xl mx-auto">
-              <div className="flex items-center justify-center mb-6">
-                <Brain className="h-16 w-16 text-primary mr-4" />
-                <h1 className="text-5xl font-bold text-primary">Dental AI - Advanced X-Ray Analysis Platform</h1>
-              </div>
-              <h2 className="text-3xl font-bold mb-6">
-                <strong>AI-Powered Dental X-Ray Analysis</strong> - Detect 20+ Dental Conditions Instantly
-              </h2>
-              <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                <strong>Revolutionary artificial intelligence technology</strong> for comprehensive dental radiograph analysis. 
-                Our advanced YOLO models detect dental conditions with <em>clinical-grade precision</em> and generate detailed professional reports. 
-                Transform your dental practice with cutting-edge AI diagnostic tools designed for modern dentistry.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" asChild>
-                  <a href="/auth" title="Start your free dental AI analysis today">Get Started - Try Free Analysis</a>
-                </Button>
-                <Button variant="outline" size="lg" asChild>
-                  <a href="#about" title="Learn about our dental AI team and technology">Meet Our Expert Team</a>
-                </Button>
-              </div>
+      <section className="bg-gradient-to-b from-primary/10 to-background">
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center max-w-4xl mx-auto">
+            <div className="flex items-center justify-center mb-6">
+              <Brain className="h-16 w-16 text-primary mr-4" />
+              <h1 className="text-5xl font-bold text-primary">Dental AI</h1>
+            </div>
+            <h2 className="text-3xl font-bold mb-6">
+              AI-Powered Dental X-Ray Analysis Platform
+            </h2>
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Advanced artificial intelligence technology for comprehensive dental radiograph analysis. 
+              Detect dental conditions with precision and generate detailed professional reports.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" asChild>
+                <a href="/auth">Get Started</a>
+              </Button>
+              <Button variant="outline" size="lg" asChild>
+                <a href="#about">About Us</a>
+              </Button>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Features Section - Roadmap */}
-        <section id="features" className="py-16 relative overflow-hidden">
-          <div className="container mx-auto px-4">
-            <article className="text-center mb-16">
-              <h2 className="text-3xl font-bold mb-4">How Our <strong>Dental AI Analysis</strong> Works</h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Our <strong>5-step AI workflow</strong> ensures accurate dental condition detection. 
-                From <em>secure upload</em> to <em>detailed reports</em> - experience the future of dental diagnostics.
-                Each checkpoint represents years of AI research and clinical validation.
-              </p>
-            </article>
+      {/* Features Section - Roadmap */}
+      <section id="features" className="py-16 relative overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold mb-4">Advanced AI Analysis Workflow</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Follow the roadmap—each checkpoint unlocks powerful dental insights.
+            </p>
+          </div>
 
           {/* Roadmap Container */}
           <div className="relative max-w-6xl mx-auto">
@@ -88,17 +81,15 @@ const Index = () => {
                 </div>
                 
                 <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-xl p-6 border border-emerald-200/50 dark:border-emerald-800/30 shadow-lg group-hover:shadow-xl transition-all duration-300 max-w-xs">
-                  <h3 className="font-semibold text-lg mb-3 text-center text-emerald-900 dark:text-emerald-100">
-                    <strong>Secure & Private</strong> Dental Data Protection
-                  </h3>
+                  <h3 className="font-semibold text-lg mb-3 text-center text-emerald-900 dark:text-emerald-100">Secure & Private</h3>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <Shield className="h-4 w-4 text-emerald-600" />
-                      <span className="text-sm">Bank-level user authentication and data security</span>
+                      <span className="text-sm">User authentication</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <Lock className="h-4 w-4 text-teal-600" />
-                      <span className="text-sm">End-to-end encrypted storage for patient privacy</span>
+                      <span className="text-sm">Encrypted storage</span>
                     </div>
                   </div>
                 </div>
@@ -118,17 +109,15 @@ const Index = () => {
                 
                 {/* Feature Card */}
                 <div className="bg-gradient-to-br from-background to-muted/20 rounded-xl p-6 border border-border/50 shadow-lg group-hover:shadow-xl transition-all duration-300 max-w-xs">
-                  <h3 className="font-semibold text-lg mb-3 text-center">
-                    <strong>Easy X-Ray Upload</strong> - Simple File Management
-                  </h3>
+                  <h3 className="font-semibold text-lg mb-3 text-center">Easy Upload</h3>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <Hand className="h-4 w-4 text-primary animate-pulse" />
-                      <span className="text-sm">Intuitive drag & drop interface for quick uploads</span>
+                      <span className="text-sm">Drag & drop interface</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span className="text-sm">Automatic DICOM and JPG file format validation</span>
+                      <span className="text-sm">File format validation</span>
                     </div>
                   </div>
                 </div>
@@ -146,28 +135,18 @@ const Index = () => {
                 </div>
                 
                 <div className="bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950/20 dark:to-green-950/20 rounded-xl p-6 border border-blue-200/50 dark:border-blue-800/30 shadow-lg group-hover:shadow-xl transition-all duration-300 max-w-xs">
-                  <h3 className="font-semibold text-lg mb-3 text-center text-blue-900 dark:text-blue-100">
-                    <strong>Advanced AI Detection</strong> - Clinical Grade Accuracy
-                  </h3>
+                  <h3 className="font-semibold text-lg mb-3 text-center text-blue-900 dark:text-blue-100">AI Detection</h3>
                   <div className="text-center mb-4">
                     <div className="inline-flex items-center gap-2 bg-blue-500/20 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full text-sm font-medium">
                       <Zap className="h-4 w-4" />
-                      <strong>AI detects 20 dental conditions</strong> with 95%+ accuracy
+                      AI detects 20 conditions
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-red-500/10 text-red-700 dark:text-red-300 text-xs px-2 py-1 rounded-full text-center border border-red-200/50">
-                      <strong>Dental Caries</strong>
-                    </div>
-                    <div className="bg-orange-500/10 text-orange-700 dark:text-orange-300 text-xs px-2 py-1 rounded-full text-center border border-orange-200/50">
-                      <strong>Bone Loss</strong>
-                    </div>
-                    <div className="bg-purple-500/10 text-purple-700 dark:text-purple-300 text-xs px-2 py-1 rounded-full text-center border border-purple-200/50">
-                      <strong>Implants</strong>
-                    </div>
-                    <div className="bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 text-xs px-2 py-1 rounded-full text-center border border-yellow-200/50">
-                      <strong>Root Fractures</strong>
-                    </div>
+                    <div className="bg-red-500/10 text-red-700 dark:text-red-300 text-xs px-2 py-1 rounded-full text-center border border-red-200/50">Caries</div>
+                    <div className="bg-orange-500/10 text-orange-700 dark:text-orange-300 text-xs px-2 py-1 rounded-full text-center border border-orange-200/50">Bone loss</div>
+                    <div className="bg-purple-500/10 text-purple-700 dark:text-purple-300 text-xs px-2 py-1 rounded-full text-center border border-purple-200/50">Implants</div>
+                    <div className="bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 text-xs px-2 py-1 rounded-full text-center border border-yellow-200/50">Fractures</div>
                   </div>
                 </div>
               </div>
@@ -260,14 +239,12 @@ const Index = () => {
       {/* About Us Section */}
       <section id="about" className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <article className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">About Our <strong>Dental AI Expert Team</strong></h2>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">About Our Team</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Meet the <strong>AI and data experts</strong> behind our dental analysis platform, bringing together 
-              <em>cutting-edge technology</em> and deep domain expertise in artificial intelligence, machine learning, 
-              and dental healthcare innovation.
+              Meet the experts behind our AI-powered dental analysis platform, bringing together cutting-edge technology and deep domain expertise.
             </p>
-          </article>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
             {/* Thirumala */}
@@ -275,7 +252,7 @@ const Index = () => {
               <div className="mb-4">
                 <img 
                   src={thirumalaImage} 
-                  alt="Thirumala Peddireddy - CEO and Data Management Expert with 20+ years experience in ERP solutions and data governance for dental AI platform" 
+                  alt="Thirumala Peddireddy" 
                   className="w-48 h-48 rounded-full mx-auto object-cover border-4 border-primary/20"
                 />
               </div>
@@ -299,7 +276,7 @@ const Index = () => {
               <div className="mb-4">
                 <img 
                   src={swarajImage} 
-                  alt="Swaraj Khan - CTO and AI Expert specializing in computer vision and machine learning for dental x-ray analysis technology" 
+                  alt="Swaraj Khan" 
                   className="w-48 h-48 rounded-full mx-auto object-cover border-4 border-primary/20"
                 />
               </div>
@@ -323,7 +300,7 @@ const Index = () => {
               <div className="mb-4">
                 <img 
                   src={anuskaImage} 
-                  alt="Anushka Saxena - Data Science Architect specializing in machine learning pattern recognition and statistical analysis for dental AI insights" 
+                  alt="Anushka Saxena" 
                   className="w-48 h-48 rounded-full mx-auto object-cover border-4 border-primary/20"
                 />
               </div>
@@ -347,7 +324,7 @@ const Index = () => {
               <div className="mb-4">
                 <img 
                   src={placeholderImage} 
-                  alt="Future team member placeholder - expanding dental AI expertise team for enhanced platform capabilities" 
+                  alt="Team Member Coming Soon" 
                   className="w-48 h-48 rounded-full mx-auto object-cover border-4 border-primary/20 opacity-60"
                 />
               </div>
@@ -366,30 +343,21 @@ const Index = () => {
       {/* CTA Section */}
       <section className="bg-primary/5 py-16">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">
-            <strong>Ready to Transform Your Dental Practice?</strong>
-          </h2>
+          <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Join thousands of <strong>dental professionals worldwide</strong> who trust our 
-            <em>AI-powered analysis platform</em> for accurate and efficient dental radiograph interpretation. 
-            Start detecting dental conditions with clinical-grade precision today.
+            Join dental professionals worldwide who trust our AI-powered analysis platform 
+            for accurate and efficient dental radiograph interpretation.
           </p>
           <Button size="lg" asChild>
-            <a href="/auth" title="Begin your free dental AI analysis trial">Start Your Free Analysis Trial</a>
+            <a href="/auth">Start Your Analysis</a>
           </Button>
         </div>
       </section>
-      </main>
 
       {/* Footer */}
       <footer className="border-t py-8">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>
-            <strong>&copy; 2024 Dental AI Analysis Platform.</strong> All rights reserved. | 
-            <a href="/auth" className="text-primary hover:underline ml-2" title="Access dental AI dashboard">Login</a> | 
-            <a href="#about" className="text-primary hover:underline ml-2" title="Learn about our team">About</a> | 
-            <a href="#features" className="text-primary hover:underline ml-2" title="Explore AI features">Features</a>
-          </p>
+          <p>&copy; 2024 Dental AI Analysis Platform. All rights reserved.</p>
         </div>
       </footer>
     </div>

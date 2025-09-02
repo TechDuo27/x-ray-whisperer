@@ -117,7 +117,7 @@ const Index = () => {
                   <div className="text-center mb-4">
                     <div className="inline-flex items-center gap-2 bg-blue-500/20 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full text-sm font-medium">
                       <Zap className="h-4 w-4" />
-                      AI detects 20+ conditions
+                      AI detects 20 conditions
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">

@@ -69,13 +69,39 @@ const Index = () => {
             {/* Checkpoints */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-8 relative z-10">
               
-              {/* Checkpoint 1: Easy Upload */}
+              {/* Checkpoint 1: Secure & Private */}
+              <div className="flex flex-col items-center group">
+                <div className="relative mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300 border-4 border-background">
+                    <Lock className="h-8 w-8 text-white" />
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-emerald-500 rounded-full flex items-center justify-center text-emerald-500 font-bold text-sm">1</div>
+                  </div>
+                  {/* Connection Line to Next */}
+                  <div className="hidden md:block absolute top-8 left-16 w-32 lg:w-40 xl:w-48 h-0.5 bg-gradient-to-r from-emerald-500 to-primary"></div>
+                </div>
+                
+                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-xl p-6 border border-emerald-200/50 dark:border-emerald-800/30 shadow-lg group-hover:shadow-xl transition-all duration-300 max-w-xs">
+                  <h3 className="font-semibold text-lg mb-3 text-center text-emerald-900 dark:text-emerald-100">Secure & Private</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Shield className="h-4 w-4 text-emerald-600" />
+                      <span className="text-sm">User authentication</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Lock className="h-4 w-4 text-teal-600" />
+                      <span className="text-sm">Encrypted storage</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Checkpoint 2: Easy Upload */}
               <div className="flex flex-col items-center group">
                   <div className="relative mb-6">
                   {/* Checkpoint Node */}
                   <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300 border-4 border-background">
                     <Monitor className="h-8 w-8 text-primary-foreground" />
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-primary rounded-full flex items-center justify-center text-primary font-bold text-sm">1</div>
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-primary rounded-full flex items-center justify-center text-primary font-bold text-sm">2</div>
                   </div>
                   {/* Connection Line to Next */}
                   <div className="hidden md:block absolute top-8 left-16 w-32 lg:w-40 xl:w-48 h-0.5 bg-gradient-to-r from-primary to-blue-500"></div>
@@ -93,20 +119,16 @@ const Index = () => {
                       <CheckCircle className="h-4 w-4 text-green-500" />
                       <span className="text-sm">File format validation</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <BarChart3 className="h-4 w-4 text-blue-500" />
-                      <span className="text-sm">Progress tracking</span>
-                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Checkpoint 2: AI Detection */}
+              {/* Checkpoint 3: AI Detection */}
               <div className="flex flex-col items-center group">
                 <div className="relative mb-6">
                   <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-green-500 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300 border-4 border-background">
                     <Brain className="h-8 w-8 text-white" />
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-blue-500 rounded-full flex items-center justify-center text-blue-500 font-bold text-sm">2</div>
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-blue-500 rounded-full flex items-center justify-center text-blue-500 font-bold text-sm">3</div>
                   </div>
                   {/* Connection Line to Next */}
                   <div className="hidden md:block absolute top-8 left-16 w-32 lg:w-40 xl:w-48 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500"></div>
@@ -129,15 +151,15 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Checkpoint 3: Detailed Reports */}
+              {/* Checkpoint 4: Detailed Reports */}
               <div className="flex flex-col items-center group">
                 <div className="relative mb-6">
                   <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300 border-4 border-background">
                     <FileText className="h-8 w-8 text-white" />
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-purple-500 rounded-full flex items-center justify-center text-purple-500 font-bold text-sm">3</div>
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-purple-500 rounded-full flex items-center justify-center text-purple-500 font-bold text-sm">4</div>
                   </div>
                   {/* Connection Line to Next */}
-                  <div className="hidden md:block absolute top-8 left-16 w-32 lg:w-40 xl:w-48 h-0.5 bg-gradient-to-r from-purple-500 to-emerald-500"></div>
+                  <div className="hidden md:block absolute top-8 left-16 w-32 lg:w-40 xl:w-48 h-0.5 bg-gradient-to-r from-purple-500 to-orange-500"></div>
                 </div>
                 
                 <div className="bg-gradient-to-br from-background to-muted/10 rounded-xl p-6 border border-border/50 shadow-lg group-hover:shadow-xl transition-all duration-300 max-w-xs">
@@ -165,32 +187,6 @@ const Index = () => {
                     <div className="flex items-center gap-3">
                       <FileText className="h-4 w-4 text-purple-500" />
                       <span className="text-sm">Print-ready format</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Checkpoint 4: Secure & Private */}
-              <div className="flex flex-col items-center group">
-                <div className="relative mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300 border-4 border-background">
-                    <Lock className="h-8 w-8 text-white" />
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-emerald-500 rounded-full flex items-center justify-center text-emerald-500 font-bold text-sm">4</div>
-                  </div>
-                  {/* Connection Line to Next */}
-                  <div className="hidden md:block absolute top-8 left-16 w-32 lg:w-40 xl:w-48 h-0.5 bg-gradient-to-r from-emerald-500 to-orange-500"></div>
-                </div>
-                
-                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-xl p-6 border border-emerald-200/50 dark:border-emerald-800/30 shadow-lg group-hover:shadow-xl transition-all duration-300 max-w-xs">
-                  <h3 className="font-semibold text-lg mb-3 text-center text-emerald-900 dark:text-emerald-100">Secure & Private</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <Shield className="h-4 w-4 text-emerald-600" />
-                      <span className="text-sm">User authentication</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Lock className="h-4 w-4 text-teal-600" />
-                      <span className="text-sm">Encrypted storage</span>
                     </div>
                   </div>
                 </div>

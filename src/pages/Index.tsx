@@ -2,7 +2,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Brain, Upload, FileText, Shield, Zap } from 'lucide-react';
+import { Brain, Upload, FileText, Shield, Zap, Monitor, Hand, CheckCircle, BarChart3, Lock, Clock, Calendar } from 'lucide-react';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
 import swarajImage from '@/assets/swaraj.png';
 import anuskaImage from '@/assets/anushka.png';
@@ -60,118 +60,129 @@ const Index = () => {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Advanced AI Analysis</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Our platform uses state-of-the-art YOLO models to detect and analyze 
-              various dental conditions with high accuracy and confidence.
+              Experience our streamlined AI-powered workflow designed for dental professionals
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card>
-              <CardHeader>
-                <Upload className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Easy Upload</CardTitle>
-                <CardDescription>
-                  Drag and drop panoramic X-ray images with support for JPEG and PNG formats
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Drag & drop interface</li>
-                  <li>• File format validation</li>
-                  <li>• Progress tracking</li>
-                </ul>
-              </CardContent>
-            </Card>
+          {/* Sequential Panels Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
+            
+            {/* 1. Easy Upload Panel */}
+            <div className="bg-gradient-to-br from-background to-muted/20 rounded-2xl p-6 border border-border/50 hover:border-primary/20 transition-all duration-300 group">
+              <div className="text-center space-y-4">
+                <div className="relative mx-auto w-20 h-16 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center group-hover:border-primary/50 transition-colors">
+                  <Monitor className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <div className="absolute -top-2 -right-2 bg-primary/10 rounded-full p-1">
+                    <Hand className="h-4 w-4 text-primary animate-pulse" />
+                  </div>
+                </div>
+                <h3 className="font-semibold text-sm">Easy Upload</h3>
+                <div className="space-y-2">
+                  <div className="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">Drag & drop interface</div>
+                  <div className="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">File format validation</div>
+                  <div className="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">Progress tracking</div>
+                </div>
+                <div className="w-full bg-muted/30 rounded-full h-2 overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-primary/20 to-primary animate-pulse w-3/4 rounded-full"></div>
+                </div>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <Brain className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>AI Detection</CardTitle>
-                <CardDescription>
-                  Dual YOLO model system detecting 18+ dental conditions with confidence scoring
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Caries detection</li>
-                  <li>• Bone loss analysis</li>
-                  <li>• Implant identification</li>
-                  <li>• Fracture detection</li>
-                </ul>
-              </CardContent>
-            </Card>
+            {/* 2. AI Detection Panel */}
+            <div className="bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950/20 dark:to-green-950/20 rounded-2xl p-6 border border-blue-200/50 dark:border-blue-800/30 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 group">
+              <div className="text-center space-y-4">
+                <div className="relative mx-auto w-20 h-16 bg-gradient-to-br from-blue-100 to-green-100 dark:from-blue-900/30 dark:to-green-900/30 rounded-lg flex items-center justify-center border-2 border-blue-200/50 dark:border-blue-800/50">
+                  <div className="w-12 h-10 bg-muted/50 rounded border border-blue-300/50 dark:border-blue-700/50 relative">
+                    <div className="absolute inset-1 bg-gradient-to-r from-blue-200/50 to-green-200/50 dark:from-blue-800/50 dark:to-green-800/50 rounded"></div>
+                    <div className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <div className="absolute bottom-2 left-2 w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse delay-300"></div>
+                    <div className="absolute top-3 left-3 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse delay-700"></div>
+                  </div>
+                  <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold animate-bounce">20+</div>
+                </div>
+                <h3 className="font-semibold text-sm text-blue-900 dark:text-blue-100">AI Detection</h3>
+                <p className="text-xs text-blue-700/80 dark:text-blue-300/80">AI detects 20+ dental conditions</p>
+                <div className="flex flex-wrap gap-1 justify-center">
+                  <div className="bg-blue-500/10 text-blue-700 dark:text-blue-300 text-xs px-2 py-1 rounded-full border border-blue-200/50 dark:border-blue-800/50">Caries</div>
+                  <div className="bg-green-500/10 text-green-700 dark:text-green-300 text-xs px-2 py-1 rounded-full border border-green-200/50 dark:border-green-800/50">Bone loss</div>
+                  <div className="bg-purple-500/10 text-purple-700 dark:text-purple-300 text-xs px-2 py-1 rounded-full border border-purple-200/50 dark:border-purple-800/50">Implants</div>
+                </div>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <FileText className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Detailed Reports</CardTitle>
-                <CardDescription>
-                  Comprehensive HTML reports with annotated images and professional formatting
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Annotated images</li>
-                  <li>• Confidence scores</li>
-                  <li>• Color-coded findings</li>
-                  <li>• Print-ready format</li>
-                </ul>
-              </CardContent>
-            </Card>
+            {/* 3. Detailed Reports Panel */}
+            <div className="bg-gradient-to-br from-background to-muted/10 rounded-2xl p-6 border border-border/50 hover:border-muted-foreground/20 transition-all duration-300 group shadow-lg">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-foreground" />
+                  <h3 className="font-semibold text-sm">Detailed Reports</h3>
+                </div>
+                <div className="relative bg-muted/30 rounded-lg p-3 border">
+                  <div className="flex gap-3">
+                    <div className="w-12 h-8 bg-gradient-to-br from-muted to-muted/50 rounded border flex-shrink-0 relative">
+                      <div className="absolute inset-1 bg-gradient-to-r from-red-200/30 to-yellow-200/30 dark:from-red-900/30 dark:to-yellow-900/30 rounded"></div>
+                      <div className="absolute top-1 right-1 w-1 h-1 bg-red-500 rounded-full"></div>
+                      <div className="absolute bottom-1 left-1 w-1 h-1 bg-yellow-500 rounded-full"></div>
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <div className="bg-accent/50 text-accent-foreground text-xs px-2 py-1 rounded">Annotated images</div>
+                      <div className="bg-accent/50 text-accent-foreground text-xs px-2 py-1 rounded">Confidence scores</div>
+                      <div className="bg-accent/50 text-accent-foreground text-xs px-2 py-1 rounded">Color-coded findings</div>
+                      <div className="bg-accent/50 text-accent-foreground text-xs px-2 py-1 rounded">Print-ready format</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <Shield className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Secure & Private</CardTitle>
-                <CardDescription>
-                  End-to-end encryption with user authentication and secure data storage
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• User authentication</li>
-                  <li>• Encrypted storage</li>
-                  <li>• HIPAA compliant</li>
-                  <li>• Access controls</li>
-                </ul>
-              </CardContent>
-            </Card>
+            {/* 4. Secure & Private Panel */}
+            <div className="bg-gradient-to-br from-muted/20 to-muted/40 rounded-2xl p-6 border border-border/50 hover:border-primary/30 transition-all duration-300 group relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 dark:from-blue-500/10 dark:to-purple-500/10"></div>
+              <div className="relative text-center space-y-4">
+                <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center border-2 border-blue-200/50 dark:border-blue-800/50 group-hover:scale-110 transition-transform">
+                  <Lock className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <div className="absolute top-2 left-2 w-1 h-1 bg-yellow-400 rounded-full animate-ping delay-500"></div>
+                </div>
+                <h3 className="font-semibold text-sm">Secure & Private</h3>
+                <div className="space-y-2">
+                  <div className="bg-blue-500/10 text-blue-700 dark:text-blue-300 text-xs px-3 py-1.5 rounded-full border border-blue-200/50 dark:border-blue-800/50">User authentication</div>
+                  <div className="bg-purple-500/10 text-purple-700 dark:text-purple-300 text-xs px-3 py-1.5 rounded-full border border-purple-200/50 dark:border-purple-800/50">Encrypted storage</div>
+                </div>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <Zap className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Real-time Analysis</CardTitle>
-                <CardDescription>
-                  Fast processing with adjustable confidence thresholds and instant results
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Instant processing</li>
-                  <li>• Adjustable thresholds</li>
-                  <li>• Real-time preview</li>
-                  <li>• Quick export</li>
-                </ul>
-              </CardContent>
-            </Card>
+            {/* 5. Analysis History Panel */}
+            <div className="bg-gradient-to-br from-background to-muted/20 rounded-2xl p-6 border border-border/50 hover:border-accent/30 transition-all duration-300 group">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-foreground" />
+                  <h3 className="font-semibold text-sm">Analysis History</h3>
+                </div>
+                <p className="text-xs text-muted-foreground">See your last 5 analyses</p>
+                <div className="space-y-2">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="flex items-center gap-3 p-2 bg-muted/30 rounded-lg border border-border/30 hover:border-accent/50 hover:bg-accent/5 transition-all cursor-pointer group-hover:scale-105" style={{ transitionDelay: `${i * 50}ms` }}>
+                      <div className="w-8 h-6 bg-gradient-to-br from-muted to-muted/50 rounded border flex-shrink-0 relative">
+                        <div className="absolute inset-0.5 bg-gradient-to-r from-primary/20 to-accent/20 rounded"></div>
+                        <div className="absolute top-1 right-1 w-0.5 h-0.5 bg-primary rounded-full"></div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">Dec {25 - i}</span>
+                        </div>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <CheckCircle className="h-3 w-3 text-green-500" />
+                          <span className="text-xs text-foreground">{Math.floor(Math.random() * 5) + 2} findings</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <FileText className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Analysis History</CardTitle>
-                <CardDescription>
-                  Track and review previous analyses with searchable history and comparisons
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Analysis archive</li>
-                  <li>• Search functionality</li>
-                  <li>• Comparison tools</li>
-                  <li>• Export options</li>
-                </ul>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>

@@ -66,15 +66,6 @@ const Index = () => {
 
           {/* Roadmap Container */}
           <div className="relative max-w-6xl mx-auto">
-            {/* Roadmap Path */}
-            <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-primary/20 via-primary/60 to-primary/20 -translate-y-1/2 rounded-full shadow-lg">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/40 via-primary to-primary/40 rounded-full animate-pulse"></div>
-              {/* Traveling dot */}
-              <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-primary rounded-full shadow-lg animate-bounce" style={{ left: '0%', animationDuration: '3s' }}>
-                <div className="absolute inset-0 bg-primary rounded-full animate-ping"></div>
-              </div>
-            </div>
-
             {/* Checkpoints */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-8 relative z-10">
               
@@ -185,9 +176,6 @@ const Index = () => {
                     <Lock className="h-8 w-8 text-white" />
                     <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-emerald-500 rounded-full flex items-center justify-center text-emerald-500 font-bold text-sm">4</div>
                   </div>
-                  {/* Security particles */}
-                  <div className="absolute -top-1 -left-1 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
-                  <div className="absolute -bottom-1 -right-1 w-1.5 h-1.5 bg-green-400 rounded-full animate-ping delay-500"></div>
                 </div>
                 
                 <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-xl p-6 border border-emerald-200/50 dark:border-emerald-800/30 shadow-lg group-hover:shadow-xl transition-all duration-300 max-w-xs">

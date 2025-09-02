@@ -16,6 +16,7 @@ import { toast } from '@/hooks/use-toast';
 import { format, parseISO, subDays } from 'date-fns';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
 import { Link } from 'react-router-dom';
+import ImageAnnotationViewer from '@/components/ImageAnnotationViewer';
 
 interface FeedbackData {
   id: string;
@@ -27,6 +28,8 @@ interface FeedbackData {
   feedback_text: string;
   feedback_submitted_at: string;
   original_filename: string;
+  image_url: string;
+  analysis_results: any;
 }
 
 interface TrendData {
@@ -68,7 +71,7 @@ export default function AdminFeedback() {
       // Optimized query - fetch data separately to avoid join issues
       const { data: analysesData, error: analysesError } = await supabase
         .from('analyses')
-        .select('id, user_id, created_at, feedback_type, feedback_text, feedback_submitted_at, original_filename')
+        .select('id, user_id, created_at, feedback_type, feedback_text, feedback_submitted_at, original_filename, image_url, analysis_results')
         .not('feedback_type', 'is', null)
         .order('feedback_submitted_at', { ascending: false })
         .limit(1000);
@@ -104,7 +107,9 @@ export default function AdminFeedback() {
           feedback_type: item.feedback_type as 'up' | 'down',
           feedback_text: item.feedback_text,
           feedback_submitted_at: item.feedback_submitted_at,
-          original_filename: item.original_filename
+          original_filename: item.original_filename,
+          image_url: item.image_url,
+          analysis_results: item.analysis_results
         };
       });
       
@@ -567,9 +572,23 @@ export default function AdminFeedback() {
                           {expandedRows.has(feedback.id) && (
                             <TableRow>
                               <TableCell colSpan={7} className="p-4 bg-muted/30">
-                                <div className="space-y-2">
-                                  <h4 className="font-medium">Full Feedback Text:</h4>
-                                  <p className="text-sm whitespace-pre-wrap">{feedback.feedback_text}</p>
+                                <div className="space-y-4">
+                                  <div className="space-y-2">
+                                    <h4 className="font-medium">Full Feedback Text:</h4>
+                                    <p className="text-sm whitespace-pre-wrap">{feedback.feedback_text}</p>
+                                  </div>
+                                  {feedback.image_url && feedback.analysis_results?.detections && (
+                                    <div className="space-y-2">
+                                      <h4 className="font-medium">Analysis Image:</h4>
+                                      <div className="max-w-2xl">
+                                        <ImageAnnotationViewer
+                                          originalImageUrl={feedback.image_url}
+                                          detections={feedback.analysis_results.detections}
+                                          filename={feedback.original_filename || 'analysis'}
+                                        />
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                               </TableCell>
                             </TableRow>

@@ -17,6 +17,7 @@ import { format, parseISO, subDays } from 'date-fns';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
 import { Link } from 'react-router-dom';
 import ImageAnnotationViewer from '@/components/ImageAnnotationViewer';
+import { DETECTION_COLORS, getHexColor } from '@/utils/modelLoader';
 
 interface FeedbackData {
   id: string;
@@ -580,12 +581,52 @@ export default function AdminFeedback() {
                                   {feedback.image_url && feedback.analysis_results?.detections && (
                                     <div className="space-y-2">
                                       <h4 className="font-medium">Analysis Image:</h4>
-                                      <div className="max-w-2xl">
-                                        <ImageAnnotationViewer
-                                          originalImageUrl={feedback.image_url}
-                                          detections={feedback.analysis_results.detections}
-                                          filename={feedback.original_filename || 'analysis'}
-                                        />
+                                      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+                                        <div className="xl:col-span-2">
+                                          <ImageAnnotationViewer
+                                            originalImageUrl={feedback.image_url}
+                                            detections={feedback.analysis_results.detections}
+                                            filename={feedback.original_filename || 'analysis'}
+                                          />
+                                        </div>
+                                        <div className="space-y-3">
+                                          <h5 className="font-medium text-sm">Detection Legend</h5>
+                                          <div className="space-y-2">
+                                            {(() => {
+                                              // Group detections by display_name
+                                              const grouped = feedback.analysis_results.detections.reduce((acc: any, det: any) => {
+                                                const key = det.display_name || det.class;
+                                                if (!acc[key]) {
+                                                  acc[key] = {
+                                                    displayName: key,
+                                                    color: getHexColor(det),
+                                                    count: 0,
+                                                    maxConfidence: 0
+                                                  };
+                                                }
+                                                acc[key].count++;
+                                                acc[key].maxConfidence = Math.max(acc[key].maxConfidence, det.confidence);
+                                                return acc;
+                                              }, {});
+
+                                              return Object.values(grouped).map((item: any) => (
+                                                <div key={item.displayName} className="flex items-center gap-2 text-xs">
+                                                  <div 
+                                                    className="w-3 h-3 rounded border border-muted-foreground/20" 
+                                                    style={{ backgroundColor: item.color }}
+                                                  ></div>
+                                                  <div className="flex-1">
+                                                    <div className="font-medium">{item.displayName}</div>
+                                                    <div className="text-muted-foreground">
+                                                      {item.count} detection{item.count > 1 ? 's' : ''} 
+                                                      <span className="ml-1">({(item.maxConfidence * 100).toFixed(0)}%)</span>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              ));
+                                            })()}
+                                          </div>
+                                        </div>
                                       </div>
                                     </div>
                                   )}

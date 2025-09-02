@@ -98,9 +98,6 @@ const Index = () => {
                       <span className="text-sm">Progress tracking</span>
                     </div>
                   </div>
-                  <div className="mt-4 w-full bg-muted/30 rounded-full h-2">
-                    <div className="h-full bg-gradient-to-r from-primary/60 to-primary rounded-full w-3/4 animate-pulse"></div>
-                  </div>
                 </div>
               </div>
 
@@ -194,12 +191,6 @@ const Index = () => {
                     <div className="flex items-center gap-3">
                       <Lock className="h-4 w-4 text-teal-600" />
                       <span className="text-sm">Encrypted storage</span>
-                    </div>
-                  </div>
-                  <div className="mt-4 p-3 bg-emerald-500/10 rounded-lg border border-emerald-200/50 dark:border-emerald-800/50">
-                    <div className="flex items-center justify-center gap-2">
-                      <CheckCircle className="h-5 w-5 text-emerald-600" />
-                      <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">HIPAA Compliant</span>
                     </div>
                   </div>
                 </div>

@@ -58,9 +58,9 @@ const Index = () => {
       <section id="features" className="py-16 relative overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Advanced AI Analysis Workflow</h2>
+            <h2 className="text-3xl font-bold mb-4">Unlock Breakthrough Dental Insights Effortlessly</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Follow the roadmap—each checkpoint unlocks powerful dental insights.
+              Step into a streamlined AI-powered journey—from secure uploads to precise detection and easy-to-understand reports. Every feature is crafted to deliver fast, reliable, and actionable results that empower both clinicians and patients.
             </p>
           </div>
 

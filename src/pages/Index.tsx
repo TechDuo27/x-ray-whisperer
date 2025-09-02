@@ -71,14 +71,14 @@ const Index = () => {
               
               {/* Checkpoint 1: Easy Upload */}
               <div className="flex flex-col items-center group">
-                <div className="relative mb-6">
+                  <div className="relative mb-6">
                   {/* Checkpoint Node */}
                   <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300 border-4 border-background">
                     <Monitor className="h-8 w-8 text-primary-foreground" />
                     <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-primary rounded-full flex items-center justify-center text-primary font-bold text-sm">1</div>
                   </div>
                   {/* Connection Line to Next */}
-                  <div className="hidden md:block absolute top-8 left-16 w-full h-0.5 bg-primary/30"></div>
+                  <div className="hidden md:block absolute top-8 left-16 w-24 h-0.5 bg-gradient-to-r from-primary to-blue-500"></div>
                 </div>
                 
                 {/* Feature Card */}
@@ -111,6 +111,8 @@ const Index = () => {
                     <Brain className="h-8 w-8 text-white" />
                     <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-blue-500 rounded-full flex items-center justify-center text-blue-500 font-bold text-sm">2</div>
                   </div>
+                  {/* Connection Line to Next */}
+                  <div className="hidden md:block absolute top-8 left-16 w-24 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500"></div>
                 </div>
                 
                 <div className="bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950/20 dark:to-green-950/20 rounded-xl p-6 border border-blue-200/50 dark:border-blue-800/30 shadow-lg group-hover:shadow-xl transition-all duration-300 max-w-xs">
@@ -137,6 +139,8 @@ const Index = () => {
                     <FileText className="h-8 w-8 text-white" />
                     <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-purple-500 rounded-full flex items-center justify-center text-purple-500 font-bold text-sm">3</div>
                   </div>
+                  {/* Connection Line to Next */}
+                  <div className="hidden md:block absolute top-8 left-16 w-24 h-0.5 bg-gradient-to-r from-purple-500 to-emerald-500"></div>
                 </div>
                 
                 <div className="bg-gradient-to-br from-background to-muted/10 rounded-xl p-6 border border-border/50 shadow-lg group-hover:shadow-xl transition-all duration-300 max-w-xs">
@@ -176,6 +180,8 @@ const Index = () => {
                     <Lock className="h-8 w-8 text-white" />
                     <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-emerald-500 rounded-full flex items-center justify-center text-emerald-500 font-bold text-sm">4</div>
                   </div>
+                  {/* Connection Line to Next */}
+                  <div className="hidden md:block absolute top-8 left-16 w-24 h-0.5 bg-gradient-to-r from-emerald-500 to-orange-500"></div>
                 </div>
                 
                 <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-xl p-6 border border-emerald-200/50 dark:border-emerald-800/30 shadow-lg group-hover:shadow-xl transition-all duration-300 max-w-xs">

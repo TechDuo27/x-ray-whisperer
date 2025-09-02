@@ -54,131 +54,217 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-16">
+      {/* Features Section - Roadmap */}
+      <section id="features" className="py-16 relative overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Advanced AI Analysis</h2>
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold mb-4">Advanced AI Analysis Workflow</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Experience our streamlined AI-powered workflow designed for dental professionals
+              Follow the roadmap—each checkpoint unlocks powerful dental insights.
             </p>
           </div>
 
-          {/* Sequential Panels Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
-            
-            {/* 1. Easy Upload Panel */}
-            <div className="bg-gradient-to-br from-background to-muted/20 rounded-2xl p-6 border border-border/50 hover:border-primary/20 transition-all duration-300 group">
-              <div className="text-center space-y-4">
-                <div className="relative mx-auto w-20 h-16 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center group-hover:border-primary/50 transition-colors">
-                  <Monitor className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
-                  <div className="absolute -top-2 -right-2 bg-primary/10 rounded-full p-1">
-                    <Hand className="h-4 w-4 text-primary animate-pulse" />
-                  </div>
-                </div>
-                <h3 className="font-semibold text-sm">Easy Upload</h3>
-                <div className="space-y-2">
-                  <div className="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">Drag & drop interface</div>
-                  <div className="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">File format validation</div>
-                  <div className="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">Progress tracking</div>
-                </div>
-                <div className="w-full bg-muted/30 rounded-full h-2 overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-primary/20 to-primary animate-pulse w-3/4 rounded-full"></div>
-                </div>
+          {/* Roadmap Container */}
+          <div className="relative max-w-6xl mx-auto">
+            {/* Roadmap Path */}
+            <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-primary/20 via-primary/60 to-primary/20 -translate-y-1/2 rounded-full shadow-lg">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/40 via-primary to-primary/40 rounded-full animate-pulse"></div>
+              {/* Traveling dot */}
+              <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-primary rounded-full shadow-lg animate-bounce" style={{ left: '0%', animationDuration: '3s' }}>
+                <div className="absolute inset-0 bg-primary rounded-full animate-ping"></div>
               </div>
             </div>
 
-            {/* 2. AI Detection Panel */}
-            <div className="bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950/20 dark:to-green-950/20 rounded-2xl p-6 border border-blue-200/50 dark:border-blue-800/30 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 group">
-              <div className="text-center space-y-4">
-                <div className="relative mx-auto w-20 h-16 bg-gradient-to-br from-blue-100 to-green-100 dark:from-blue-900/30 dark:to-green-900/30 rounded-lg flex items-center justify-center border-2 border-blue-200/50 dark:border-blue-800/50">
-                  <div className="w-12 h-10 bg-muted/50 rounded border border-blue-300/50 dark:border-blue-700/50 relative">
-                    <div className="absolute inset-1 bg-gradient-to-r from-blue-200/50 to-green-200/50 dark:from-blue-800/50 dark:to-green-800/50 rounded"></div>
-                    <div className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                    <div className="absolute bottom-2 left-2 w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse delay-300"></div>
-                    <div className="absolute top-3 left-3 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse delay-700"></div>
+            {/* Checkpoints */}
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-8 relative z-10">
+              
+              {/* Checkpoint 1: Easy Upload */}
+              <div className="flex flex-col items-center group">
+                <div className="relative mb-6">
+                  {/* Checkpoint Node */}
+                  <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300 border-4 border-background">
+                    <Monitor className="h-8 w-8 text-primary-foreground" />
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-primary rounded-full flex items-center justify-center text-primary font-bold text-sm">1</div>
                   </div>
-                  <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold animate-bounce">20+</div>
+                  {/* Connection Line to Next */}
+                  <div className="hidden md:block absolute top-8 left-16 w-full h-0.5 bg-primary/30"></div>
                 </div>
-                <h3 className="font-semibold text-sm text-blue-900 dark:text-blue-100">AI Detection</h3>
-                <p className="text-xs text-blue-700/80 dark:text-blue-300/80">AI detects 20+ dental conditions</p>
-                <div className="flex flex-wrap gap-1 justify-center">
-                  <div className="bg-blue-500/10 text-blue-700 dark:text-blue-300 text-xs px-2 py-1 rounded-full border border-blue-200/50 dark:border-blue-800/50">Caries</div>
-                  <div className="bg-green-500/10 text-green-700 dark:text-green-300 text-xs px-2 py-1 rounded-full border border-green-200/50 dark:border-green-800/50">Bone loss</div>
-                  <div className="bg-purple-500/10 text-purple-700 dark:text-purple-300 text-xs px-2 py-1 rounded-full border border-purple-200/50 dark:border-purple-800/50">Implants</div>
-                </div>
-              </div>
-            </div>
-
-            {/* 3. Detailed Reports Panel */}
-            <div className="bg-gradient-to-br from-background to-muted/10 rounded-2xl p-6 border border-border/50 hover:border-muted-foreground/20 transition-all duration-300 group shadow-lg">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-foreground" />
-                  <h3 className="font-semibold text-sm">Detailed Reports</h3>
-                </div>
-                <div className="relative bg-muted/30 rounded-lg p-3 border">
-                  <div className="flex gap-3">
-                    <div className="w-12 h-8 bg-gradient-to-br from-muted to-muted/50 rounded border flex-shrink-0 relative">
-                      <div className="absolute inset-1 bg-gradient-to-r from-red-200/30 to-yellow-200/30 dark:from-red-900/30 dark:to-yellow-900/30 rounded"></div>
-                      <div className="absolute top-1 right-1 w-1 h-1 bg-red-500 rounded-full"></div>
-                      <div className="absolute bottom-1 left-1 w-1 h-1 bg-yellow-500 rounded-full"></div>
+                
+                {/* Feature Card */}
+                <div className="bg-gradient-to-br from-background to-muted/20 rounded-xl p-6 border border-border/50 shadow-lg group-hover:shadow-xl transition-all duration-300 max-w-xs">
+                  <h3 className="font-semibold text-lg mb-3 text-center">Easy Upload</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Hand className="h-4 w-4 text-primary animate-pulse" />
+                      <span className="text-sm">Drag & drop interface</span>
                     </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="bg-accent/50 text-accent-foreground text-xs px-2 py-1 rounded">Annotated images</div>
-                      <div className="bg-accent/50 text-accent-foreground text-xs px-2 py-1 rounded">Confidence scores</div>
-                      <div className="bg-accent/50 text-accent-foreground text-xs px-2 py-1 rounded">Color-coded findings</div>
-                      <div className="bg-accent/50 text-accent-foreground text-xs px-2 py-1 rounded">Print-ready format</div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <span className="text-sm">File format validation</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <BarChart3 className="h-4 w-4 text-blue-500" />
+                      <span className="text-sm">Progress tracking</span>
                     </div>
                   </div>
+                  <div className="mt-4 w-full bg-muted/30 rounded-full h-2">
+                    <div className="h-full bg-gradient-to-r from-primary/60 to-primary rounded-full w-3/4 animate-pulse"></div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* 4. Secure & Private Panel */}
-            <div className="bg-gradient-to-br from-muted/20 to-muted/40 rounded-2xl p-6 border border-border/50 hover:border-primary/30 transition-all duration-300 group relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 dark:from-blue-500/10 dark:to-purple-500/10"></div>
-              <div className="relative text-center space-y-4">
-                <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center border-2 border-blue-200/50 dark:border-blue-800/50 group-hover:scale-110 transition-transform">
-                  <Lock className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                  <div className="absolute top-2 left-2 w-1 h-1 bg-yellow-400 rounded-full animate-ping delay-500"></div>
+              {/* Checkpoint 2: AI Detection */}
+              <div className="flex flex-col items-center group">
+                <div className="relative mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-green-500 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300 border-4 border-background">
+                    <Brain className="h-8 w-8 text-white" />
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-blue-500 rounded-full flex items-center justify-center text-blue-500 font-bold text-sm">2</div>
+                  </div>
                 </div>
-                <h3 className="font-semibold text-sm">Secure & Private</h3>
-                <div className="space-y-2">
-                  <div className="bg-blue-500/10 text-blue-700 dark:text-blue-300 text-xs px-3 py-1.5 rounded-full border border-blue-200/50 dark:border-blue-800/50">User authentication</div>
-                  <div className="bg-purple-500/10 text-purple-700 dark:text-purple-300 text-xs px-3 py-1.5 rounded-full border border-purple-200/50 dark:border-purple-800/50">Encrypted storage</div>
+                
+                <div className="bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950/20 dark:to-green-950/20 rounded-xl p-6 border border-blue-200/50 dark:border-blue-800/30 shadow-lg group-hover:shadow-xl transition-all duration-300 max-w-xs">
+                  <h3 className="font-semibold text-lg mb-3 text-center text-blue-900 dark:text-blue-100">AI Detection</h3>
+                  <div className="text-center mb-4">
+                    <div className="inline-flex items-center gap-2 bg-blue-500/20 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full text-sm font-medium">
+                      <Zap className="h-4 w-4" />
+                      AI detects 20+ conditions
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-red-500/10 text-red-700 dark:text-red-300 text-xs px-2 py-1 rounded-full text-center border border-red-200/50">Caries</div>
+                    <div className="bg-orange-500/10 text-orange-700 dark:text-orange-300 text-xs px-2 py-1 rounded-full text-center border border-orange-200/50">Bone loss</div>
+                    <div className="bg-purple-500/10 text-purple-700 dark:text-purple-300 text-xs px-2 py-1 rounded-full text-center border border-purple-200/50">Implants</div>
+                    <div className="bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 text-xs px-2 py-1 rounded-full text-center border border-yellow-200/50">Fractures</div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* 5. Analysis History Panel */}
-            <div className="bg-gradient-to-br from-background to-muted/20 rounded-2xl p-6 border border-border/50 hover:border-accent/30 transition-all duration-300 group">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-foreground" />
-                  <h3 className="font-semibold text-sm">Analysis History</h3>
+              {/* Checkpoint 3: Detailed Reports */}
+              <div className="flex flex-col items-center group">
+                <div className="relative mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300 border-4 border-background">
+                    <FileText className="h-8 w-8 text-white" />
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-purple-500 rounded-full flex items-center justify-center text-purple-500 font-bold text-sm">3</div>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground">See your last 5 analyses</p>
-                <div className="space-y-2">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="flex items-center gap-3 p-2 bg-muted/30 rounded-lg border border-border/30 hover:border-accent/50 hover:bg-accent/5 transition-all cursor-pointer group-hover:scale-105" style={{ transitionDelay: `${i * 50}ms` }}>
-                      <div className="w-8 h-6 bg-gradient-to-br from-muted to-muted/50 rounded border flex-shrink-0 relative">
-                        <div className="absolute inset-0.5 bg-gradient-to-r from-primary/20 to-accent/20 rounded"></div>
-                        <div className="absolute top-1 right-1 w-0.5 h-0.5 bg-primary rounded-full"></div>
+                
+                <div className="bg-gradient-to-br from-background to-muted/10 rounded-xl p-6 border border-border/50 shadow-lg group-hover:shadow-xl transition-all duration-300 max-w-xs">
+                  <h3 className="font-semibold text-lg mb-3 text-center">Detailed Reports</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-6 bg-gradient-to-r from-red-200/50 to-yellow-200/50 dark:from-red-900/30 dark:to-yellow-900/30 rounded border flex-shrink-0 relative">
+                        <div className="absolute top-1 right-1 w-1 h-1 bg-red-500 rounded-full"></div>
+                        <div className="absolute bottom-1 left-1 w-1 h-1 bg-yellow-500 rounded-full"></div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-3 w-3 text-muted-foreground" />
-                          <span className="text-xs text-muted-foreground">Dec {25 - i}</span>
+                      <span className="text-sm">Annotated images</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <BarChart3 className="h-4 w-4 text-blue-500" />
+                      <span className="text-sm">Confidence scores</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                        <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      </div>
+                      <span className="text-sm">Color-coded findings</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <FileText className="h-4 w-4 text-purple-500" />
+                      <span className="text-sm">Print-ready format</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Checkpoint 4: Secure & Private */}
+              <div className="flex flex-col items-center group">
+                <div className="relative mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300 border-4 border-background">
+                    <Lock className="h-8 w-8 text-white" />
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-emerald-500 rounded-full flex items-center justify-center text-emerald-500 font-bold text-sm">4</div>
+                  </div>
+                  {/* Security particles */}
+                  <div className="absolute -top-1 -left-1 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
+                  <div className="absolute -bottom-1 -right-1 w-1.5 h-1.5 bg-green-400 rounded-full animate-ping delay-500"></div>
+                </div>
+                
+                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-xl p-6 border border-emerald-200/50 dark:border-emerald-800/30 shadow-lg group-hover:shadow-xl transition-all duration-300 max-w-xs">
+                  <h3 className="font-semibold text-lg mb-3 text-center text-emerald-900 dark:text-emerald-100">Secure & Private</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Shield className="h-4 w-4 text-emerald-600" />
+                      <span className="text-sm">User authentication</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Lock className="h-4 w-4 text-teal-600" />
+                      <span className="text-sm">Encrypted storage</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 p-3 bg-emerald-500/10 rounded-lg border border-emerald-200/50 dark:border-emerald-800/50">
+                    <div className="flex items-center justify-center gap-2">
+                      <CheckCircle className="h-5 w-5 text-emerald-600" />
+                      <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">HIPAA Compliant</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Checkpoint 5: Analysis History */}
+              <div className="flex flex-col items-center group">
+                <div className="relative mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300 border-4 border-background">
+                    <Clock className="h-8 w-8 text-white" />
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-orange-500 rounded-full flex items-center justify-center text-orange-500 font-bold text-sm">5</div>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-br from-background to-muted/20 rounded-xl p-6 border border-border/50 shadow-lg group-hover:shadow-xl transition-all duration-300 max-w-xs">
+                  <h3 className="font-semibold text-lg mb-3 text-center">Analysis History</h3>
+                  <p className="text-sm text-muted-foreground mb-4 text-center">See your last 5 analyses</p>
+                  <div className="space-y-2">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="flex items-center gap-3 p-2 bg-muted/30 rounded-lg border border-border/30 hover:border-orange-500/50 hover:bg-orange-500/5 transition-all cursor-pointer group-hover:scale-105" style={{ transitionDelay: `${i * 100}ms` }}>
+                        <div className="w-6 h-4 bg-gradient-to-br from-muted to-muted/50 rounded border flex-shrink-0 relative">
+                          <div className="absolute inset-0.5 bg-gradient-to-r from-orange-200/30 to-red-200/30 dark:from-orange-900/30 dark:to-red-900/30 rounded"></div>
+                          <div className="absolute top-0.5 right-0.5 w-0.5 h-0.5 bg-red-500 rounded-full"></div>
                         </div>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <CheckCircle className="h-3 w-3 text-green-500" />
-                          <span className="text-xs text-foreground">{Math.floor(Math.random() * 5) + 2} findings</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground">Dec {28 - i}</span>
+                          </div>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <CheckCircle className="h-3 w-3 text-green-500" />
+                            <span className="text-xs text-foreground">{Math.floor(Math.random() * 4) + 2} findings</span>
+                          </div>
                         </div>
                       </div>
+                    ))}
+                    <div className="text-center pt-2">
+                      <span className="text-xs text-muted-foreground">+ 2 more analyses</span>
                     </div>
-                  ))}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Journey Arrows */}
+            <div className="hidden lg:block absolute top-1/2 left-0 right-0 -translate-y-1/2">
+              <div className="flex justify-between items-center px-20">
+                <div className="w-8 h-0.5 bg-primary/60 relative">
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0 border-l-4 border-l-primary/60 border-t-2 border-b-2 border-t-transparent border-b-transparent"></div>
+                </div>
+                <div className="w-8 h-0.5 bg-primary/60 relative">
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0 border-l-4 border-l-primary/60 border-t-2 border-b-2 border-t-transparent border-b-transparent"></div>
+                </div>
+                <div className="w-8 h-0.5 bg-primary/60 relative">
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0 border-l-4 border-l-primary/60 border-t-2 border-b-2 border-t-transparent border-b-transparent"></div>
+                </div>
+                <div className="w-8 h-0.5 bg-primary/60 relative">
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0 border-l-4 border-l-primary/60 border-t-2 border-b-2 border-t-transparent border-b-transparent"></div>
                 </div>
               </div>
             </div>

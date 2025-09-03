@@ -31,6 +31,7 @@ interface FeedbackData {
   original_filename: string;
   image_url: string;
   analysis_results: any;
+  confidence_threshold: number;
 }
 
 interface TrendData {
@@ -72,7 +73,7 @@ export default function AdminFeedback() {
       // Optimized query - fetch data separately to avoid join issues
       const { data: analysesData, error: analysesError } = await supabase
         .from('analyses')
-        .select('id, user_id, created_at, feedback_type, feedback_text, feedback_submitted_at, original_filename, image_url, analysis_results')
+        .select('id, user_id, created_at, feedback_type, feedback_text, feedback_submitted_at, original_filename, image_url, analysis_results, confidence_threshold')
         .not('feedback_type', 'is', null)
         .order('feedback_submitted_at', { ascending: false })
         .limit(1000);
@@ -110,7 +111,8 @@ export default function AdminFeedback() {
           feedback_submitted_at: item.feedback_submitted_at,
           original_filename: item.original_filename,
           image_url: item.image_url,
-          analysis_results: item.analysis_results
+          analysis_results: item.analysis_results,
+          confidence_threshold: item.confidence_threshold || 0.25
         };
       });
       
@@ -585,7 +587,9 @@ export default function AdminFeedback() {
                                         <div className="xl:col-span-2">
                                           <ImageAnnotationViewer
                                             originalImageUrl={feedback.image_url}
-                                            detections={feedback.analysis_results.detections}
+                                            detections={feedback.analysis_results.detections.filter((det: any) => 
+                                              det.confidence >= (feedback.confidence_threshold || 0.25)
+                                            )}
                                             filename={feedback.original_filename || 'analysis'}
                                           />
                                         </div>
@@ -593,8 +597,12 @@ export default function AdminFeedback() {
                                           <h5 className="font-medium text-sm">Detection Legend</h5>
                                           <div className="space-y-2">
                                             {(() => {
-                                              // Group detections by display_name
-                                              const grouped = feedback.analysis_results.detections.reduce((acc: any, det: any) => {
+                                              // Filter detections by confidence threshold first, then group by display_name
+                                              const filteredDetections = feedback.analysis_results.detections.filter((det: any) => 
+                                                det.confidence >= (feedback.confidence_threshold || 0.25)
+                                              );
+                                              
+                                              const grouped = filteredDetections.reduce((acc: any, det: any) => {
                                                 const key = det.display_name || det.class;
                                                 if (!acc[key]) {
                                                   acc[key] = {

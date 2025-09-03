@@ -72,10 +72,7 @@ const Index = () => {
                 <div className="relative mb-6">
                   <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300 border-4 border-background">
                     <Lock className="h-8 w-8 text-white" />
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-emerald-500 rounded-full flex items-center justify-center text-emerald-500 font-bold text-sm">1</div>
                   </div>
-                  {/* Connection Line to Next */}
-                  <div className="hidden md:block absolute top-8 left-16 w-32 lg:w-40 xl:w-48 h-0.5 bg-gradient-to-r from-emerald-500 to-primary"></div>
                 </div>
                 
                 <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 rounded-xl p-6 border border-emerald-200/50 dark:border-emerald-800/30 shadow-lg group-hover:shadow-xl transition-all duration-300 max-w-xs">
@@ -99,10 +96,7 @@ const Index = () => {
                   {/* Checkpoint Node */}
                   <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300 border-4 border-background">
                     <Monitor className="h-8 w-8 text-primary-foreground" />
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-primary rounded-full flex items-center justify-center text-primary font-bold text-sm">2</div>
                   </div>
-                  {/* Connection Line to Next */}
-                  <div className="hidden md:block absolute top-8 left-16 w-32 lg:w-40 xl:w-48 h-0.5 bg-gradient-to-r from-primary to-blue-500"></div>
                 </div>
                 
                 {/* Feature Card */}
@@ -126,10 +120,7 @@ const Index = () => {
                 <div className="relative mb-6">
                   <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-green-500 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300 border-4 border-background">
                     <Brain className="h-8 w-8 text-white" />
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-blue-500 rounded-full flex items-center justify-center text-blue-500 font-bold text-sm">3</div>
                   </div>
-                  {/* Connection Line to Next */}
-                  <div className="hidden md:block absolute top-8 left-16 w-32 lg:w-40 xl:w-48 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500"></div>
                 </div>
                 
                 <div className="bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950/20 dark:to-green-950/20 rounded-xl p-6 border border-blue-200/50 dark:border-blue-800/30 shadow-lg group-hover:shadow-xl transition-all duration-300 max-w-xs">
@@ -154,10 +145,7 @@ const Index = () => {
                 <div className="relative mb-6">
                   <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300 border-4 border-background">
                     <FileText className="h-8 w-8 text-white" />
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-purple-500 rounded-full flex items-center justify-center text-purple-500 font-bold text-sm">4</div>
                   </div>
-                  {/* Connection Line to Next */}
-                  <div className="hidden md:block absolute top-8 left-16 w-32 lg:w-40 xl:w-48 h-0.5 bg-gradient-to-r from-purple-500 to-orange-500"></div>
                 </div>
                 
                 <div className="bg-gradient-to-br from-background to-muted/10 rounded-xl p-6 border border-border/50 shadow-lg group-hover:shadow-xl transition-all duration-300 max-w-xs">
@@ -195,7 +183,6 @@ const Index = () => {
                 <div className="relative mb-6">
                   <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300 border-4 border-background">
                     <Clock className="h-8 w-8 text-white" />
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-background border-2 border-orange-500 rounded-full flex items-center justify-center text-orange-500 font-bold text-sm">5</div>
                   </div>
                 </div>
                 

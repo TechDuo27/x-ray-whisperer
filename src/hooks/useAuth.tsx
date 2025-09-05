@@ -113,7 +113,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    // Clear local state immediately
+    setUser(null);
+    setSession(null);
+    
+    // Sign out from Supabase
     await supabase.auth.signOut();
+    
+    // Force a page reload to ensure all state is cleared
+    window.location.href = '/auth';
   };
 
   return (

@@ -65,29 +65,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, fullName?: string, metadata?: any) => {
-    // First check if email already exists in profiles table
-    const { data: existingProfile } = await supabase
+    // Check if email has been used more than once (allow up to 2 uses)
+    const { data: existingProfiles, count } = await supabase
       .from('profiles')
-      .select('email')
-      .eq('email', email)
-      .maybeSingle();
+      .select('email', { count: 'exact' })
+      .eq('email', email);
 
-    if (existingProfile) {
+    if (count && count >= 2) {
       return { 
         error: { 
-          message: 'User already registered with this email address',
+          message: 'This email has reached the maximum usage limit',
           status: 400 
         } as AuthError 
       };
     }
 
-    const redirectUrl = `${window.location.origin}/`;
-    
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
           ...metadata,
@@ -99,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error && error.message.includes('User already registered')) {
       return { 
         error: { 
-          message: 'User already registered with this email address',
+          message: 'This email has reached the maximum usage limit',
           status: 400 
         } as AuthError 
       };

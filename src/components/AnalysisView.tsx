@@ -508,6 +508,11 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
         title: 'Report Downloaded',
         description: 'Your dental analysis report has been successfully generated and downloaded.',
       });
+      
+      // Automatically redirect back to upload after successful download
+      setTimeout(() => {
+        onBack();
+      }, 1500); // Small delay to let user see the success message
     } catch (error) {
       console.error('Error generating report:', error);
       
@@ -568,7 +573,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
               {/* Results Section */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Analysis Results</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-2xl font-bold text-primary">
@@ -579,18 +584,10 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                 </Card>
                 <Card>
                   <CardContent className="pt-6">
-                    <div className="text-2xl font-bold text-orange-500">
-                      {filteredDetections.filter(d => d.is_grossly_carious).length}
+                    <div className="text-2xl font-bold text-secondary">
+                      {uniqueDetections.length}
                     </div>
-                    <p className="text-sm text-muted-foreground">Severe Cases</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-2xl font-bold text-green-600">
-                      {filteredDetections.filter(d => d.confidence > 0.8).length}
-                    </div>
-                    <p className="text-sm text-muted-foreground">High Confidence</p>
+                    <p className="text-sm text-muted-foreground">Unique Findings</p>
                   </CardContent>
                 </Card>
               </div>

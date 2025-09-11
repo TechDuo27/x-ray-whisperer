@@ -8,42 +8,50 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
+    /* Fresh teal & coral design system */
+    --background: 0 0% 100%;
+    --foreground: 210 24% 16%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 210 24% 16%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 210 24% 16%;
 
-    --primary: 210 70% 50%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary: Fresh teal (#20B2AA) */
+    --primary: 178 39% 49%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 195 100% 98%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary: Warm coral (#FF6B6B) */
+    --secondary: 0 100% 70%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Subtle backgrounds */
+    --muted: 210 40% 97%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 195 91% 25%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 178 39% 49%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 210 70% 50%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 178 39% 49%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
     
-    /* Medical UI colors */
-    --medical-blue: 210 70% 50%;
-    --medical-teal: 195 91% 25%;
-    --medical-success: 142 76% 36%;
-    --medical-warning: 45 93% 47%;
-    --medical-error: 0 84% 60%;
+    /* Supporting colors */
+    --mint-green: 132 43% 93%;
+    --soft-blue: 207 89% 94%;
+    --warm-yellow: 48 100% 91%;
+    --light-coral: 0 100% 85%;
+    --lavender: 260 60% 92%;
+    
+    /* Text colors */
+    --heading: 210 24% 16%;
+    --body-text: 215 16% 47%;
 
     --sidebar-background: 0 0% 98%;
 
@@ -72,31 +80,37 @@ All colors MUST be HSL.
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 70% 60%;
+    /* Primary: Lighter teal for dark mode */
+    --primary: 178 39% 59%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary: Slightly muted coral for dark mode */
+    --secondary: 0 80% 75%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 195 91% 35%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 178 39% 59%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 210 70% 60%;
+    --ring: 178 39% 59%;
     
-    /* Medical UI colors - dark mode */
-    --medical-blue: 210 70% 60%;
-    --medical-teal: 195 91% 35%;
-    --medical-success: 142 76% 46%;
-    --medical-warning: 45 93% 57%;
-    --medical-error: 0 84% 70%;
+    /* Supporting colors - dark mode */
+    --mint-green: 132 43% 15%;
+    --soft-blue: 207 89% 15%;
+    --warm-yellow: 48 100% 15%;
+    --light-coral: 0 100% 15%;
+    --lavender: 260 60% 15%;
+    
+    /* Text colors - dark mode */
+    --heading: 210 40% 98%;
+    --body-text: 215 20.2% 65.1%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;

@@ -52,6 +52,14 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				// Supporting design system colors
+				'mint-green': 'hsl(var(--mint-green))',
+				'soft-blue': 'hsl(var(--soft-blue))',
+				'warm-yellow': 'hsl(var(--warm-yellow))',
+				'light-coral': 'hsl(var(--light-coral))',
+				'lavender': 'hsl(var(--lavender))',
+				'heading': 'hsl(var(--heading))',
+				'body-text': 'hsl(var(--body-text))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',

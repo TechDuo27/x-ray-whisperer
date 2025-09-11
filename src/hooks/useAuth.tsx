@@ -40,11 +40,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
               // Only create profile if it doesn't exist
               if (!existingProfile) {
+                // For Google sign-ins, set default user type if not already set
+                let userType = session.user.user_metadata?.user_type;
+                if (!userType && session.user.app_metadata?.provider === 'google') {
+                  userType = 'non-medical-patient'; // Default user type for Google sign-ins
+                  
+                  // Update user metadata with default user type
+                  await supabase.auth.updateUser({
+                    data: { user_type: userType }
+                  });
+                }
+
                 await supabase.from('profiles').insert({
                   user_id: session.user.id,
                   email: session.user.email,
-                  full_name: session.user.user_metadata?.full_name,
-                  user_type: session.user.user_metadata?.user_type,
+                  full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name,
+                  user_type: userType,
                 });
               }
             } catch (error) {
@@ -117,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth`
+        redirectTo: `${window.location.origin}/dashboard`
       }
     });
     return { error };

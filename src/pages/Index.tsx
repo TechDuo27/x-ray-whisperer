@@ -102,78 +102,77 @@ const Index = () => {
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
 
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-7xl mx-auto">
             {/* Feature 1: Secure & Private */}
-            <div className="group cursor-pointer">
-              <div className="bg-mint-green rounded-2xl p-8 h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-primary/10">
-                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform">
-                  <Lock className="w-8 h-8 text-primary-foreground" />
+            <div className="group">
+              <div className="bg-background rounded-xl p-6 h-full shadow-sm border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mb-4">
+                  <Lock className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold text-heading text-center mb-4">Secure & Private</h3>
-                <div className="text-sm text-body-text space-y-2 text-center">
-                  <p>🔒 End-to-end encryption</p>
-                  <p>🛡️ HIPAA compliant</p>
-                  <p>🔐 Zero data retention</p>
+                <h3 className="text-lg font-semibold text-heading mb-3">🔒 Secure & Private</h3>
+                <div className="space-y-2 text-sm text-body-text">
+                  <p>Encrypted storage</p>
+                  <p>Data protected with industry standards</p>
+                  <p>Privacy-focused workflow</p>
                 </div>
               </div>
             </div>
 
             {/* Feature 2: Easy Upload */}
-            <div className="group cursor-pointer">
-              <div className="bg-soft-blue rounded-2xl p-8 h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-primary/10">
-                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform">
-                  <Upload className="w-8 h-8 text-primary-foreground" />
+            <div className="group">
+              <div className="bg-background rounded-xl p-6 h-full shadow-sm border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mb-4">
+                  <Upload className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold text-heading text-center mb-4">Easy Upload</h3>
-                <div className="text-sm text-body-text space-y-2 text-center">
-                  <p>📤 Drag & drop interface</p>
-                  <p>✅ Instant validation</p>
-                  <p>⚡ Lightning fast</p>
+                <h3 className="text-lg font-semibold text-heading mb-3">⬆️ Easy Upload</h3>
+                <div className="space-y-2 text-sm text-body-text">
+                  <p>Simple drag & drop interface</p>
+                  <p>Instant validation</p>
+                  <p>Lightning-fast processing</p>
                 </div>
               </div>
             </div>
 
             {/* Feature 3: Accurate AI */}
-            <div className="group cursor-pointer">
-              <div className="bg-warm-yellow rounded-2xl p-8 h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-primary/10">
-                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform">
-                  <Brain className="w-8 h-8 text-primary-foreground" />
+            <div className="group">
+              <div className="bg-background rounded-xl p-6 h-full shadow-sm border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mb-4">
+                  <Brain className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold text-heading text-center mb-4">Accurate AI</h3>
-                <div className="text-sm text-body-text space-y-2 text-center">
-                  <p>🧠 20+ conditions detected</p>
-                  <p>🎯 90%+ accuracy rate</p>
-                  <p>⚡ Real-time analysis</p>
+                <h3 className="text-lg font-semibold text-heading mb-3">🧠 Accurate AI</h3>
+                <div className="space-y-2 text-sm text-body-text">
+                  <p>Detects 20+ conditions</p>
+                  <p>90%+ accuracy rate</p>
+                  <p>Real-time analysis</p>
                 </div>
               </div>
             </div>
 
             {/* Feature 4: Detailed Reports */}
-            <div className="group cursor-pointer">
-              <div className="bg-light-coral rounded-2xl p-8 h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-primary/10">
-                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform">
-                  <FileText className="w-8 h-8 text-primary-foreground" />
+            <div className="group">
+              <div className="bg-background rounded-xl p-6 h-full shadow-sm border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mb-4">
+                  <FileText className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold text-heading text-center mb-4">Detailed Reports</h3>
-                <div className="text-sm text-body-text space-y-2 text-center">
-                  <p>📊 Annotated images</p>
-                  <p>📈 Confidence scores</p>
-                  <p>🖨️ Print-ready format</p>
+                <h3 className="text-lg font-semibold text-heading mb-3">📊 Detailed Reports</h3>
+                <div className="space-y-2 text-sm text-body-text">
+                  <p>Annotated images</p>
+                  <p>Confidence scores</p>
+                  <p>Print-ready format</p>
                 </div>
               </div>
             </div>
 
             {/* Feature 5: Analysis History */}
-            <div className="group cursor-pointer">
-              <div className="bg-lavender rounded-2xl p-8 h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-primary/10">
-                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform">
-                  <BarChart3 className="w-8 h-8 text-primary-foreground" />
+            <div className="group">
+              <div className="bg-background rounded-xl p-6 h-full shadow-sm border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mb-4">
+                  <BarChart3 className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold text-heading text-center mb-4">Analysis History</h3>
-                <div className="text-sm text-body-text space-y-2 text-center">
-                  <p>📊 Track progress</p>
-                  <p>🗂️ Organized results</p>
-                  <p>📥 Easy downloads</p>
+                <h3 className="text-lg font-semibold text-heading mb-3">📂 Analysis History</h3>
+                <div className="space-y-2 text-sm text-body-text">
+                  <p>Organized results</p>
+                  <p>Easy downloads</p>
                 </div>
               </div>
             </div>

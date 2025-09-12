@@ -101,12 +101,6 @@ const Index = () => {
       {/* Key Features Section */}
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-heading mb-6">Advanced AI Detection Platform</h2>
-            <p className="text-xl text-body-text max-w-3xl mx-auto leading-relaxed">
-              Experience the future of dental analysis with our cutting-edge AI technology that delivers precise, fast, and reliable results.
-            </p>
-          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8 max-w-7xl mx-auto">
             {/* Feature 1: Secure & Private */}
@@ -148,7 +142,7 @@ const Index = () => {
                 <h3 className="text-xl font-bold text-heading text-center mb-4">Accurate AI</h3>
                 <div className="text-sm text-body-text space-y-2 text-center">
                   <p>🧠 20+ conditions detected</p>
-                  <p>🎯 99% accuracy rate</p>
+                  <p>🎯 90%+ accuracy rate</p>
                   <p>⚡ Real-time analysis</p>
                 </div>
               </div>
@@ -276,7 +270,7 @@ const Index = () => {
                 </div>
               </div>
               <div className="bg-background rounded-2xl p-8 pt-12 shadow-lg border border-primary/10">
-                <div className="text-5xl font-bold text-primary mb-2">99%</div>
+                <div className="text-5xl font-bold text-primary mb-2">90%+</div>
                 <p className="text-lg font-semibold text-heading">Detection Accuracy</p>
               </div>
             </div>
@@ -289,8 +283,8 @@ const Index = () => {
                 </div>
               </div>
               <div className="bg-background rounded-2xl p-8 pt-12 shadow-lg border border-primary/10">
-                <div className="text-5xl font-bold text-primary mb-2">&lt;2</div>
-                <p className="text-lg font-semibold text-heading">Minutes Report Time</p>
+                <div className="text-5xl font-bold text-primary mb-2">5s</div>
+                <p className="text-lg font-semibold text-heading">Report Generation Time</p>
               </div>
             </div>
           </div>
@@ -343,8 +337,7 @@ const Index = () => {
                 <p className="text-lg text-secondary font-semibold">Coming Soon</p>
               </div>
               <p className="text-body-text leading-relaxed mb-6">
-                We're actively seeking exceptional talents in AI research, dental technology, and healthcare innovation 
-                to join our mission of transforming dental diagnostics worldwide.
+                Joining soon
               </p>
               <div className="inline-flex items-center gap-2 text-body-text font-medium">
                 Stay tuned for updates <Star className="w-4 h-4" />
@@ -370,7 +363,7 @@ const Index = () => {
             <a href="/auth">Start Your Analysis Now</a>
           </Button>
           <p className="text-sm mt-6 opacity-75">
-            HIPAA compliant • End-to-end encrypted • Instant results
+            End-to-end encrypted • Instant results
           </p>
         </div>
       </section>

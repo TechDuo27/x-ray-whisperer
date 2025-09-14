@@ -53,11 +53,11 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				// Supporting design system colors
-				'fresh-green': 'hsl(var(--fresh-green))',
-				'soft-green': 'hsl(var(--soft-green))',
-				'sand-beige': 'hsl(var(--sand-beige))',
-				'soft-gray': 'hsl(var(--soft-gray))',
-				'trust-blue': 'hsl(var(--trust-blue))',
+				'mint-green': 'hsl(var(--mint-green))',
+				'soft-blue': 'hsl(var(--soft-blue))',
+				'warm-yellow': 'hsl(var(--warm-yellow))',
+				'light-coral': 'hsl(var(--light-coral))',
+				'lavender': 'hsl(var(--lavender))',
 				'heading': 'hsl(var(--heading))',
 				'body-text': 'hsl(var(--body-text))',
 				sidebar: {

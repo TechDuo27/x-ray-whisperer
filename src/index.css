@@ -8,7 +8,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Fresh teal & coral design system */
+    /* Medical dental AI design system */
     --background: 0 0% 100%;
     --foreground: 210 24% 16%;
 
@@ -18,36 +18,36 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 210 24% 16%;
 
-    /* Primary: Fresh teal (#20B2AA) */
-    --primary: 178 39% 49%;
+    /* Primary: Professional Blue (#007EC6) */
+    --primary: 197 100% 39%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary: Warm coral (#FF6B6B) */
-    --secondary: 0 100% 70%;
+    /* Secondary: Fresh Green (#00B388) */
+    --secondary: 162 100% 35%;
     --secondary-foreground: 0 0% 100%;
 
     /* Subtle backgrounds */
-    --muted: 210 40% 97%;
+    --muted: 0 0% 88%;
     --muted-foreground: 215 16% 47%;
 
-    --accent: 178 39% 49%;
+    --accent: 162 100% 35%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 178 39% 49%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 197 100% 39%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
     
     /* Supporting colors */
-    --mint-green: 132 43% 93%;
-    --soft-blue: 207 89% 94%;
-    --warm-yellow: 48 100% 91%;
-    --light-coral: 0 100% 85%;
-    --lavender: 260 60% 92%;
+    --fresh-green: 162 100% 35%;
+    --soft-green: 149 45% 43%;
+    --sand-beige: 60 56% 91%;
+    --soft-gray: 0 0% 88%;
+    --trust-blue: 197 100% 39%;
     
     /* Text colors */
     --heading: 210 24% 16%;
@@ -80,18 +80,18 @@ All colors MUST be HSL.
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    /* Primary: Lighter teal for dark mode */
-    --primary: 178 39% 59%;
+    /* Primary: Lighter blue for dark mode */
+    --primary: 197 80% 60%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
-    /* Secondary: Slightly muted coral for dark mode */
-    --secondary: 0 80% 75%;
+    /* Secondary: Lighter green for dark mode */
+    --secondary: 162 80% 55%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 178 39% 59%;
+    --accent: 162 80% 55%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 62.8% 30.6%;
@@ -99,14 +99,14 @@ All colors MUST be HSL.
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 178 39% 59%;
+    --ring: 197 80% 60%;
     
     /* Supporting colors - dark mode */
-    --mint-green: 132 43% 15%;
-    --soft-blue: 207 89% 15%;
-    --warm-yellow: 48 100% 15%;
-    --light-coral: 0 100% 15%;
-    --lavender: 260 60% 15%;
+    --fresh-green: 162 80% 55%;
+    --soft-green: 149 45% 53%;
+    --sand-beige: 60 30% 25%;
+    --soft-gray: 0 0% 25%;
+    --trust-blue: 197 80% 60%;
     
     /* Text colors - dark mode */
     --heading: 210 40% 98%;

@@ -1,26 +1,13 @@
-import { useAuth } from '@/hooks/useAuth';
-import { Navigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  Brain, 
-  Upload, 
-  FileText, 
-  Shield, 
-  Zap, 
-  Lock, 
-  Clock, 
-  CheckCircle, 
-  BarChart3, 
-  ArrowRight,
-  Star,
-  Users,
-  Target,
-  Award
-} from 'lucide-react';
-import { DarkModeToggle } from '@/components/DarkModeToggle';
-import thirumalaImage from '@/assets/thirumala.png';
-import placeholderImage from '@/assets/team-placeholder.png';
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Brain, Upload, FileText, BarChart3, Shield, Clock, Target, Users, History, Globe } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { DarkModeToggle } from "@/components/DarkModeToggle";
+import swarajImage from "@/assets/swaraj.png";
+import anushkaImage from "@/assets/anushka.png";
+import thirumalaImage from "@/assets/thirumala.png";
+import teamPlaceholderImage from "@/assets/team-placeholder.png";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -41,327 +28,317 @@ const Index = () => {
       <DarkModeToggle />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-background via-mint-green/20 to-soft-blue/30 overflow-hidden">
-        {/* Geometric patterns */}
-        <div className="absolute inset-0 opacity-30">
+      <section className="relative bg-gradient-to-br from-background to-muted/30 overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
           <div className="absolute top-20 left-20 w-32 h-32 rounded-full bg-primary/10 animate-pulse"></div>
           <div className="absolute top-40 right-40 w-24 h-24 rotate-45 bg-secondary/10"></div>
           <div className="absolute bottom-40 left-1/3 w-16 h-16 rounded-full bg-primary/15"></div>
         </div>
         
         <div className="relative container mx-auto px-4 py-24">
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="mb-8">
-              <h1 className="text-6xl font-bold text-heading mb-4">
-                AI-Powered Dental Precision
-              </h1>
-              <p className="text-2xl text-body-text font-medium">
-                Upload. Analyze. Diagnose with confidence.
-              </p>
+          <div className="text-center space-y-6 mb-12">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-heading">
+              Dental AI Analysis
+            </h1>
+            <h2 className="text-2xl md:text-3xl font-semibold text-heading mb-4">
+              AI-Powered Dental X-Ray Disease Detection
+            </h2>
+            <p className="text-xl text-body-text max-w-3xl mx-auto">
+              Detect 20+ dental diseases in seconds—secure, accurate, and effortless X-ray analysis.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
+              <Button size="lg" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4">
+                <Link to="/dashboard">
+                  Upload Your OPG X-Ray — Get Instant Results
+                </Link>
+              </Button>
             </div>
-            
-            {/* Animated visual element placeholder */}
-            <div className="mb-12 bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5 rounded-2xl p-8 border border-primary/20">
-              <div className="flex items-center justify-center gap-8">
-                <div className="relative">
-                  <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center animate-pulse">
-                    <Upload className="w-8 h-8 text-primary-foreground" />
-                  </div>
-                  <p className="text-sm mt-2 text-body-text">X-ray Upload</p>
-                </div>
-                <ArrowRight className="w-6 h-6 text-primary animate-pulse" />
-                <div className="relative">
-                  <div className="w-16 h-16 bg-secondary rounded-lg flex items-center justify-center animate-pulse" style={{ animationDelay: '0.5s' }}>
-                    <Brain className="w-8 h-8 text-secondary-foreground" />
-                  </div>
-                  <p className="text-sm mt-2 text-body-text">AI Detection</p>
-                </div>
-                <ArrowRight className="w-6 h-6 text-primary animate-pulse" />
-                <div className="relative">
-                  <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center animate-pulse" style={{ animationDelay: '1s' }}>
-                    <FileText className="w-8 h-8 text-primary-foreground" />
-                  </div>
-                  <p className="text-sm mt-2 text-body-text">Professional Report</p>
-                </div>
+            <div className="flex items-center justify-center gap-2 mt-6 text-body-text">
+              <div className="w-4 h-4 bg-secondary rounded-full flex items-center justify-center">
+                <span className="text-xs text-white">✓</span>
               </div>
+              <span className="text-sm">Your images are safe & private</span>
             </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105" asChild>
-                <a href="/auth">Start Free Analysis</a>
-              </Button>
-              <Button variant="outline" size="lg" className="border-primary text-primary hover:bg-primary/5 px-8 py-4 text-lg" asChild>
-                <a href="#about">About Us</a>
-              </Button>
+          </div>
+          
+          {/* Visual Element */}
+          <div className="mb-12 bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5 rounded-2xl p-8 border border-primary/20">
+            <div className="flex items-center justify-center gap-8">
+              <div className="relative">
+                <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center animate-pulse">
+                  <Upload className="w-8 h-8 text-primary-foreground" />
+                </div>
+                <p className="text-sm mt-2 text-body-text">X-ray Upload</p>
+              </div>
+              <div className="w-6 h-6 text-primary animate-pulse">→</div>
+              <div className="relative">
+                <div className="w-16 h-16 bg-secondary rounded-lg flex items-center justify-center animate-pulse" style={{ animationDelay: '0.5s' }}>
+                  <Brain className="w-8 h-8 text-secondary-foreground" />
+                </div>
+                <p className="text-sm mt-2 text-body-text">AI Detection</p>
+              </div>
+              <div className="w-6 h-6 text-primary animate-pulse">→</div>
+              <div className="relative">
+                <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center animate-pulse" style={{ animationDelay: '1s' }}>
+                  <FileText className="w-8 h-8 text-primary-foreground" />
+                </div>
+                <p className="text-sm mt-2 text-body-text">Professional Report</p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Key Features Section */}
-      <section className="py-20 bg-muted/30">
+      {/* Features & Benefits Section */}
+      <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-7xl mx-auto">
-            {/* Feature 1: Secure & Private */}
-            <div className="group">
-              <div className="bg-background rounded-xl p-6 h-full shadow-sm border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mb-4">
-                  <Lock className="w-6 h-6 text-primary" />
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-heading mb-4">
+              Why Choose Dental AI Analysis?
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Card className="bg-white p-8 shadow-lg border-0 hover:shadow-xl transition-shadow duration-300">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Shield className="h-8 w-8 text-secondary" />
                 </div>
-                <h3 className="text-lg font-semibold text-heading mb-3">🔒 Secure & Private</h3>
-                <div className="space-y-2 text-sm text-body-text">
+                <h3 className="text-xl font-semibold text-heading mb-4">🔒 Secure & Private</h3>
+                <div className="space-y-2 text-body-text">
                   <p>Encrypted storage</p>
                   <p>Data protected with industry standards</p>
                   <p>Privacy-focused workflow</p>
                 </div>
               </div>
-            </div>
+            </Card>
 
-            {/* Feature 2: Easy Upload */}
-            <div className="group">
-              <div className="bg-background rounded-xl p-6 h-full shadow-sm border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mb-4">
-                  <Upload className="w-6 h-6 text-primary" />
+            <Card className="bg-white p-8 shadow-lg border-0 hover:shadow-xl transition-shadow duration-300">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Upload className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold text-heading mb-3">⬆️ Easy Upload</h3>
-                <div className="space-y-2 text-sm text-body-text">
+                <h3 className="text-xl font-semibold text-heading mb-4">⬆️ Easy Upload</h3>
+                <div className="space-y-2 text-body-text">
                   <p>Simple drag & drop interface</p>
                   <p>Instant validation</p>
                   <p>Lightning-fast processing</p>
                 </div>
               </div>
-            </div>
+            </Card>
 
-            {/* Feature 3: Accurate AI */}
-            <div className="group">
-              <div className="bg-background rounded-xl p-6 h-full shadow-sm border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mb-4">
-                  <Brain className="w-6 h-6 text-primary" />
+            <Card className="bg-white p-8 shadow-lg border-0 hover:shadow-xl transition-shadow duration-300">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Brain className="h-8 w-8 text-secondary" />
                 </div>
-                <h3 className="text-lg font-semibold text-heading mb-3">🧠 Accurate AI</h3>
-                <div className="space-y-2 text-sm text-body-text">
+                <h3 className="text-xl font-semibold text-heading mb-4">🧠 Accurate AI</h3>
+                <div className="space-y-2 text-body-text">
                   <p>Detects 20+ conditions</p>
                   <p>90%+ accuracy rate</p>
                   <p>Real-time analysis</p>
                 </div>
               </div>
-            </div>
+            </Card>
 
-            {/* Feature 4: Detailed Reports */}
-            <div className="group">
-              <div className="bg-background rounded-xl p-6 h-full shadow-sm border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mb-4">
-                  <FileText className="w-6 h-6 text-primary" />
+            <Card className="bg-white p-8 shadow-lg border-0 hover:shadow-xl transition-shadow duration-300">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <BarChart3 className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold text-heading mb-3">📊 Detailed Reports</h3>
-                <div className="space-y-2 text-sm text-body-text">
+                <h3 className="text-xl font-semibold text-heading mb-4">📊 Detailed Reports</h3>
+                <div className="space-y-2 text-body-text">
                   <p>Annotated images</p>
                   <p>Confidence scores</p>
                   <p>Print-ready format</p>
                 </div>
               </div>
-            </div>
+            </Card>
 
-            {/* Feature 5: Analysis History */}
-            <div className="group">
-              <div className="bg-background rounded-xl p-6 h-full shadow-sm border border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mb-4">
-                  <BarChart3 className="w-6 h-6 text-primary" />
+            <Card className="bg-white p-8 shadow-lg border-0 hover:shadow-xl transition-shadow duration-300">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <History className="h-8 w-8 text-secondary" />
                 </div>
-                <h3 className="text-lg font-semibold text-heading mb-3">📂 Analysis History</h3>
-                <div className="space-y-2 text-sm text-body-text">
+                <h3 className="text-xl font-semibold text-heading mb-4">📂 Analysis History</h3>
+                <div className="space-y-2 text-body-text">
                   <p>Organized results</p>
                   <p>Easy downloads</p>
                 </div>
               </div>
-            </div>
+            </Card>
+
+            <Card className="bg-white p-8 shadow-lg border-0 hover:shadow-xl transition-shadow duration-300">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Target className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold text-heading mb-4">Benefits</h3>
+                <div className="space-y-2 text-body-text text-sm">
+                  <p>Unlimited detections per upload—no extra costs</p>
+                  <p>Secure and private, with best-in-class data protection</p>
+                  <p>Download detailed reports with one click</p>
+                  <p>Instant results—no waiting, no hassle</p>
+                </div>
+              </div>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20">
+      <section className="py-16">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-heading mb-6">How It Works</h2>
-            <p className="text-xl text-body-text max-w-2xl mx-auto">
-              Three simple steps to get professional dental analysis powered by AI
-            </p>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-heading mb-4">
+              How Dental AI Analysis Works
+            </h2>
           </div>
-
-          <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 max-w-5xl mx-auto">
-            {/* Step 1 */}
-            <div className="flex flex-col items-center text-center group">
-              <div className="relative mb-6">
-                <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
-                  <Upload className="w-12 h-12 text-primary-foreground" />
-                </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-secondary-foreground font-bold">1</div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                <Upload className="h-8 w-8 text-primary-foreground" />
               </div>
-              <h3 className="text-xl font-bold text-heading mb-2">Upload X-Ray</h3>
-              <p className="text-body-text">Securely upload your dental radiograph</p>
+              <h3 className="text-xl font-semibold text-heading mb-4">Step 1: Upload your OPG X-ray</h3>
+              <p className="text-body-text">
+                Simply drag and drop your OPG X-ray image or click to browse and select your file
+              </p>
             </div>
-
-            {/* Arrow 1 */}
-            <div className="hidden md:block">
-              <svg className="w-16 h-8 text-secondary animate-pulse" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
-              </svg>
-            </div>
-
-            {/* Step 2 */}
-            <div className="flex flex-col items-center text-center group">
-              <div className="relative mb-6">
-                <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
-                  <Brain className="w-12 h-12 text-primary-foreground" />
-                </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-secondary-foreground font-bold">2</div>
+            
+            <div className="text-center">
+              <div className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center mx-auto mb-6">
+                <Brain className="h-8 w-8 text-secondary-foreground" />
               </div>
-              <h3 className="text-xl font-bold text-heading mb-2">AI Detects 20+ Conditions</h3>
-              <p className="text-body-text">Advanced AI analyzes and identifies issues</p>
+              <h3 className="text-xl font-semibold text-heading mb-4">Step 2: AI instantly scans for 20+ diseases</h3>
+              <p className="text-body-text">
+                Our advanced AI scans your X-ray in seconds, detecting 20+ dental conditions with 90%+ accuracy
+              </p>
             </div>
-
-            {/* Arrow 2 */}
-            <div className="hidden md:block">
-              <svg className="w-16 h-8 text-secondary animate-pulse" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
-              </svg>
-            </div>
-
-            {/* Step 3 */}
-            <div className="flex flex-col items-center text-center group">
-              <div className="relative mb-6">
-                <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
-                  <FileText className="w-12 h-12 text-primary-foreground" />
-                </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-secondary-foreground font-bold">3</div>
+            
+            <div className="text-center">
+              <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                <FileText className="h-8 w-8 text-primary-foreground" />
               </div>
-              <h3 className="text-xl font-bold text-heading mb-2">Receive Annotated Report</h3>
-              <p className="text-body-text">Get professional, detailed analysis report</p>
+              <h3 className="text-xl font-semibold text-heading mb-4">Step 3: Review your detailed, downloadable report</h3>
+              <p className="text-body-text">
+                Receive a detailed report in 5 seconds with annotated findings and confidence scores
+              </p>
             </div>
+          </div>
+          
+          <div className="text-center mt-12">
+            <Button size="lg" asChild className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+              <Link to="/dashboard">
+                Try It Now — Free Unlimited Detections
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* Impact Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-primary/5 to-secondary/5">
+      {/* About Us Section */}
+      <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-5xl mx-auto">
-            {/* Stat 1 */}
-            <div className="text-center relative">
-              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
-                <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center">
-                  <Target className="w-8 h-8 text-primary" />
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-heading mb-4">
+              About Dental AI Analysis
+            </h2>
+          </div>
+          
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white p-8 rounded-lg shadow-lg">
+              <p className="text-lg text-body-text leading-relaxed mb-6">
+                Dental AI Analysis is dedicated to making advanced dental diagnostics accessible to everyone. Our proprietary AI platform scans OPG X-rays for over 20 diseases, providing instant, reliable insights for patients and dental professionals alike.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Users className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-heading mb-2">Built by experts in dental AI and global healthcare</h3>
                 </div>
-              </div>
-              <div className="bg-background rounded-2xl p-8 pt-12 shadow-lg border border-primary/10">
-                <div className="text-5xl font-bold text-primary mb-2">20+</div>
-                <p className="text-lg font-semibold text-heading">Conditions Detected</p>
-              </div>
-            </div>
-
-            {/* Stat 2 */}
-            <div className="text-center relative">
-              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
-                <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center">
-                  <Award className="w-8 h-8 text-primary" />
+                
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Shield className="h-8 w-8 text-secondary" />
+                  </div>
+                  <h3 className="font-semibold text-heading mb-2">Prioritizing user security and accuracy</h3>
                 </div>
-              </div>
-              <div className="bg-background rounded-2xl p-8 pt-12 shadow-lg border border-primary/10">
-                <div className="text-5xl font-bold text-primary mb-2">90%+</div>
-                <p className="text-lg font-semibold text-heading">Detection Accuracy</p>
-              </div>
-            </div>
-
-            {/* Stat 3 */}
-            <div className="text-center relative">
-              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
-                <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center">
-                  <Clock className="w-8 h-8 text-primary" />
+                
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Globe className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-heading mb-2">Trusted by clinics, researchers, and patients worldwide</h3>
                 </div>
-              </div>
-              <div className="bg-background rounded-2xl p-8 pt-12 shadow-lg border border-primary/10">
-                <div className="text-5xl font-bold text-primary mb-2">5s</div>
-                <p className="text-lg font-semibold text-heading">Report Generation Time</p>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Team Section */}
-      <section id="about" className="py-20 bg-muted/20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-heading mb-6">Meet Our Expert Team</h2>
-            <p className="text-xl text-body-text max-w-3xl mx-auto leading-relaxed">
-              Pioneering the future of dental AI with deep expertise in technology and healthcare innovation.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
-            {/* Thirumala */}
-            <div className="bg-background rounded-2xl p-8 shadow-lg border border-primary/10 hover:shadow-xl transition-all hover:-translate-y-1">
-              <div className="text-center mb-6">
-                <img 
-                  src={thirumalaImage} 
-                  alt="Thirumala Peddireddy - CEO" 
-                  className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-primary/20 mb-4"
-                />
-                <h3 className="text-2xl font-bold text-heading mb-1">Thirumala Peddireddy</h3>
-                <p className="text-lg text-primary font-semibold">CEO & Founder</p>
-              </div>
-              <p className="text-body-text leading-relaxed mb-6">
-                20+ years transforming healthcare data systems. Former consultant at Accenture, Capgemini, and Wipro, 
-                specializing in AI-driven solutions and enterprise data architecture that revolutionizes patient care.
-              </p>
-              <a 
-                href="https://www.linkedin.com/in/thiru1976/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors"
-              >
-                LinkedIn Profile <ArrowRight className="w-4 h-4" />
-              </a>
-            </div>
-
-            {/* Coming Soon */}
-            <div className="bg-background rounded-2xl p-8 shadow-lg border border-primary/10 hover:shadow-xl transition-all hover:-translate-y-1">
-              <div className="text-center mb-6">
-                <div className="w-32 h-32 rounded-full mx-auto bg-gradient-to-br from-primary/10 to-secondary/10 border-4 border-primary/20 mb-4 flex items-center justify-center">
-                  <Users className="w-16 h-16 text-primary/50" />
-                </div>
-                <h3 className="text-2xl font-bold text-heading mb-1">Expanding Our Team</h3>
-                <p className="text-lg text-secondary font-semibold">Coming Soon</p>
-              </div>
-              <p className="text-body-text leading-relaxed mb-6">
-                Joining soon
-              </p>
-              <div className="inline-flex items-center gap-2 text-body-text font-medium">
-                Stay tuned for updates <Star className="w-4 h-4" />
-              </div>
-            </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
+            <Card className="bg-white p-6 text-center shadow-lg border-0">
+              <img 
+                src={swarajImage} 
+                alt="Swaraj - CEO" 
+                className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
+              />
+              <h3 className="font-semibold text-heading mb-2">Swaraj</h3>
+              <p className="text-body-text text-sm mb-2">CEO</p>
+              <p className="text-body-text text-sm">Leading our vision to transform dental diagnostics worldwide</p>
+            </Card>
+            
+            <Card className="bg-white p-6 text-center shadow-lg border-0">
+              <img 
+                src={teamPlaceholderImage} 
+                alt="Team Member" 
+                className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
+              />
+              <h3 className="font-semibold text-heading mb-2">Joining soon</h3>
+              <p className="text-body-text text-sm mb-2">AI Research</p>
+            </Card>
+            
+            <Card className="bg-white p-6 text-center shadow-lg border-0">
+              <img 
+                src={teamPlaceholderImage} 
+                alt="Team Member" 
+                className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
+              />
+              <h3 className="font-semibold text-heading mb-2">Joining soon</h3>
+              <p className="text-body-text text-sm mb-2">Dental Technology</p>
+            </Card>
+            
+            <Card className="bg-white p-6 text-center shadow-lg border-0">
+              <img 
+                src={teamPlaceholderImage} 
+                alt="Team Member" 
+                className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
+              />
+              <h3 className="font-semibold text-heading mb-2">Joining soon</h3>
+              <p className="text-body-text text-sm mb-2">Healthcare Innovation</p>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* Final CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-secondary via-secondary/95 to-secondary text-secondary-foreground">
+      <section className="py-16 bg-gradient-to-r from-primary to-secondary">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-6">Ready to Experience Precise Dental AI?</h2>
-          <p className="text-xl mb-10 max-w-3xl mx-auto opacity-90 leading-relaxed">
-            Join dental professionals worldwide who trust our platform for accurate, efficient dental radiograph analysis. 
-            Start your journey with AI-powered precision today.
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+            Ready to Experience Precise Dental AI?
+          </h2>
+          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+            Join thousands of dental professionals and patients already using our platform
           </p>
-          <Button 
-            size="lg" 
-            className="bg-background text-heading hover:bg-background/90 px-12 py-4 text-xl font-semibold shadow-2xl hover:shadow-xl transition-all hover:scale-105"
-            asChild
-          >
-            <a href="/auth">Start Your Analysis Now</a>
-          </Button>
-          <p className="text-sm mt-6 opacity-75">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+            <Button size="lg" className="bg-white text-primary hover:bg-white/90" asChild>
+              <Link to="/dashboard">
+                Start Your Free Analysis Now
+              </Link>
+            </Button>
+          </div>
+          <p className="text-white/80 text-sm">
             End-to-end encrypted • Instant results
           </p>
         </div>

@@ -435,16 +435,8 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                     <div class="summary-label">Total Findings</div>
                   </div>
                   <div class="summary-item">
-                    <div class="summary-number">${filteredDetections.filter(d => d.is_grossly_carious).length}</div>
-                    <div class="summary-label">Severe Cases</div>
-                  </div>
-                  <div class="summary-item">
-                    <div class="summary-number">${filteredDetections.filter(d => d.confidence > 0.8).length}</div>
-                    <div class="summary-label">High Confidence</div>
-                  </div>
-                  <div class="summary-item">
                     <div class="summary-number">${uniqueDetections.length}</div>
-                    <div class="summary-label">Unique Conditions</div>
+                    <div class="summary-label">Unique Findings</div>
                   </div>
                 </div>
                 

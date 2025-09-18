@@ -8,117 +8,116 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Fresh teal & coral design system */
-    --background: 0 0% 100%;
-    --foreground: 210 24% 16%;
+    /* Force dark mode only - using dark color palette */
+    /* Mint: #DDF4E7 (rgb(221, 244, 231)) - HSL: 132 32% 91% */
+    /* Green: #67C090 (rgb(103, 192, 144)) - HSL: 147 42% 58% */
+    /* Teal: #26667F (rgb(38, 102, 127)) - HSL: 197 54% 32% */
+    /* Navy: #124170 (rgb(18, 65, 112)) - HSL: 210 72% 25% */
+    
+    --background: 210 72% 25%;  /* Navy background */
+    --foreground: 132 32% 91%;  /* Mint text */
 
-    --card: 0 0% 100%;
-    --card-foreground: 210 24% 16%;
+    --card: 197 54% 32%;        /* Teal cards */
+    --card-foreground: 132 32% 91%;  /* Mint text on cards */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 210 24% 16%;
+    --popover: 197 54% 32%;
+    --popover-foreground: 132 32% 91%;
 
-    /* Primary: Fresh teal (#20B2AA) */
-    --primary: 178 39% 49%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary: Green */
+    --primary: 147 42% 58%;     /* Green */
+    --primary-foreground: 210 72% 25%;  /* Navy text on green */
 
-    /* Secondary: Warm coral (#FF6B6B) */
-    --secondary: 0 100% 70%;
-    --secondary-foreground: 0 0% 100%;
+    /* Secondary: Teal */
+    --secondary: 197 54% 32%;   /* Teal */
+    --secondary-foreground: 132 32% 91%;  /* Mint text on teal */
 
-    /* Subtle backgrounds */
-    --muted: 210 40% 97%;
-    --muted-foreground: 215 16% 47%;
+    /* Muted: Darker navy */
+    --muted: 210 72% 20%;       /* Darker navy */
+    --muted-foreground: 132 32% 80%;  /* Slightly darker mint */
 
-    --accent: 178 39% 49%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 147 42% 58%;      /* Green accent */
+    --accent-foreground: 210 72% 25%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive-foreground: 132 32% 91%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 178 39% 49%;
+    --border: 197 54% 40%;      /* Lighter teal for borders */
+    --input: 197 54% 32%;       /* Teal inputs */
+    --ring: 147 42% 58%;        /* Green ring */
 
     --radius: 1rem;
     
     /* Supporting colors */
-    --mint-green: 132 43% 93%;
-    --soft-blue: 207 89% 94%;
-    --warm-yellow: 48 100% 91%;
-    --light-coral: 0 100% 85%;
-    --lavender: 260 60% 92%;
+    --mint: 132 32% 91%;        /* Mint */
+    --green: 147 42% 58%;       /* Green */
+    --teal: 197 54% 32%;        /* Teal */
+    --navy: 210 72% 25%;        /* Navy */
     
     /* Text colors */
-    --heading: 210 24% 16%;
-    --body-text: 215 16% 47%;
+    --heading: 132 32% 91%;     /* Mint headings */
+    --body-text: 132 32% 80%;   /* Slightly darker mint for body */
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 210 72% 20%;
+    --sidebar-foreground: 132 32% 91%;
+    --sidebar-primary: 147 42% 58%;
+    --sidebar-primary-foreground: 210 72% 25%;
+    --sidebar-accent: 197 54% 35%;
+    --sidebar-accent-foreground: 132 32% 91%;
+    --sidebar-border: 197 54% 40%;
+    --sidebar-ring: 147 42% 58%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Same as root - force dark mode */
+    --background: 210 72% 25%;  /* Navy background */
+    --foreground: 132 32% 91%;  /* Mint text */
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 197 54% 32%;        /* Teal cards */
+    --card-foreground: 132 32% 91%;  /* Mint text on cards */
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 197 54% 32%;
+    --popover-foreground: 132 32% 91%;
 
-    /* Primary: Lighter teal for dark mode */
-    --primary: 178 39% 59%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Primary: Green */
+    --primary: 147 42% 58%;     /* Green */
+    --primary-foreground: 210 72% 25%;  /* Navy text on green */
 
-    /* Secondary: Slightly muted coral for dark mode */
-    --secondary: 0 80% 75%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary: Teal */
+    --secondary: 197 54% 32%;   /* Teal */
+    --secondary-foreground: 132 32% 91%;  /* Mint text on teal */
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    /* Muted: Darker navy */
+    --muted: 210 72% 20%;       /* Darker navy */
+    --muted-foreground: 132 32% 80%;  /* Slightly darker mint */
 
-    --accent: 178 39% 59%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 147 42% 58%;      /* Green accent */
+    --accent-foreground: 210 72% 25%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 132 32% 91%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 178 39% 59%;
+    --border: 197 54% 40%;      /* Lighter teal for borders */
+    --input: 197 54% 32%;       /* Teal inputs */
+    --ring: 147 42% 58%;        /* Green ring */
     
-    /* Supporting colors - dark mode */
-    --mint-green: 132 43% 15%;
-    --soft-blue: 207 89% 15%;
-    --warm-yellow: 48 100% 15%;
-    --light-coral: 0 100% 15%;
-    --lavender: 260 60% 15%;
+    /* Supporting colors */
+    --mint: 132 32% 91%;        /* Mint */
+    --green: 147 42% 58%;       /* Green */
+    --teal: 197 54% 32%;        /* Teal */
+    --navy: 210 72% 25%;        /* Navy */
     
-    /* Text colors - dark mode */
-    --heading: 210 40% 98%;
-    --body-text: 215 20.2% 65.1%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Text colors */
+    --heading: 132 32% 91%;     /* Mint headings */
+    --body-text: 132 32% 80%;   /* Slightly darker mint for body */
+
+    --sidebar-background: 210 72% 20%;
+    --sidebar-foreground: 132 32% 91%;
+    --sidebar-primary: 147 42% 58%;
+    --sidebar-primary-foreground: 210 72% 25%;
+    --sidebar-accent: 197 54% 35%;
+    --sidebar-accent-foreground: 132 32% 91%;
+    --sidebar-border: 197 54% 40%;
+    --sidebar-ring: 147 42% 58%;
   }
 }
 

@@ -52,12 +52,11 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// Supporting design system colors
-				'mint-green': 'hsl(var(--mint-green))',
-				'soft-blue': 'hsl(var(--soft-blue))',
-				'warm-yellow': 'hsl(var(--warm-yellow))',
-				'light-coral': 'hsl(var(--light-coral))',
-				'lavender': 'hsl(var(--lavender))',
+				// New color palette
+				'mint': 'hsl(var(--mint))',
+				'green': 'hsl(var(--green))',
+				'teal': 'hsl(var(--teal))',
+				'navy': 'hsl(var(--navy))',
 				'heading': 'hsl(var(--heading))',
 				'body-text': 'hsl(var(--body-text))',
 				sidebar: {

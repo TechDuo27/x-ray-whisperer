@@ -355,7 +355,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
             ) : (
               <>
                 <Upload className="h-4 w-4 mr-2" />
-                Analyze X-Ray (40% confidence threshold)
+                Analyze X-Ray
               </>
             )}
           </Button>

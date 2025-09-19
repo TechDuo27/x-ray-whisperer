@@ -170,14 +170,14 @@ const Index = () => {
 
           <div className="flex flex-col md:flex-row items-center justify-center gap-16 max-w-5xl mx-auto">
             {/* Step 1 */}
-            <div className="flex flex-col items-center text-center">
+            <div className="flex flex-col items-center text-center max-w-xs">
               <div className="relative mb-6">
                 <div className="w-24 h-24 bg-green rounded-full flex items-center justify-center shadow-xl">
                   <Upload className="w-12 h-12 text-navy" />
                 </div>
                 <div className="absolute -top-2 -right-2 w-8 h-8 bg-teal rounded-full flex items-center justify-center text-mint font-bold">1</div>
               </div>
-              <h3 className="text-xl font-bold text-heading mb-2">Upload your OPG X-ray</h3>
+              <h3 className="text-xl font-bold text-heading mb-2">Upload X-Ray</h3>
             </div>
 
             {/* Arrow 1 */}
@@ -188,14 +188,14 @@ const Index = () => {
             </div>
 
             {/* Step 2 */}
-            <div className="flex flex-col items-center text-center">
+            <div className="flex flex-col items-center text-center max-w-xs">
               <div className="relative mb-6">
                 <div className="w-24 h-24 bg-green rounded-full flex items-center justify-center shadow-xl">
                   <Brain className="w-12 h-12 text-navy" />
                 </div>
                 <div className="absolute -top-2 -right-2 w-8 h-8 bg-teal rounded-full flex items-center justify-center text-mint font-bold">2</div>
               </div>
-              <h3 className="text-xl font-bold text-heading mb-2">Analyze X-Ray</h3>
+              <h3 className="text-xl font-bold text-heading mb-2">AI Analysis</h3>
             </div>
 
             {/* Arrow 2 */}
@@ -206,14 +206,14 @@ const Index = () => {
             </div>
 
             {/* Step 3 */}
-            <div className="flex flex-col items-center text-center">
+            <div className="flex flex-col items-center text-center max-w-xs">
               <div className="relative mb-6">
                 <div className="w-24 h-24 bg-green rounded-full flex items-center justify-center shadow-xl">
                   <FileText className="w-12 h-12 text-navy" />
                 </div>
                 <div className="absolute -top-2 -right-2 w-8 h-8 bg-teal rounded-full flex items-center justify-center text-mint font-bold">3</div>
               </div>
-              <h3 className="text-xl font-bold text-heading mb-2">Review your detailed, downloadable report</h3>
+              <h3 className="text-xl font-bold text-heading mb-2">Download Report</h3>
             </div>
           </div>
         </div>

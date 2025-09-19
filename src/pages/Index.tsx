@@ -51,22 +51,24 @@ const Index = () => {
           <div className="text-center max-w-4xl mx-auto">
             <div className="mb-8">
               <h1 className="text-6xl font-bold text-heading mb-4">
-                Dental AI Analysis
+                Oral Health Analyzer
               </h1>
               <h2 className="text-4xl font-semibold text-green mb-6">
-                AI-Powered Dental X-Ray Disease Detection
+                AI-Powered Diagnostic Analyzer
               </h2>
-              <p className="text-2xl text-mint font-medium mb-4">
-                Your second opinion, in seconds.
-              </p>
+              <div className="space-y-3 mb-6">
+                <p className="text-xl text-mint font-medium">• AI-Powered second opinion at your fingertips</p>
+                <p className="text-xl text-mint font-medium">• Interprets 20+ dental issues</p>
+                <p className="text-xl text-mint font-medium">• Effortless, accurate and secure</p>
+              </div>
               <p className="text-xl text-body-text">
-                Detect 20+ dental diseases in seconds—secure, accurate, and effortless X-ray analysis.
+                Analyzes and interprets 20+ dental issues effortlessly, accurately, securely using AI technology
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-green hover:bg-green/90 text-navy px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105" asChild>
-                <Link to="/auth">Upload Your OPG X-Ray — Get Instant Results</Link>
+                <Link to="/auth">Upload your X-ray here</Link>
               </Button>
             </div>
           </div>
@@ -77,17 +79,17 @@ const Index = () => {
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-heading mb-6">Why Choose Dental AI Analysis?</h2>
+            <h2 className="text-4xl font-bold text-heading mb-6">Why Choose Oral Health Analyzer?</h2>
           </div>
 
           <div className="max-w-6xl mx-auto">
             {/* Features Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
               {/* Feature 1 */}
-              <div className="group relative overflow-hidden bg-gradient-to-br from-navy/20 to-teal/20 rounded-3xl p-8 border border-green/30 shadow-lg">
+              <div className="relative overflow-hidden bg-gradient-to-br from-navy/20 to-teal/20 rounded-3xl p-8 border border-green/30 shadow-lg">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-green/10 rounded-full -translate-y-6 translate-x-6"></div>
                 <div className="relative z-10">
-                  <div className="w-16 h-16 bg-green/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <div className="w-16 h-16 bg-green/20 rounded-2xl flex items-center justify-center mb-6">
                     <Lock className="w-8 h-8 text-green" />
                   </div>
                   <h3 className="text-xl font-bold text-heading mb-3">🔒 Secure & Private</h3>
@@ -96,10 +98,10 @@ const Index = () => {
               </div>
 
               {/* Feature 2 */}
-              <div className="group relative overflow-hidden bg-gradient-to-br from-teal/20 to-mint/20 rounded-3xl p-8 border border-green/30 shadow-lg">
+              <div className="relative overflow-hidden bg-gradient-to-br from-teal/20 to-mint/20 rounded-3xl p-8 border border-green/30 shadow-lg">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-mint/10 rounded-full -translate-y-6 translate-x-6"></div>
                 <div className="relative z-10">
-                  <div className="w-16 h-16 bg-mint/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <div className="w-16 h-16 bg-mint/20 rounded-2xl flex items-center justify-center mb-6">
                     <Upload className="w-8 h-8 text-green" />
                   </div>
                   <h3 className="text-xl font-bold text-heading mb-3">⬆️ Easy Upload</h3>
@@ -108,10 +110,10 @@ const Index = () => {
               </div>
 
               {/* Feature 3 */}
-              <div className="group relative overflow-hidden bg-gradient-to-br from-green/20 to-teal/20 rounded-3xl p-8 border border-green/30 shadow-lg">
+              <div className="relative overflow-hidden bg-gradient-to-br from-green/20 to-teal/20 rounded-3xl p-8 border border-green/30 shadow-lg">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-teal/10 rounded-full -translate-y-6 translate-x-6"></div>
                 <div className="relative z-10">
-                  <div className="w-16 h-16 bg-teal/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <div className="w-16 h-16 bg-teal/20 rounded-2xl flex items-center justify-center mb-6">
                     <Brain className="w-8 h-8 text-green" />
                   </div>
                   <h3 className="text-xl font-bold text-heading mb-3">🧠 Accurate AI</h3>
@@ -120,10 +122,10 @@ const Index = () => {
               </div>
 
               {/* Feature 4 */}
-              <div className="group relative overflow-hidden bg-gradient-to-br from-mint/20 to-navy/20 rounded-3xl p-8 border border-green/30 shadow-lg">
+              <div className="relative overflow-hidden bg-gradient-to-br from-mint/20 to-navy/20 rounded-3xl p-8 border border-green/30 shadow-lg">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-navy/10 rounded-full -translate-y-6 translate-x-6"></div>
                 <div className="relative z-10">
-                  <div className="w-16 h-16 bg-navy/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <div className="w-16 h-16 bg-navy/20 rounded-2xl flex items-center justify-center mb-6">
                     <FileText className="w-8 h-8 text-green" />
                   </div>
                   <h3 className="text-xl font-bold text-heading mb-3">📊 Detailed Reports</h3>
@@ -132,10 +134,10 @@ const Index = () => {
               </div>
 
               {/* Feature 5 */}
-              <div className="group relative overflow-hidden bg-gradient-to-br from-navy/20 to-green/20 rounded-3xl p-8 border border-green/30 shadow-lg">
+              <div className="relative overflow-hidden bg-gradient-to-br from-navy/20 to-green/20 rounded-3xl p-8 border border-green/30 shadow-lg">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-green/10 rounded-full -translate-y-6 translate-x-6"></div>
                 <div className="relative z-10">
-                  <div className="w-16 h-16 bg-green/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <div className="w-16 h-16 bg-green/20 rounded-2xl flex items-center justify-center mb-6">
                     <BarChart3 className="w-8 h-8 text-green" />
                   </div>
                   <h3 className="text-xl font-bold text-heading mb-3">📂 Analysis History</h3>
@@ -144,39 +146,15 @@ const Index = () => {
               </div>
 
               {/* Feature 6 */}
-              <div className="group relative overflow-hidden bg-gradient-to-br from-teal/20 to-navy/20 rounded-3xl p-8 border border-green/30 shadow-lg">
+              <div className="relative overflow-hidden bg-gradient-to-br from-teal/20 to-navy/20 rounded-3xl p-8 border border-green/30 shadow-lg">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-teal/10 rounded-full -translate-y-6 translate-x-6"></div>
                 <div className="relative z-10">
-                  <div className="w-16 h-16 bg-teal/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <div className="w-16 h-16 bg-teal/20 rounded-2xl flex items-center justify-center mb-6">
                     <Clock className="w-8 h-8 text-green" />
                   </div>
                   <h3 className="text-xl font-bold text-heading mb-3">⚡ Instant Results</h3>
                   <p className="text-body-text leading-relaxed">No waiting, no hassle - get comprehensive results in seconds</p>
                 </div>
-              </div>
-            </div>
-
-            {/* Key Benefits */}
-            <div className="text-center">
-              <div className="bg-gradient-to-r from-green/10 to-teal/10 rounded-2xl p-8 border border-green/20">
-                <ul className="text-lg text-body-text space-y-3 max-w-3xl mx-auto">
-                  <li className="flex items-center justify-center gap-3">
-                    <div className="w-2 h-2 bg-green rounded-full"></div>
-                    Unlimited detections per upload—no extra costs
-                  </li>
-                  <li className="flex items-center justify-center gap-3">
-                    <div className="w-2 h-2 bg-green rounded-full"></div>
-                    Over 90% accuracy, powered by cutting-edge machine intelligence
-                  </li>
-                  <li className="flex items-center justify-center gap-3">
-                    <div className="w-2 h-2 bg-green rounded-full"></div>
-                    Secure and private, with best-in-class data protection
-                  </li>
-                  <li className="flex items-center justify-center gap-3">
-                    <div className="w-2 h-2 bg-green rounded-full"></div>
-                    Download detailed reports with one click
-                  </li>
-                </ul>
               </div>
             </div>
           </div>
@@ -187,14 +165,14 @@ const Index = () => {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-heading mb-6">How Dental AI Analysis Works</h2>
+            <h2 className="text-4xl font-bold text-heading mb-6">How Oral Health Analyzer Works</h2>
           </div>
 
-          <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 max-w-4xl mx-auto mb-16">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-16 max-w-5xl mx-auto">
             {/* Step 1 */}
-            <div className="flex flex-col items-center text-center group">
+            <div className="flex flex-col items-center text-center">
               <div className="relative mb-6">
-                <div className="w-24 h-24 bg-green rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                <div className="w-24 h-24 bg-green rounded-full flex items-center justify-center shadow-xl">
                   <Upload className="w-12 h-12 text-navy" />
                 </div>
                 <div className="absolute -top-2 -right-2 w-8 h-8 bg-teal rounded-full flex items-center justify-center text-mint font-bold">1</div>
@@ -210,9 +188,9 @@ const Index = () => {
             </div>
 
             {/* Step 2 */}
-            <div className="flex flex-col items-center text-center group">
+            <div className="flex flex-col items-center text-center">
               <div className="relative mb-6">
-                <div className="w-24 h-24 bg-green rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                <div className="w-24 h-24 bg-green rounded-full flex items-center justify-center shadow-xl">
                   <Brain className="w-12 h-12 text-navy" />
                 </div>
                 <div className="absolute -top-2 -right-2 w-8 h-8 bg-teal rounded-full flex items-center justify-center text-mint font-bold">2</div>
@@ -228,22 +206,15 @@ const Index = () => {
             </div>
 
             {/* Step 3 */}
-            <div className="flex flex-col items-center text-center group">
+            <div className="flex flex-col items-center text-center">
               <div className="relative mb-6">
-                <div className="w-24 h-24 bg-green rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                <div className="w-24 h-24 bg-green rounded-full flex items-center justify-center shadow-xl">
                   <FileText className="w-12 h-12 text-navy" />
                 </div>
                 <div className="absolute -top-2 -right-2 w-8 h-8 bg-teal rounded-full flex items-center justify-center text-mint font-bold">3</div>
               </div>
               <h3 className="text-xl font-bold text-heading mb-2">Review your detailed, downloadable report</h3>
             </div>
-          </div>
-
-          {/* CTA Button */}
-          <div className="text-center">
-            <Button size="lg" className="bg-green hover:bg-green/90 text-navy px-12 py-4 text-xl font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105" asChild>
-              <Link to="/auth">Try It Now — Free Unlimited Detections</Link>
-            </Button>
           </div>
         </div>
       </section>
@@ -321,56 +292,6 @@ const Index = () => {
               <div className="bg-background rounded-2xl p-8 pt-12 shadow-lg border border-primary/10">
                 <div className="text-5xl font-bold text-primary mb-2">5s</div>
                 <p className="text-lg font-semibold text-heading">Report Generation Time</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* About Us Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-heading mb-6">About Dental AI Analysis</h2>
-            <div className="max-w-4xl mx-auto">
-              <div className="max-w-3xl mx-auto text-center">
-                <p className="text-xl text-body-text leading-relaxed mb-12">
-                  Dental AI Analysis is dedicated to making advanced dental diagnostics accessible to everyone. 
-                  Our proprietary AI platform scans OPG X-rays for over 20 diseases, providing instant, reliable 
-                  insights for patients and dental professionals alike.
-                </p>
-                
-                <div className="space-y-8">
-                  <div className="flex items-center gap-6 p-6 bg-gradient-to-r from-green/10 to-transparent rounded-2xl">
-                    <div className="w-16 h-16 bg-green/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Users className="w-8 h-8 text-green" />
-                    </div>
-                    <div className="text-left">
-                      <h3 className="text-lg font-semibold text-heading mb-2">Built by Experts</h3>
-                      <p className="text-body-text">Built by experts in dental AI and global healthcare with decades of combined experience</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-6 p-6 bg-gradient-to-r from-teal/10 to-transparent rounded-2xl">
-                    <div className="w-16 h-16 bg-teal/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Shield className="w-8 h-8 text-green" />
-                    </div>
-                    <div className="text-left">
-                      <h3 className="text-lg font-semibold text-heading mb-2">Security First</h3>
-                      <p className="text-body-text">Prioritizing user security and accuracy with industry-leading data protection standards</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-6 p-6 bg-gradient-to-r from-mint/10 to-transparent rounded-2xl">
-                    <div className="w-16 h-16 bg-mint/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Award className="w-8 h-8 text-green" />
-                    </div>
-                    <div className="text-left">
-                      <h3 className="text-lg font-semibold text-heading mb-2">Globally Trusted</h3>
-                      <p className="text-body-text">Trusted by clinics, researchers, and patients worldwide for reliable dental diagnostics</p>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>

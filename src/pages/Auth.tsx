@@ -164,7 +164,7 @@ export default function Auth() {
       <DarkModeToggle />
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-3xl font-bold text-primary">🦷 Dental AI</CardTitle>
+          <CardTitle className="text-3xl font-bold text-primary">🦷 Oral Health Analyzer</CardTitle>
           <CardDescription>
             AI-powered dental X-ray analysis platform
           </CardDescription>

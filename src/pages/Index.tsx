@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
 import thirumalaImage from '@/assets/thirumala.png';
+import bashaImage from '@/assets/basha.png';
 import placeholderImage from '@/assets/team-placeholder.png';
 import demoVideo from '@/assets/demo.mp4';
 
@@ -330,7 +331,7 @@ const Index = () => {
             <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
               <div className="text-center mb-6">
                 <img 
-                  src="/src/assets/basha.png" 
+                  src={bashaImage} 
                   alt="Dr. Mahaboob Basha" 
                   className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-green/50 mb-4"
                 />

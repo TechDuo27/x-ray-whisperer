@@ -53,16 +53,8 @@ const Index = () => {
               <h1 className="text-6xl font-bold text-heading mb-4">
                 Oral Health Analyzer
               </h1>
-              <h2 className="text-4xl font-semibold text-green mb-6">
+              <p className="text-lg text-green mb-6">
                 AI-Powered Diagnostic Analyzer
-              </h2>
-              <div className="space-y-3 mb-6">
-                <p className="text-xl text-mint font-medium">• AI-Powered second opinion at your fingertips</p>
-                <p className="text-xl text-mint font-medium">• Interprets 20+ dental issues</p>
-                <p className="text-xl text-mint font-medium">• Effortless, accurate and secure</p>
-              </div>
-              <p className="text-xl text-body-text">
-                Analyzes and interprets 20+ dental issues effortlessly, accurately, securely using AI technology
               </p>
             </div>
 
@@ -195,7 +187,7 @@ const Index = () => {
                 </div>
                 <div className="absolute -top-2 -right-2 w-8 h-8 bg-teal rounded-full flex items-center justify-center text-mint font-bold">2</div>
               </div>
-              <h3 className="text-xl font-bold text-heading mb-2">AI Analysis</h3>
+              <h3 className="text-xl font-bold text-heading mb-2 text-center">Analyze with AI technology</h3>
             </div>
 
             {/* Arrow 2 */}
@@ -334,21 +326,20 @@ const Index = () => {
               </a>
             </div>
 
-            {/* Coming Soon */}
+            {/* Dr. Mahaboob Basha */}
             <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
               <div className="text-center mb-6">
-                <div className="w-32 h-32 rounded-full mx-auto bg-gradient-to-br from-green/20 to-teal/20 border-4 border-green/50 mb-4 flex items-center justify-center">
-                  <Users className="w-16 h-16 text-green/70" />
-                </div>
-                <h3 className="text-2xl font-bold text-heading mb-1">Expanding Our Team</h3>
-                <p className="text-lg text-teal font-semibold">Coming Soon</p>
+                <img 
+                  src="/src/assets/basha.png" 
+                  alt="Dr. Mahaboob Basha" 
+                  className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-green/50 mb-4"
+                />
+                <h3 className="text-2xl font-bold text-heading mb-1">Dr. Mahaboob Basha</h3>
+                <p className="text-lg text-green font-semibold">Domain expert and senior Advisor</p>
               </div>
               <p className="text-body-text leading-relaxed mb-6">
-                Joining soon
+                24+ years advancing dental care and orthodontics. Owner of 5 successful dental branches and a state-of-the-art dental lab, now leading Dentray Aligners to revolutionize South India's orthodontic market through innovative, affordable clear aligner solutions and strong B2B partnerships.
               </p>
-              <div className="inline-flex items-center gap-2 text-body-text font-medium">
-                Stay tuned for updates <Star className="w-4 h-4" />
-              </div>
             </div>
           </div>
         </div>

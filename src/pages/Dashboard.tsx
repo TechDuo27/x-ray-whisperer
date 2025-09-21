@@ -116,7 +116,7 @@ export default function Dashboard() {
               className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
             >
               <Brain className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold text-primary">Dental AI Analysis</h1>
+              <h1 className="text-2xl font-bold text-primary">Oral Health Analyzer</h1>
             </Link>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-muted-foreground">

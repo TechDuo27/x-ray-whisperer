@@ -340,6 +340,14 @@ const Index = () => {
               <p className="text-body-text leading-relaxed mb-6">
                 24+ years advancing dental care and orthodontics. Owner of 5 successful dental branches and a state-of-the-art dental lab, now leading Dentray Aligners to revolutionize South India's orthodontic market through innovative, affordable clear aligner solutions and strong B2B partnerships.
               </p>
+              <a 
+                href="https://www.linkedin.com/in/dr-mahaboob-basha-13234943/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-green hover:text-green/80 font-semibold transition-colors"
+              >
+                LinkedIn Profile <ArrowRight className="w-4 h-4" />
+              </a>
             </div>
           </div>
         </div>

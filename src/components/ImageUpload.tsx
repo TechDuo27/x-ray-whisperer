@@ -243,9 +243,6 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
           <CardDescription>
             Upload a panoramic dental X-ray image for AI-powered analysis
           </CardDescription>
-          <div className="flex justify-center pt-4">
-            <img src="/logo.png" alt="Oral Health Analyzer Logo" className="w-32 h-32 object-contain" />
-          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {!imagePreview ? (

@@ -576,7 +576,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                 </Card>
                 <Card>
                   <CardContent className="pt-6">
-                    <div className="text-2xl font-bold text-secondary">
+                    <div className="text-2xl font-bold text-primary">
                       {uniqueDetections.length}
                     </div>
                     <p className="text-sm text-muted-foreground">Unique Findings</p>
@@ -610,7 +610,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-sm text-muted-foreground mt-1">
+                            <p className="text-sm text-foreground mt-1">
                               {detection.description}
                             </p>
                             {detection.is_grossly_carious && (

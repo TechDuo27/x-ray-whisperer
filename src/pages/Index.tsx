@@ -55,10 +55,10 @@ const Index = () => {
                 Oral Health Analyzer
               </h1>
               <p className="text-lg text-green mb-6">
-                AI-Powered Diagnostic Analyzer
+                Your AI-Powered Diagnostic Companion
               </p>
               <div className="flex justify-center mb-8">
-                <img src="/logo.png" alt="Oral Health Analyzer Logo" className="w-40 h-40 object-contain" />
+                <img src="/logo-new.png" alt="Oral Health Analyzer Logo" className="w-40 h-40 object-contain" />
               </div>
             </div>
 

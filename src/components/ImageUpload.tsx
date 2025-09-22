@@ -9,6 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
 import { Upload, FileImage, Loader2, AlertCircle } from 'lucide-react';
 import { dentalService } from '@/services/api';
+import logo from '@/assets/logo.png';
 // import { loadYOLOModel, runInference } from '@/utils/modelLoader';
 
 interface ImageUploadProps {
@@ -243,6 +244,9 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
           <CardDescription>
             Upload a panoramic dental X-ray image for AI-powered analysis
           </CardDescription>
+          <div className="flex justify-center pt-4">
+            <img src={logo} alt="Oral Health Analyzer Logo" className="w-32 h-32 object-contain" />
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {!imagePreview ? (

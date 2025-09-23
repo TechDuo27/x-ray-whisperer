@@ -54,7 +54,7 @@ const Index = () => {
               <h1 className="text-6xl font-bold text-heading mb-4">
                 Oral Health Analyzer <sup className="text-2xl">™</sup>
               </h1>
-              <p className="text-lg text-green mb-6" style={{ fontStyle: 'italic' }}>
+              <p className="text-lg text-green mb-6 font-cursive italic">
                 Your AI-Powered Diagnostic Companion
               </p>
               <div className="flex justify-center mb-8">
@@ -240,9 +240,11 @@ const Index = () => {
 
             {/* Tagline below video */}
             <div className="text-center mt-8">
-              <p className="text-2xl font-semibold text-heading">
-                Step 1 – Upload &nbsp;&nbsp;•&nbsp;&nbsp; Step 2 – Analyze &nbsp;&nbsp;•&nbsp;&nbsp; Step 3 – Download Report
-              </p>
+              <ul className="text-2xl font-semibold text-heading space-y-2">
+                <li>• Step 1 – Upload</li>
+                <li>• Step 2 – Analyze</li>
+                <li>• Step 3 – Download Report</li>
+              </ul>
             </div>
           </div>
         </div>

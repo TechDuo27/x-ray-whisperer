@@ -52,9 +52,9 @@ const Index = () => {
           <div className="text-center max-w-4xl mx-auto">
             <div className="mb-8">
               <h1 className="text-6xl font-bold text-heading mb-4">
-                Oral Health Analyzer<sup className="text-2xl">™</sup>
+                Oral Health Analyzer <sup className="text-2xl">™</sup>
               </h1>
-              <p className="text-lg text-green mb-6 italic">
+              <p className="text-lg text-green mb-6" style={{ fontStyle: 'italic' }}>
                 Your AI-Powered Diagnostic Companion
               </p>
               <div className="flex justify-center mb-8">

@@ -54,7 +54,7 @@ const Index = () => {
               <h1 className="text-6xl font-bold text-heading mb-4">
                 Oral Health Analyzer <sup className="text-2xl">™</sup>
               </h1>
-              <p className="text-lg text-green mb-6 font-cursive italic">
+              <p className="text-xl text-green mb-6 font-cursive italic">
                 Your AI-Powered Diagnostic Companion
               </p>
               <div className="flex justify-center mb-8">

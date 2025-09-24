@@ -536,7 +536,8 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                 }
                 .legend {
                   background: white !important;
-                  page-break-before: auto;
+                  page-break-before: always !important;
+                  page-break-inside: avoid !important;
                   margin: 1.5em 0;
                   padding: 1em;
                   border: 1px solid #ddd;

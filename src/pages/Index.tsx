@@ -48,21 +48,21 @@ const Index = () => {
           <div className="absolute bottom-40 left-1/3 w-16 h-16 rounded-full bg-teal/15"></div>
         </div>
         
-        <div className="relative container mx-auto px-4 py-24">
+        <div className="relative container mx-auto px-4 py-32">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="mb-8">
+            <div className="mb-16">
               <h1 className="text-6xl font-bold text-heading mb-4">
                 Oral Health Analyzer <sup className="text-2xl">™</sup>
               </h1>
-              <p className="text-xl text-green mb-6 font-cursive italic">
+              <p className="text-xl text-green mb-12 font-cursive italic">
                 Your AI-Powered Diagnostic Companion
               </p>
-              <div className="flex justify-center mb-8">
+              <div className="flex justify-center mb-16">
                 <img src="/logo-updated.png" alt="Oral Health Analyzer Logo" className="w-40 h-40 object-contain" />
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-20">
               <Button size="lg" className="bg-green hover:bg-green/90 text-navy px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105" asChild>
                 <Link to="/auth">Upload your X-ray here</Link>
               </Button>

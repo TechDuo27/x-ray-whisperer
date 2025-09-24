@@ -408,8 +408,199 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                 border-top: 1px solid #e2e8f0;
               }
               @media print {
-                body { background: white; }
-                .container { box-shadow: none; }
+                body { 
+                  background: white !important; 
+                  font-size: 12px;
+                  line-height: 1.4;
+                  color: #000 !important;
+                  margin: 0;
+                  padding: 0;
+                }
+                .container { 
+                  box-shadow: none !important;
+                  margin: 0;
+                  max-width: none;
+                  background: white !important;
+                  border-radius: 0;
+                }
+                .header {
+                  background: hsl(202, 76%, 36%) !important;
+                  color: white !important;
+                  page-break-after: avoid;
+                  text-align: left;
+                  padding: 1.5em 1em;
+                  margin-bottom: 1em;
+                }
+                .header h1 {
+                  font-size: 1.8em !important;
+                  margin-bottom: 0.5em;
+                }
+                .header p {
+                  font-size: 1em !important;
+                  margin: 0.2em 0;
+                }
+                .content {
+                  padding: 1em !important;
+                }
+                .image-container {
+                  background: white !important;
+                  page-break-inside: avoid;
+                  margin: 1em 0;
+                  padding: 1em;
+                  border: 1px solid #ddd;
+                }
+                .image-container h2 {
+                  font-size: 1.3em !important;
+                  color: #000 !important;
+                  margin-bottom: 0.5em;
+                }
+                .image-container img {
+                  max-width: 100% !important;
+                  max-height: 400px !important;
+                  display: block;
+                  margin: 0 auto;
+                }
+                .summary {
+                  display: flex !important;
+                  grid-template-columns: none !important;
+                  gap: 1em;
+                  margin: 1em 0;
+                  page-break-inside: avoid;
+                }
+                .summary-item {
+                  background: #f8f9fa !important;
+                  border: 1px solid #ddd !important;
+                  padding: 1em;
+                  text-align: center;
+                  flex: 1;
+                }
+                .summary-number {
+                  font-size: 2em !important;
+                  color: hsl(202, 76%, 36%) !important;
+                  font-weight: bold;
+                  background: none !important;
+                  -webkit-text-fill-color: hsl(202, 76%, 36%) !important;
+                }
+                .summary-label {
+                  color: #666 !important;
+                  font-size: 0.9em;
+                }
+                .findings {
+                  margin: 1.5em 0;
+                }
+                .findings h2 {
+                  font-size: 1.4em !important;
+                  color: #000 !important;
+                  border-bottom: 2px solid hsl(202, 76%, 36%) !important;
+                  padding-bottom: 0.3em;
+                  margin-bottom: 1em;
+                  page-break-after: avoid;
+                }
+                .finding {
+                  background: white !important;
+                  border-left: 4px solid;
+                  padding: 0.8em;
+                  margin: 0.8em 0;
+                  page-break-inside: avoid;
+                  box-shadow: none !important;
+                  border-top: 1px solid #eee;
+                  border-right: 1px solid #eee;
+                  border-bottom: 1px solid #eee;
+                }
+                .finding:hover {
+                  transform: none !important;
+                }
+                .finding-header {
+                  display: block !important;
+                  margin-bottom: 0.5em;
+                }
+                .finding-title {
+                  font-size: 1.1em !important;
+                  color: #000 !important;
+                  font-weight: bold;
+                  margin-bottom: 0.3em;
+                }
+                .count-badge {
+                  background: #e9ecef !important;
+                  color: #495057 !important;
+                  padding: 0.2em 0.5em;
+                  border-radius: 3px;
+                  font-size: 0.8em;
+                  margin-left: 0.5em;
+                }
+                .description {
+                  font-size: 0.95em !important;
+                  color: #333 !important;
+                  line-height: 1.5;
+                  margin-top: 0.5em;
+                }
+                .legend {
+                  background: white !important;
+                  page-break-before: auto;
+                  margin: 1.5em 0;
+                  padding: 1em;
+                  border: 1px solid #ddd;
+                }
+                .legend h2 {
+                  font-size: 1.4em !important;
+                  color: #000 !important;
+                  margin-bottom: 1em;
+                  text-align: center;
+                  page-break-after: avoid;
+                }
+                .legend-grid {
+                  display: grid !important;
+                  grid-template-columns: repeat(3, 1fr) !important;
+                  gap: 0.5em;
+                }
+                .legend-item {
+                  background: white !important;
+                  border: 1px solid #ddd !important;
+                  padding: 0.5em;
+                  display: flex;
+                  align-items: center;
+                  gap: 0.5em;
+                  page-break-inside: avoid;
+                }
+                .color-box {
+                  width: 16px !important;
+                  height: 16px !important;
+                  border: 1px solid #999 !important;
+                  flex-shrink: 0;
+                }
+                .legend-text {
+                  font-size: 0.85em !important;
+                  color: #000 !important;
+                }
+                .footer {
+                  background: #f8f9fa !important;
+                  color: #666 !important;
+                  padding: 1em;
+                  text-align: center;
+                  border-top: 1px solid #ddd;
+                  page-break-inside: avoid;
+                  margin-top: 1em;
+                }
+                .no-findings {
+                  color: #666 !important;
+                  padding: 2em;
+                  text-align: center;
+                }
+                /* Ensure colors are preserved */
+                * {
+                  -webkit-print-color-adjust: exact !important;
+                  color-adjust: exact !important;
+                }
+                /* Page break controls */
+                .page-break-before {
+                  page-break-before: always;
+                }
+                .page-break-after {
+                  page-break-after: always;
+                }
+                .page-break-inside-avoid {
+                  page-break-inside: avoid;
+                }
               }
             </style>
           </head>

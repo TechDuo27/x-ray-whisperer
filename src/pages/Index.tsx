@@ -219,8 +219,7 @@ const Index = () => {
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-heading mb-4">See Dental AI in Action</h2>
-            <p className="text-xl text-body-text">See how it works in seconds</p>
+            <h2 className="text-4xl font-bold text-heading mb-4">see Oral Health Analyzer <sup className="text-lg">™</sup> in action</h2>
           </div>
 
           <div className="max-w-4xl mx-auto">

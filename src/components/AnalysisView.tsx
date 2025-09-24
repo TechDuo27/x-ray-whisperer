@@ -227,7 +227,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; 
                 margin: 0; 
                 padding: 2em; 
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(135deg, hsl(202, 76%, 36%) 0%, hsl(186, 81%, 29%) 100%);
                 color: #333;
               }
               .container {
@@ -239,9 +239,9 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                 overflow: hidden;
               }
               .header { 
-                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                background: linear-gradient(135deg, hsl(202, 76%, 36%) 0%, hsl(186, 81%, 29%) 100%);
                 color: white;
-                text-align: center; 
+                text-align: left; 
                 padding: 2em;
               }
               .header h1 {
@@ -286,7 +286,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
               .summary-number {
                 font-size: 2.5em;
                 font-weight: 700;
-                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                background: linear-gradient(135deg, hsl(157, 69%, 38%) 0%, hsl(186, 81%, 29%) 100%);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
@@ -419,8 +419,6 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                 <h1>🦷 Oral Health Analyzer Report</h1>
                 <p>Patient: ${user?.user_metadata?.full_name || 'Unknown Patient'}</p>
                 <p>Analysis Date: ${formatDate(analysis.created_at)}</p>
-                <p>Image: ${analysis.original_filename}</p>
-                <p>Confidence Threshold: ${(analysis.confidence_threshold * 100).toFixed(0)}%</p>
               </div>
               
               <div class="content">
@@ -451,7 +449,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                             ${detection.display_name}
                             ${detection.count > 1 ? `<span class="count-badge">${detection.count}× detected</span>` : ''}
                           </div>
-                          <div class="confidence-badge">${(detection.highest_confidence * 100).toFixed(1)}% confidence</div>
+                          
                         </div>
                         <div class="description">${detection.description}</div>
                       </div>
@@ -619,15 +617,6 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                               </Badge>
                             )}
                           </div>
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <div className="text-sm font-medium">
-                            {(detection.highest_confidence * 100).toFixed(1)}%
-                          </div>
-                          <Progress 
-                            value={detection.highest_confidence * 100} 
-                            className="w-20 h-2 mt-1"
-                          />
                         </div>
                       </div>
                     </Card>

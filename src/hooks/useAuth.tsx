@@ -27,8 +27,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Create profile when user signs up
+        // Handle OAuth redirect after successful authentication
         if (event === 'SIGNED_IN' && session?.user) {
+          // Check if this is an OAuth callback (has hash parameters)
+          if (window.location.hash.includes('access_token')) {
+            // Redirect to dashboard after OAuth authentication
+            window.location.href = '/dashboard';
+            return;
+          }
+          
           setTimeout(async () => {
             try {
               // Check if profile exists first

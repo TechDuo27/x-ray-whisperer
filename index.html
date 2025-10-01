@@ -16,6 +16,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Edu+NSW+ACT+Cursive:wght@400..700&display=swap" rel="stylesheet">
     
+    <!-- Preload critical assets for instant loading -->
+    <link rel="preload" href="/logo-updated.png" as="image" fetchpriority="high">
+    <link rel="preload" href="/src/assets/thirumala.png" as="image">
+    <link rel="preload" href="/src/assets/basha.png" as="image">
+    <link rel="preload" href="/src/assets/demo.mp4" as="video" type="video/mp4">
+    
     <!-- Inline critical CSS for initial render -->
     <style>
       /* Critical CSS for loading state to reduce render blocking */

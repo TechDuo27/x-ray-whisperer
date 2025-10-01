@@ -58,7 +58,7 @@ const Index = () => {
                 Your AI-Powered Diagnostic Companion
               </p>
               <div className="flex justify-center mb-16">
-                <img src="/logo-updated.png" alt="Oral Health Analyzer Logo" className="w-40 h-40 object-contain" />
+                <img src="/logo-updated.png" alt="Oral Health Analyzer Logo" className="w-40 h-40 object-contain" loading="eager" fetchPriority="high" />
               </div>
             </div>
 
@@ -229,6 +229,7 @@ const Index = () => {
                 <video 
                   className="w-full h-auto"
                   controls
+                  preload="auto"
                   poster=""
                 >
                   <source src={demoVideo} type="video/mp4" />
@@ -313,6 +314,7 @@ const Index = () => {
                   src={thirumalaImage} 
                   alt="Thirumala Peddireddy - CEO" 
                   className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-green/50 mb-4"
+                  loading="eager"
                 />
                 <h3 className="text-2xl font-bold text-heading mb-1">Thirumala Peddireddy</h3>
                 <p className="text-lg text-green font-semibold">CEO & Founder</p>
@@ -338,6 +340,7 @@ const Index = () => {
                   src={bashaImage} 
                   alt="Dr. Mahaboob Basha" 
                   className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-green/50 mb-4"
+                  loading="eager"
                 />
                 <h3 className="text-2xl font-bold text-heading mb-1">Dr. Mahaboob Basha</h3>
                 <p className="text-lg text-green font-semibold">Domain expert and senior Advisor</p>

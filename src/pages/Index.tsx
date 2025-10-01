@@ -16,10 +16,7 @@ import {
   Award
 } from 'lucide-react';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
-import thirumalaImage from '@/assets/thirumala.png';
-import bashaImage from '@/assets/basha.png';
 import placeholderImage from '@/assets/team-placeholder.png';
-import demoVideo from '@/assets/demo.mp4';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -232,7 +229,7 @@ const Index = () => {
                   preload="auto"
                   poster=""
                 >
-                  <source src={demoVideo} type="video/mp4" />
+                  <source src="/demo.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
               </div>
@@ -311,10 +308,11 @@ const Index = () => {
             <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
               <div className="text-center mb-6">
                 <img 
-                  src={thirumalaImage} 
+                  src="/thirumala.png" 
                   alt="Thirumala Peddireddy - CEO" 
                   className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-green/50 mb-4"
                   loading="eager"
+                  fetchPriority="high"
                 />
                 <h3 className="text-2xl font-bold text-heading mb-1">Thirumala Peddireddy</h3>
                 <p className="text-lg text-green font-semibold">CEO & Founder</p>
@@ -337,10 +335,11 @@ const Index = () => {
             <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
               <div className="text-center mb-6">
                 <img 
-                  src={bashaImage} 
+                  src="/basha.png" 
                   alt="Dr. Mahaboob Basha" 
                   className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-green/50 mb-4"
                   loading="eager"
+                  fetchPriority="high"
                 />
                 <h3 className="text-2xl font-bold text-heading mb-1">Dr. Mahaboob Basha</h3>
                 <p className="text-lg text-green font-semibold">Domain expert and senior Advisor</p>

@@ -213,10 +213,27 @@ export const drawAnnotations = (
         // Log color assignment for debugging
         console.log(`Drawing ${detection.display_name} with color ${colorKey}: ${colorStr}`);
         
-        // Draw bounding box only (no labels)
+        // Draw detection shape based on type
         ctx.strokeStyle = colorStr;
         ctx.lineWidth = 3;
-        ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+        
+        // Draw circle for Dental caries, rectangle for everything else
+        if (detection.display_name === 'Dental caries' || detection.class === 'Caries') {
+          // Calculate center and radius for circle
+          const centerX = (x1 + x2) / 2;
+          const centerY = (y1 + y2) / 2;
+          const width = x2 - x1;
+          const height = y2 - y1;
+          const radius = Math.sqrt(width * width + height * height) / 2;
+          
+          // Draw circle
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+          ctx.stroke();
+        } else {
+          // Draw rectangle for all other detections
+          ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+        }
       });
       
       // Convert canvas to data URL

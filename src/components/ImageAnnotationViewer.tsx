@@ -27,13 +27,24 @@ export default function ImageAnnotationViewer({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const originalImageRef = useRef<HTMLImageElement>(null);
   const annotatedImageRef = useRef<HTMLImageElement>(null);
+  const annotationCacheRef = useRef<string>('');
 
   useEffect(() => {
     const generateAnnotatedImage = async () => {
+      // Check cache first to avoid regenerating
+      if (annotationCacheRef.current) {
+        setAnnotatedImageUrl(annotationCacheRef.current);
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       try {
         // Use the drawAnnotations function from modelLoader.ts
         const annotated = await drawAnnotations(originalImageUrl, detections);
+        
+        // Cache the result
+        annotationCacheRef.current = annotated;
         setAnnotatedImageUrl(annotated);
         
         // Call onAnnotated callback with the data URL
@@ -116,6 +127,8 @@ export default function ImageAnnotationViewer({
                   transformOrigin: 'center center'
                 }}
                 draggable={false}
+                loading="eager"
+                decoding="sync"
               />
             </div>
           </CardContent>
@@ -152,6 +165,8 @@ export default function ImageAnnotationViewer({
                       transformOrigin: 'center center'
                     }}
                     draggable={false}
+                    loading="eager"
+                    decoding="sync"
                   />
                   {/* Hidden canvas for capture */}
                   <canvas 

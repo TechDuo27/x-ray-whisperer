@@ -149,70 +149,56 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
     if (!uploadedImage || !user) return;
 
     setUploading(true);
+    setAnalyzing(true);
     setUploadProgress(0);
 
     try {
-      // Upload progress simulation
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => Math.min(prev + 10, 90));
-      }, 200);
-
-      // Upload image to storage
-      const imageUrl = await uploadToStorage(uploadedImage);
-      setUploadProgress(100);
-      clearInterval(progressInterval);
-
-      setUploading(false);
-      setAnalyzing(true);
-
-      // Use the API service to analyze the image
-      console.log('Sending image to backend for analysis:', uploadedImage.name, uploadedImage.type, uploadedImage.size);
+      // Start upload and API analysis in parallel for faster response
+      const uploadPromise = uploadToStorage(uploadedImage);
+      const analysisPromise = dentalService.analyzeImage(uploadedImage);
       
-      try {
-        const results = await dentalService.analyzeImage(uploadedImage);
-        console.log('API analysis results:', results);
-        
-        // Verify that we have valid results
-        if (!results || !results.detections) {
-          console.error('Invalid results format from API:', results);
-          throw new Error('Invalid response format from analysis API');
-        }
-        
-        // Save analysis to database
-        const { data: analysisData, error: dbError } = await supabase
-          .from('analyses')
-          .insert({
-            user_id: user.id,
-            image_url: imageUrl,
-            original_filename: uploadedImage.name,
-            analysis_results: results,
-            confidence_threshold: confidenceThreshold[0],
-          })
-          .select()
-          .single();
+      // Progress simulation
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => Math.min(prev + 8, 90));
+      }, 150);
 
-        if (dbError) throw dbError;
-
-        toast({
-          title: 'Analysis Complete!',
-          description: `Analysis completed. ${results.detections?.length || 0} findings detected.`,
-        });
-
-        onAnalysisComplete(analysisData);
-        
-        // Reset form
-        setUploadedImage(null);
-        setImagePreview(null);
-        
-      } catch (error) {
-        console.error('Error during API call:', error);
-        toast({
-          title: 'Analysis API Error',
-          description: `Error communicating with analysis service: ${error.message}`,
-          variant: 'destructive',
-        });
-        throw error;
+      // Wait for both to complete
+      const [imageUrl, results] = await Promise.all([uploadPromise, analysisPromise]);
+      
+      setUploadProgress(95);
+      clearInterval(progressInterval);
+      
+      console.log('Analysis results:', results);
+      
+      // Verify valid results
+      if (!results || !results.detections) {
+        console.error('Invalid results format from API:', results);
+        throw new Error('Invalid response format from analysis API');
       }
+      
+      // Save analysis to database
+      const { data: analysisData, error: dbError } = await supabase
+        .from('analyses')
+        .insert({
+          user_id: user.id,
+          image_url: imageUrl,
+          original_filename: uploadedImage.name,
+          analysis_results: results,
+          confidence_threshold: confidenceThreshold[0],
+        })
+        .select()
+        .single();
+
+      if (dbError) throw dbError;
+
+      setUploadProgress(100);
+
+      toast({
+        title: 'Analysis Complete!',
+        description: `Found ${results.detections?.length || 0} findings.`,
+      });
+
+      onAnalysisComplete(analysisData);
       
       // Reset form
       setUploadedImage(null);

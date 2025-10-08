@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
 import { Upload, FileImage, Loader2, AlertCircle } from 'lucide-react';
 import { dentalService } from '@/services/api';
-// import { loadYOLOModel, runInference } from '@/utils/modelLoader';
+import { compressImage } from '@/utils/imageCompression';
 
 interface ImageUploadProps {
   onAnalysisComplete: (analysis: any) => void;
@@ -125,15 +125,16 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
     multiple: false,
   });
 
-  const uploadToStorage = async (file: File): Promise<string> => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${user!.id}/${Date.now()}.${fileExt}`;
+  const uploadToStorage = async (file: File, alreadyCompressed = false): Promise<string> => {
+    const toUpload = alreadyCompressed ? file : await compressImage(file, 1920, 0.85);
+    const fileName = `${user!.id}/${Date.now()}.jpg`;
 
     const { error: uploadError } = await supabase.storage
       .from('xrays')
-      .upload(fileName, file, {
-        cacheControl: '3600',
+      .upload(fileName, toUpload, {
+        cacheControl: '31536000',
         upsert: false,
+        contentType: 'image/jpeg',
       });
 
     if (uploadError) throw uploadError;
@@ -153,9 +154,10 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
     setUploadProgress(0);
 
     try {
-      // Start upload and API analysis in parallel for faster response
-      const uploadPromise = uploadToStorage(uploadedImage);
-      const analysisPromise = dentalService.analyzeImage(uploadedImage);
+      // Compress once, then upload and analyze in parallel with smaller payload
+      const compressedFile = await compressImage(uploadedImage, 1920, 0.85);
+      const uploadPromise = uploadToStorage(compressedFile, true);
+      const analysisPromise = dentalService.analyzeImage(compressedFile);
       
       // Progress simulation
       const progressInterval = setInterval(() => {

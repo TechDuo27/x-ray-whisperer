@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 import { Detection, DETECTION_COLORS, drawAnnotations } from '@/utils/modelLoader';
-
+import { cacheBlob, getCachedImageUrl, dataUrlToBlob, hashString } from '@/utils/imageCache';
 interface ImageAnnotationViewerProps {
   originalImageUrl: string;
   detections: Detection[];
@@ -18,6 +18,7 @@ export default function ImageAnnotationViewer({
   onAnnotated 
 }: ImageAnnotationViewerProps) {
   const [annotatedImageUrl, setAnnotatedImageUrl] = useState<string>('');
+  const [originalCachedUrl, setOriginalCachedUrl] = useState<string>('');
   const [zoom, setZoom] = useState(100);
   const [loading, setLoading] = useState(true);
   const [panX, setPanX] = useState(0);
@@ -29,9 +30,45 @@ export default function ImageAnnotationViewer({
   const annotatedImageRef = useRef<HTMLImageElement>(null);
   const annotationCacheRef = useRef<string>('');
 
+  // Persistently cache the original image so it doesn't re-download on tab switches
+  useEffect(() => {
+    let revokeUrl: string | null = null;
+    const run = async () => {
+      try {
+        const key = `orig:${hashString(originalImageUrl)}`;
+        const cachedUrl = await getCachedImageUrl(key);
+        if (cachedUrl) {
+          setOriginalCachedUrl(cachedUrl);
+          return;
+        }
+        const res = await fetch(originalImageUrl, { cache: 'force-cache' });
+        const blob = await res.blob();
+        await cacheBlob(key, blob);
+        const url = URL.createObjectURL(blob);
+        revokeUrl = url;
+        setOriginalCachedUrl(url);
+      } catch {
+        setOriginalCachedUrl('');
+      }
+    };
+    if (originalImageUrl) run();
+    return () => {
+      if (revokeUrl) URL.revokeObjectURL(revokeUrl);
+    };
+  }, [originalImageUrl]);
+
+  // Generate annotated image with persistent cache keyed by image + detections
   useEffect(() => {
     const generateAnnotatedImage = async () => {
-      // Check cache first to avoid regenerating
+      const key = `anno:v1:${hashString(originalImageUrl)}:${hashString(JSON.stringify(detections))}`;
+      const cachedUrl = await getCachedImageUrl(key);
+      if (cachedUrl) {
+        setAnnotatedImageUrl(cachedUrl);
+        setLoading(false);
+        return;
+      }
+
+      // In-session cache to avoid regenerating within same mount
       if (annotationCacheRef.current) {
         setAnnotatedImageUrl(annotationCacheRef.current);
         setLoading(false);
@@ -40,27 +77,21 @@ export default function ImageAnnotationViewer({
 
       setLoading(true);
       try {
-        // Use the drawAnnotations function from modelLoader.ts
         const annotated = await drawAnnotations(originalImageUrl, detections);
-        
-        // Cache the result
         annotationCacheRef.current = annotated;
-        setAnnotatedImageUrl(annotated);
-        
-        // Call onAnnotated callback with the data URL
-        if (onAnnotated) {
-          onAnnotated(annotated);
-        }
-      } catch (error) {
-        console.error('Failed to generate annotated image:', error);
+        const blob = dataUrlToBlob(annotated);
+        await cacheBlob(key, blob);
+        const url = URL.createObjectURL(blob);
+        setAnnotatedImageUrl(url);
+        if (onAnnotated) onAnnotated(annotated);
+      } catch (e) {
+        console.error('Failed to generate annotated image:', e);
       } finally {
         setLoading(false);
       }
     };
 
-    if (originalImageUrl && detections.length > 0) {
-      generateAnnotatedImage();
-    }
+    if (originalImageUrl && detections.length > 0) generateAnnotatedImage();
   }, [originalImageUrl, detections, onAnnotated]);
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 25, 400));
@@ -119,7 +150,7 @@ export default function ImageAnnotationViewer({
             >
               <img
                 ref={originalImageRef}
-                src={originalImageUrl}
+                src={originalCachedUrl || originalImageUrl}
                 alt={`Original ${filename}`}
                 className="w-full h-auto transition-transform pointer-events-none"
                 style={{ 

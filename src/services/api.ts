@@ -20,7 +20,6 @@ export class DentalAnalysisService {
     formData.append('file', imageFile);
     
     try {
-      const startTime = performance.now();
       console.log(`Calling API at ${this.baseUrl}/analyze`);
       
       // Make API call
@@ -29,9 +28,6 @@ export class DentalAnalysisService {
         body: formData,
       });
       
-      const endTime = performance.now();
-      console.log(`API response received in ${(endTime - startTime).toFixed(2)}ms`);
-      
       // Handle non-200 responses
       if (!response.ok) {
         const errorText = await response.text();
@@ -39,9 +35,7 @@ export class DentalAnalysisService {
       }
       
       // Parse and return the response
-      const result = await response.json();
-      console.log('API Response detections:', result.detections?.map((d: any) => `${d.display_name || d.class} (confidence: ${d.confidence})`));
-      return result;
+      return await response.json();
     } catch (error) {
       console.error('Error analyzing dental image:', error);
       throw error;

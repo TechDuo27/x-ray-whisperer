@@ -12,7 +12,7 @@ export interface ModelResults {
   detections: Detection[];
 }
 
-// Target classes for selective detection
+// Target classes for selective detection (only these 20 conditions)
 export const TARGET_CLASSES = {
   'Caries': 'Dental caries',
   'Bone Loss': 'Bone Loss',
@@ -31,8 +31,7 @@ export const TARGET_CLASSES = {
   'Root Canal Treatment': 'RCT tooth',
   'Filling': 'Restorations',
   'Primary teeth': 'Retained deciduous tooth',
-  'Retained root': 'Root stump',
-  'mandibular canal': 'Mandibular canal'
+  'Retained root': 'Root stump'
 };
 
 // Model 2 class mapping to target classes
@@ -65,7 +64,6 @@ export const DETECTION_COLORS: Record<string, [number, number, number]> = {
   'Restorations': [238, 130, 238],         // violet
   'Retained deciduous tooth': [0, 0, 128], // navy blue
   'Root stump': [0, 128, 128],             // teal
-  'Mandibular canal': [255, 105, 180],     // hot pink
   
   // Special variants
   'Grossly carious': [255, 165, 0],        // orange
@@ -89,8 +87,7 @@ export const getHexColor = (detection: Detection): string => {
     'Root Canal Treatment': 'RCT tooth',
     'Filling': 'Restorations',
     'Primary teeth': 'Retained deciduous tooth',
-    'Retained root': 'Root stump',
-    'mandibular canal': 'Mandibular canal'
+    'Retained root': 'Root stump'
   };
 
   // First, determine the appropriate color key based on detection display_name or special cases
@@ -175,8 +172,7 @@ export const drawAnnotations = (
           'Root Canal Treatment': 'RCT tooth',
           'Filling': 'Restorations',
           'Primary teeth': 'Retained deciduous tooth',
-          'Retained root': 'Root stump',
-          'mandibular canal': 'Mandibular canal'
+          'Retained root': 'Root stump'
         };
         
         // Determine the correct color key based on detection display_name or special cases

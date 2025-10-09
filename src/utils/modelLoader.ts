@@ -68,7 +68,7 @@ export const DETECTION_COLORS: Record<string, [number, number, number]> = {
   'Restorations': [238, 130, 238],         // violet
   'Retained deciduous tooth': [0, 0, 128], // navy blue
   'Root stump': [0, 128, 128],             // teal
-  'Mandibular canal': [255, 0, 255],       // magenta
+  'Mandibular canal': [0, 255, 0],         // green
   
   // Special variants
   'Grossly carious': [255, 165, 0],        // orange

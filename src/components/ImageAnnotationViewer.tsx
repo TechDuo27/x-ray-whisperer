@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
@@ -8,6 +8,7 @@ interface ImageAnnotationViewerProps {
   originalImageUrl: string;
   detections: Detection[];
   filename: string;
+  annotatedImageBase64?: string; // optional pre-rendered annotated image from backend
   onAnnotated?: (dataUrl: string) => void;
 }
 
@@ -15,6 +16,7 @@ export default function ImageAnnotationViewer({
   originalImageUrl, 
   detections, 
   filename,
+  annotatedImageBase64,
   onAnnotated 
 }: ImageAnnotationViewerProps) {
   const [annotatedImageUrl, setAnnotatedImageUrl] = useState<string>('');
@@ -27,14 +29,38 @@ export default function ImageAnnotationViewer({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const originalImageRef = useRef<HTMLImageElement>(null);
-  const annotatedImageRef = useRef<HTMLImageElement>(null);
-  const annotationCacheRef = useRef<string>('');
 
-  // Reset annotation cache when image or detections change
-  useEffect(() => {
-    annotationCacheRef.current = '';
-    setAnnotatedImageUrl('');
-  }, [originalImageUrl, detections]);
+  // Stable stringify to avoid flicker when objects re-create with same content
+  const stableStringify = (value: any): string => {
+    const seen = new WeakSet();
+    const normalize = (val: any): any => {
+      if (val && typeof val === 'object') {
+        if (seen.has(val)) return undefined;
+        seen.add(val);
+        if (Array.isArray(val)) return val.map(normalize);
+        const keys = Object.keys(val).sort();
+        const obj: any = {};
+        for (const k of keys) obj[k] = normalize(val[k]);
+        return obj;
+      }
+      return val;
+    };
+    return JSON.stringify(normalize(value));
+  };
+
+  const detectionsHash = useMemo(() => hashString(stableStringify(detections)), [detections]);
+
+  const annoKey = useMemo(() => {
+    if (annotatedImageBase64 && annotatedImageBase64.length > 0) {
+      const sample = annotatedImageBase64.startsWith('data:')
+        ? annotatedImageBase64
+        : `data:image/png;base64,${annotatedImageBase64}`;
+      return `anno:b64:${hashString(sample.slice(0, 1024))}`;
+    }
+    return `anno:v3:${hashString(originalImageUrl)}:${detectionsHash}`;
+  }, [annotatedImageBase64, originalImageUrl, detectionsHash]);
+
+  const notifiedKeyRef = useRef<string>('');
 
   // Persistently cache the original image so it doesn't re-download on tab switches
   useEffect(() => {
@@ -63,46 +89,78 @@ export default function ImageAnnotationViewer({
     };
   }, [originalImageUrl]);
 
-  // Generate annotated image with persistent cache keyed by image + detections
+  // Generate or load annotated image with strong persistence and stable keys
   useEffect(() => {
-    const generateAnnotatedImage = async () => {
-      const key = `anno:v2:${hashString(originalImageUrl)}:${hashString(JSON.stringify(detections))}`;
-      
-      // Check persistent cache first
-      const cachedUrl = await getCachedImageUrl(key);
-      if (cachedUrl) {
+    let revokeUrl: string | null = null;
+    let cancelled = false;
+
+    const run = async () => {
+      // If nothing to draw and no precomputed image, do nothing
+      if (!originalImageUrl || (detections.length === 0 && !annotatedImageBase64)) {
+        setLoading(false);
+        return;
+      }
+
+      // 1) Persistent cache by annoKey
+      const cachedUrl = await getCachedImageUrl(annoKey);
+      if (!cancelled && cachedUrl) {
         setAnnotatedImageUrl(cachedUrl);
         setLoading(false);
+        if (notifiedKeyRef.current !== annoKey && onAnnotated) {
+          notifiedKeyRef.current = annoKey;
+          onAnnotated(cachedUrl);
+        }
         return;
       }
 
-      // In-session cache to avoid regenerating within same mount
-      if (annotationCacheRef.current && !annotatedImageUrl) {
-        setAnnotatedImageUrl(annotationCacheRef.current);
-        setLoading(false);
+      // 2) Prefer precomputed annotated image from backend if available
+      if (annotatedImageBase64 && !cancelled) {
+        try {
+          const dataUrl = annotatedImageBase64.startsWith('data:')
+            ? annotatedImageBase64
+            : `data:image/png;base64,${annotatedImageBase64}`;
+          const blob = dataUrlToBlob(dataUrl);
+          await cacheBlob(annoKey, blob);
+          const url = URL.createObjectURL(blob);
+          revokeUrl = url;
+          setAnnotatedImageUrl(url);
+          if (notifiedKeyRef.current !== annoKey && onAnnotated) {
+            notifiedKeyRef.current = annoKey;
+            onAnnotated(dataUrl);
+          }
+        } finally {
+          if (!cancelled) setLoading(false);
+        }
         return;
       }
 
+      // 3) Fallback: generate annotations client-side once
       setLoading(true);
       try {
-        const annotated = await drawAnnotations(originalImageUrl, detections);
-        annotationCacheRef.current = annotated;
-        const blob = dataUrlToBlob(annotated);
-        await cacheBlob(key, blob);
+        const annotatedDataUrl = await drawAnnotations(originalImageUrl, detections);
+        const blob = dataUrlToBlob(annotatedDataUrl);
+        await cacheBlob(annoKey, blob);
         const url = URL.createObjectURL(blob);
+        revokeUrl = url;
         setAnnotatedImageUrl(url);
-        if (onAnnotated) onAnnotated(annotated);
+        if (notifiedKeyRef.current !== annoKey && onAnnotated) {
+          notifiedKeyRef.current = annoKey;
+          onAnnotated(annotatedDataUrl);
+        }
       } catch (e) {
         console.error('Failed to generate annotated image:', e);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
-    if (originalImageUrl && detections.length > 0 && !annotatedImageUrl) {
-      generateAnnotatedImage();
-    }
-  }, [originalImageUrl, detections]);
+    run();
+
+    return () => {
+      cancelled = true;
+      if (revokeUrl) URL.revokeObjectURL(revokeUrl);
+    };
+  }, [annoKey, annotatedImageBase64, originalImageUrl, detections, onAnnotated]);
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 25, 400));
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 25, 50));
@@ -197,7 +255,6 @@ export default function ImageAnnotationViewer({
               ) : annotatedImageUrl ? (
                 <>
                   <img
-                    ref={annotatedImageRef}
                     src={annotatedImageUrl}
                     alt={`Annotated ${filename}`}
                     className="w-full h-auto annotation-canvas transition-transform pointer-events-none"

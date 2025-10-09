@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +26,7 @@ interface Detection {
 
 interface AnalysisResults {
   detections: Detection[];
+  annotated_image_base64_png?: string;
 }
 
 interface Analysis {
@@ -106,7 +107,10 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
   const [annotatedImageUrl, setAnnotatedImageUrl] = useState<string | null>(null);
   const [currentAnalysis, setCurrentAnalysis] = useState(analysis);
 
-  const detections = transformBackendDetections(currentAnalysis.analysis_results?.detections || []);
+  const detections = useMemo(
+    () => transformBackendDetections(currentAnalysis.analysis_results?.detections || []),
+    [currentAnalysis.analysis_results?.detections]
+  );
 
   const refreshAnalysis = async () => {
     try {
@@ -775,6 +779,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                   originalImageUrl={analysis.image_url}
                   detections={filteredDetections}
                   filename={analysis.original_filename}
+                  annotatedImageBase64={currentAnalysis.analysis_results?.annotated_image_base64_png}
                   onAnnotated={handleGetAnnotatedImage}
                 />
               </div>

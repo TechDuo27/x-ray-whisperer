@@ -74,52 +74,15 @@ const DISEASE_DESCRIPTIONS: Record<string, string> = {
   'MANDIBULAR CANAL': 'The mandibular canal (also known as inferior alveolar canal) is an anatomical structure within the mandible that contains the inferior alveolar nerve and blood vessels. It runs through the body of the mandible and is typically visible on panoramic radiographs as a radiolucent band with radiopaque borders. Accurate identification of the mandibular canal is crucial for surgical procedures to avoid nerve damage.'
 };
 
-// Transform backend detection format to frontend format - handles multiple model outputs
+// Transform API detections to frontend format
 const transformBackendDetections = (backendData: any): Detection[] => {
-  console.log('=== RAW BACKEND DATA ===');
-  console.log('Backend data type:', typeof backendData);
-  console.log('Is array?', Array.isArray(backendData));
-  console.log('Keys:', backendData ? Object.keys(backendData) : 'null');
-  console.log('Sample:', JSON.stringify(backendData, null, 2).substring(0, 500));
-  console.log('=======================');
+  // API response format: { detections: [...], annotated_image_base64_png: "..." }
+  const detectionsArray = backendData?.detections || [];
   
-  // Handle different possible backend response formats
-  let allDetections: any[] = [];
-  
-  // If backendData is directly an array, use it
-  if (Array.isArray(backendData)) {
-    allDetections = backendData;
-    console.log('Backend data is array, using directly');
-  } 
-  // If it has a detections property that's an array
-  else if (backendData?.detections && Array.isArray(backendData.detections)) {
-    allDetections = backendData.detections;
-    console.log('Found detections array in backend data');
-  }
-  // If multiple models return separate detection arrays
-  else if (backendData) {
-    console.log('Checking for nested detection arrays...');
-    // Check for model-specific detection arrays (model1, model2, model3, etc.)
-    Object.keys(backendData).forEach(key => {
-      console.log(`Checking key: ${key}, is array: ${Array.isArray(backendData[key])}, has detections: ${backendData[key]?.detections ? 'yes' : 'no'}`);
-      if (Array.isArray(backendData[key])) {
-        console.log(`Adding ${backendData[key].length} detections from ${key}`);
-        allDetections = allDetections.concat(backendData[key]);
-      } else if (backendData[key]?.detections && Array.isArray(backendData[key].detections)) {
-        console.log(`Adding ${backendData[key].detections.length} detections from ${key}.detections`);
-        allDetections = allDetections.concat(backendData[key].detections);
-      }
-    });
-  }
-
-  console.log('Total detections collected:', allDetections.length);
-  
-  const transformed = allDetections.map((det: any, idx: number) => {
-    console.log(`Detection ${idx}: class="${det.class_ || det.class}", display_name="${det.display_name}", confidence=${det.confidence}`);
-    
+  return detectionsArray.map((det: any) => {
     const transformed: Detection = {
-      class: det.class_ || det.class || '',
-      display_name: det.display_name || det.class_ || det.class || '',
+      class: det.class_ || '',
+      display_name: det.display_name || det.class_ || '',
       confidence: det.confidence || 0,
       is_grossly_carious: det.is_grossly_carious,
       is_internal_resorption: det.is_internal_resorption,
@@ -128,7 +91,6 @@ const transformBackendDetections = (backendData: any): Detection[] => {
     // Handle segmentation data from mask_contours
     if (det.has_mask && det.mask_contours && det.mask_contours.length > 0) {
       transformed.type = 'segmentation';
-      // Convert {x, y} points to [x, y] array format
       const firstContour = det.mask_contours[0];
       if (firstContour && firstContour.points) {
         transformed.segmentation = firstContour.points.map((p: any) => [p.x, p.y]);
@@ -140,9 +102,6 @@ const transformBackendDetections = (backendData: any): Detection[] => {
 
     return transformed;
   });
-  
-  console.log('Transformed detections:', transformed.map(d => d.display_name).join(', '));
-  return transformed;
 };
 
 export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
@@ -152,11 +111,8 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
   const [currentAnalysis, setCurrentAnalysis] = useState(analysis);
 
   const detections = useMemo(() => {
-    const transformed = transformBackendDetections(currentAnalysis.analysis_results?.detections || []);
-    console.log('Transformed detections:', transformed.length, 'detections');
-    console.log('Detection display names:', transformed.map(d => d.display_name).join(', '));
-    return transformed;
-  }, [currentAnalysis.analysis_results?.detections]);
+    return transformBackendDetections(currentAnalysis.analysis_results);
+  }, [currentAnalysis.analysis_results]);
 
   const refreshAnalysis = async () => {
     try {
@@ -180,16 +136,9 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
   };
   
   // Filter detections by confidence threshold
-  const filteredDetections = detections.filter(detection => {
-    const passes = detection.confidence >= currentAnalysis.confidence_threshold;
-    if (!passes) {
-      console.log(`Filtering out ${detection.display_name} - confidence ${detection.confidence} below threshold ${currentAnalysis.confidence_threshold}`);
-    }
-    return passes;
-  });
-  
-  console.log('After confidence filtering:', filteredDetections.length, 'detections');
-  console.log('Filtered detection names:', filteredDetections.map(d => `${d.display_name} (${d.confidence.toFixed(2)})`).join(', '));
+  const filteredDetections = detections.filter(detection => 
+    detection.confidence >= currentAnalysis.confidence_threshold
+  );
   
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -202,106 +151,44 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
   };
 
   const getDescription = (detection: Detection): string => {
-    // Log what we're trying to match
-    console.log(`Looking up description for: "${detection.display_name}" (class: "${detection.class}")`);
-    
-    // First try exact match (case-insensitive)
     const upperDisplayName = detection.display_name?.toUpperCase().trim();
     const upperClass = detection.class?.toUpperCase().trim();
     
+    // Exact match on display_name or class
     if (upperDisplayName && DISEASE_DESCRIPTIONS[upperDisplayName]) {
-      console.log(`Found exact match for display_name: ${upperDisplayName}`);
       return DISEASE_DESCRIPTIONS[upperDisplayName];
     }
-    
     if (upperClass && DISEASE_DESCRIPTIONS[upperClass]) {
-      console.log(`Found exact match for class: ${upperClass}`);
       return DISEASE_DESCRIPTIONS[upperClass];
     }
     
-    // If not found, try case-insensitive matching with normalization
-    const normalizedName = detection.display_name?.toLowerCase().trim() || '';
-    const normalizedClass = detection.class?.toLowerCase().trim() || '';
-    
-    // Check for partial matches - order matters! More specific matches first
-    if (normalizedName.includes('mandibular') || normalizedClass.includes('mandibular')) {
-      console.log('Matched mandibular canal pattern');
-      return DISEASE_DESCRIPTIONS['MANDIBULAR CANAL'];
-    }
-    
-    if (normalizedName.includes('missing') || normalizedName.includes('teeth') || 
-        normalizedClass.includes('missing') || normalizedClass.includes('teeth')) {
-      console.log('Matched missing tooth pattern');
-      return DISEASE_DESCRIPTIONS['MISSING TOOTH'];
-    }
-    
-    if (normalizedName.includes('restoration') || normalizedClass.includes('restoration') ||
-        normalizedClass.includes('filling')) {
-      console.log('Matched restoration pattern');
-      return DISEASE_DESCRIPTIONS['RESTORATION'];
-    }
-    
-    if (normalizedName.includes('crown') || normalizedClass.includes('crown')) {
-      console.log('Matched crown pattern');
-      return DISEASE_DESCRIPTIONS['CROWNS'];
-    }
-    
-    if (normalizedName.includes('implant') || normalizedClass.includes('implant')) {
-      console.log('Matched implant pattern');
-      return DISEASE_DESCRIPTIONS['IMPLANTS'];
-    }
-    
-    if (normalizedName.includes('rct') || normalizedClass.includes('rct') ||
-        (normalizedName.includes('root') && normalizedName.includes('canal')) ||
-        (normalizedClass.includes('root') && normalizedClass.includes('canal'))) {
-      console.log('Matched RCT pattern');
-      return DISEASE_DESCRIPTIONS['ROOT CANAL TREATMENT'];
-    }
-    
-    // If still no match found, log it for debugging
-    console.warn('No description found for detection:', {
-      display_name: detection.display_name,
-      class: detection.class
-    });
-    return 'No description available.';
+    return `${detection.display_name} detected in the dental X-ray.`;
   };
 
-  // Group filtered detections by display_name to avoid repetitive descriptions
+  // Group filtered detections by display_name
   const groupedDetections = filteredDetections.reduce((acc, detection) => {
     const name = detection.display_name || 'Unknown';
-    console.log(`Grouping detection: ${name} (confidence: ${detection.confidence.toFixed(2)})`);
     
     if (!acc[name]) {
-      const description = getDescription(detection);
       acc[name] = {
         display_name: name,
         count: 1,
-        description: description,
+        description: getDescription(detection),
         highest_confidence: detection.confidence,
         is_grossly_carious: detection.is_grossly_carious,
         color: getHexColor(detection),
         detections: [detection]
       };
-      console.log(`Created new group for ${name} with description length: ${description.length}`);
     } else {
       acc[name].count += 1;
       acc[name].highest_confidence = Math.max(acc[name].highest_confidence, detection.confidence);
       acc[name].detections.push(detection);
       if (detection.is_grossly_carious) acc[name].is_grossly_carious = true;
-      console.log(`Added to existing group ${name}, count now: ${acc[name].count}`);
     }
     return acc;
   }, {} as Record<string, any>);
 
-  // Convert to array for rendering
   const uniqueDetections = Object.values(groupedDetections);
-  
-  console.log('=== FINAL DETECTION SUMMARY ===');
-  console.log('Total detections from API:', detections.length);
-  console.log('After confidence filter:', filteredDetections.length);
-  console.log('Unique detection groups:', uniqueDetections.length);
-  console.log('Unique detection names:', uniqueDetections.map(d => `${d.display_name} (${d.count}x)`).join(', '));
-  console.log('==============================');
 
   // Function to handle getting the annotated image for the report
   const handleGetAnnotatedImage = (dataUrl: string) => {

@@ -73,16 +73,12 @@ export default function ImageAnnotationViewer({
       if (cachedUrl) {
         setAnnotatedImageUrl(cachedUrl);
         setLoading(false);
-        if (onAnnotated && !annotationCacheRef.current) {
-          // Only call onAnnotated once per unique analysis
-          annotationCacheRef.current = cachedUrl;
-          onAnnotated(cachedUrl);
-        }
         return;
       }
 
       // In-session cache to avoid regenerating within same mount
-      if (annotationCacheRef.current && annotatedImageUrl) {
+      if (annotationCacheRef.current && !annotatedImageUrl) {
+        setAnnotatedImageUrl(annotationCacheRef.current);
         setLoading(false);
         return;
       }

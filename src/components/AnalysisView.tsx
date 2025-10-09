@@ -74,12 +74,37 @@ const DISEASE_DESCRIPTIONS: Record<string, string> = {
   'MANDIBULAR CANAL': 'The mandibular canal (also known as inferior alveolar canal) is an anatomical structure within the mandible that contains the inferior alveolar nerve and blood vessels. It runs through the body of the mandible and is typically visible on panoramic radiographs as a radiolucent band with radiopaque borders. Accurate identification of the mandibular canal is crucial for surgical procedures to avoid nerve damage.'
 };
 
-// Transform backend detection format to frontend format
-const transformBackendDetections = (backendDetections: any[]): Detection[] => {
-  return backendDetections.map((det: any) => {
+// Transform backend detection format to frontend format - handles multiple model outputs
+const transformBackendDetections = (backendData: any): Detection[] => {
+  // Handle different possible backend response formats
+  let allDetections: any[] = [];
+  
+  // If backendData is directly an array, use it
+  if (Array.isArray(backendData)) {
+    allDetections = backendData;
+  } 
+  // If it has a detections property that's an array
+  else if (backendData?.detections && Array.isArray(backendData.detections)) {
+    allDetections = backendData.detections;
+  }
+  // If multiple models return separate detection arrays
+  else if (backendData) {
+    // Check for model-specific detection arrays (model1, model2, model3, etc.)
+    Object.keys(backendData).forEach(key => {
+      if (Array.isArray(backendData[key])) {
+        allDetections = allDetections.concat(backendData[key]);
+      } else if (backendData[key]?.detections && Array.isArray(backendData[key].detections)) {
+        allDetections = allDetections.concat(backendData[key].detections);
+      }
+    });
+  }
+
+  console.log('Processing detections from backend:', allDetections.length, 'total detections');
+  
+  return allDetections.map((det: any) => {
     const transformed: Detection = {
       class: det.class_ || det.class || '',
-      display_name: det.display_name || '',
+      display_name: det.display_name || det.class_ || det.class || '',
       confidence: det.confidence || 0,
       is_grossly_carious: det.is_grossly_carious,
       is_internal_resorption: det.is_internal_resorption,
@@ -108,10 +133,12 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
   const [annotatedImageUrl, setAnnotatedImageUrl] = useState<string | null>(null);
   const [currentAnalysis, setCurrentAnalysis] = useState(analysis);
 
-  const detections = useMemo(
-    () => transformBackendDetections(currentAnalysis.analysis_results?.detections || []),
-    [currentAnalysis.analysis_results?.detections]
-  );
+  const detections = useMemo(() => {
+    const transformed = transformBackendDetections(currentAnalysis.analysis_results?.detections || []);
+    console.log('Transformed detections:', transformed.length, 'detections');
+    console.log('Detection display names:', transformed.map(d => d.display_name).join(', '));
+    return transformed;
+  }, [currentAnalysis.analysis_results?.detections]);
 
   const refreshAnalysis = async () => {
     try {
@@ -158,7 +185,11 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
     // If not found, try case-insensitive matching
     const normalizedName = detection.display_name.toLowerCase().trim();
     
-    // Check for partial matches
+    // Check for partial matches - order matters! More specific matches first
+    if (normalizedName.includes('mandibular') && normalizedName.includes('canal')) {
+      return DISEASE_DESCRIPTIONS['MANDIBULAR CANAL'];
+    }
+    
     if (normalizedName.includes('missing') || normalizedName.includes('teeth')) {
       return DISEASE_DESCRIPTIONS['MISSING TOOTH'];
     }
@@ -175,11 +206,12 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
       return DISEASE_DESCRIPTIONS['IMPLANTS'];
     }
     
-    if (normalizedName.includes('canal') || normalizedName.includes('rct')) {
+    if (normalizedName.includes('rct') || (normalizedName.includes('root') && normalizedName.includes('canal'))) {
       return DISEASE_DESCRIPTIONS['ROOT CANAL TREATMENT'];
     }
     
-    // If still no match found
+    // If still no match found, log it for debugging
+    console.warn('No description found for detection:', detection.display_name);
     return 'No description available.';
   };
 
@@ -207,6 +239,10 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
 
   // Convert to array for rendering
   const uniqueDetections = Object.values(groupedDetections);
+  
+  console.log('Filtered detections:', filteredDetections.length);
+  console.log('Unique detections:', uniqueDetections.length);
+  console.log('Unique detection names:', uniqueDetections.map(d => d.display_name).join(', '));
 
   // Function to handle getting the annotated image for the report
   const handleGetAnnotatedImage = (dataUrl: string) => {

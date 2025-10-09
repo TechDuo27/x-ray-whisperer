@@ -41,5 +41,7 @@ export const DISEASE_DESCRIPTIONS: Record<string, string> = {
   
   'ROOT STUMP': 'A root stump refers to the remaining root portion of a tooth after the crown has been lost due to extensive decay, fracture, or incomplete extraction. These retained roots can harbor bacteria, cause infection, and may require surgical removal to prevent complications.',
   
-  'INTERNAL RESORPTION': 'Internal resorption is a rare condition where the tooth structure is resorbed from within the root canal space, typically appearing as a radiolucent enlargement of the root canal on radiographs. It usually results from trauma, extensive restorative procedures, or orthodontic movement and can lead to tooth weakening or perforation.'
+  'INTERNAL RESORPTION': 'Internal resorption is a rare condition where the tooth structure is resorbed from within the root canal space, typically appearing as a radiolucent enlargement of the root canal on radiographs. It usually results from trauma, extensive restorative procedures, or orthodontic movement and can lead to tooth weakening or perforation.',
+  
+  'MANDIBULAR CANAL': 'The mandibular canal (also known as inferior alveolar canal) is an anatomical structure within the mandible that contains the inferior alveolar nerve and blood vessels. It runs through the body of the mandible and is typically visible on panoramic radiographs as a radiolucent band with radiopaque borders. Accurate identification of the mandibular canal is crucial for surgical procedures to avoid nerve damage.'
 };

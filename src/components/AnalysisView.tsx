@@ -16,10 +16,12 @@ import { supabase } from '@/integrations/supabase/client';
 interface Detection {
   class: string;
   confidence: number;
-  bbox: [number, number, number, number];
+  bbox?: [number, number, number, number];
+  segmentation?: number[][] | number[];
   display_name: string;
   is_grossly_carious?: boolean;
   is_internal_resorption?: boolean;
+  type?: 'bbox' | 'segmentation';
 }
 
 interface AnalysisResults {

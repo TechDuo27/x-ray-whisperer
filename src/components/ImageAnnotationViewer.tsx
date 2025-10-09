@@ -106,9 +106,23 @@ export default function ImageAnnotationViewer({
       if (!cancelled && cachedUrl) {
         setAnnotatedImageUrl(cachedUrl);
         setLoading(false);
+        // Convert blob URL to data URL for report generation
         if (notifiedKeyRef.current !== annoKey && onAnnotated) {
           notifiedKeyRef.current = annoKey;
-          onAnnotated(cachedUrl);
+          try {
+            const response = await fetch(cachedUrl);
+            const blob = await response.blob();
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const dataUrl = reader.result as string;
+              if (dataUrl && dataUrl.startsWith('data:')) {
+                onAnnotated(dataUrl);
+              }
+            };
+            reader.readAsDataURL(blob);
+          } catch (err) {
+            console.error('Failed to convert cached URL to data URL:', err);
+          }
         }
         return;
       }

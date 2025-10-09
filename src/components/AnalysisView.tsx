@@ -209,35 +209,31 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
 
   // Function to handle getting the annotated image for the report
   const handleGetAnnotatedImage = (dataUrl: string) => {
-    setAnnotatedImageUrl(dataUrl);
-    console.log("Annotated image URL set:", dataUrl.substring(0, 50) + "...");
+    if (dataUrl && dataUrl.startsWith('data:image')) {
+      setAnnotatedImageUrl(dataUrl);
+    }
   };
 
   const generateReport = () => {
-    if (!annotatedImageUrl) {
-      // If the annotated image isn't available yet, switch to the image tab
-      setActiveTab('image');
-      // Add a small delay to allow the image to render
-      setTimeout(() => {
-        const canvas = document.querySelector('.annotation-canvas') as HTMLCanvasElement;
-        if (canvas) {
-          try {
-            const dataUrl = canvas.toDataURL('image/png');
-            setAnnotatedImageUrl(dataUrl);
-            setTimeout(() => generateReportWithImage(dataUrl), 100);
-          } catch (error) {
-            console.error("Error capturing canvas:", error);
-            // Fallback to original image if canvas capture fails
-            generateReportWithImage(analysis.image_url);
-          }
-        } else {
-          // Fallback to original image if canvas not found
-          generateReportWithImage(analysis.image_url);
-        }
-      }, 500);
-    } else {
+    // First check if we have the annotated image URL
+    if (annotatedImageUrl && annotatedImageUrl.startsWith('data:image')) {
       generateReportWithImage(annotatedImageUrl);
+      return;
     }
+
+    // Try to get the annotated image from the viewer
+    const imgElement = document.querySelector('img[alt*="Annotated"]') as HTMLImageElement;
+    if (imgElement?.src && imgElement.src.startsWith('data:image')) {
+      generateReportWithImage(imgElement.src);
+      return;
+    }
+
+    // Last resort: use original image
+    toast({
+      title: 'Using Original Image',
+      description: 'Annotated image not ready, using original image for report.',
+    });
+    generateReportWithImage(analysis.image_url);
   };
 
   const generateReportWithImage = (imageUrl: string) => {
@@ -813,37 +809,39 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
 
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold">Detailed Findings</h3>
-                {uniqueDetections.length === 0 ? (
+                {filteredDetections.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     No findings detected above the confidence threshold.
                   </div>
+                ) : uniqueDetections.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No unique findings to display.
+                  </div>
                 ) : (
                   uniqueDetections.map((detection, index) => (
-                    <Card key={index} className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start space-x-3">
-                          <div
-                            className="w-4 h-4 border border-gray-400 rounded mt-1"
-                            style={{ backgroundColor: detection.color }}
-                          />
-                          <div>
-                            <div className="font-medium flex items-center">
-                              {detection.display_name}
-                              {detection.count > 1 && (
-                                <Badge variant="secondary" className="ml-2">
-                                  {detection.count}×
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="text-sm text-foreground mt-1">
-                              {detection.description}
-                            </p>
+                    <Card key={index} className="p-4 border-l-4" style={{ borderLeftColor: detection.color }}>
+                      <div className="flex items-start space-x-3">
+                        <div
+                          className="w-4 h-4 border border-gray-400 rounded mt-1 flex-shrink-0"
+                          style={{ backgroundColor: detection.color }}
+                        />
+                        <div className="flex-1">
+                          <div className="font-medium flex items-center flex-wrap gap-2">
+                            {detection.display_name}
+                            {detection.count > 1 && (
+                              <Badge variant="secondary" className="text-xs">
+                                {detection.count}× detected
+                              </Badge>
+                            )}
                             {detection.is_grossly_carious && (
-                              <Badge variant="destructive" className="text-xs mt-1">
+                              <Badge variant="destructive" className="text-xs">
                                 Severe Case
                               </Badge>
                             )}
                           </div>
+                          <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                            {detection.description}
+                          </p>
                         </div>
                       </div>
                     </Card>

@@ -76,32 +76,47 @@ const DISEASE_DESCRIPTIONS: Record<string, string> = {
 
 // Transform backend detection format to frontend format - handles multiple model outputs
 const transformBackendDetections = (backendData: any): Detection[] => {
+  console.log('=== RAW BACKEND DATA ===');
+  console.log('Backend data type:', typeof backendData);
+  console.log('Is array?', Array.isArray(backendData));
+  console.log('Keys:', backendData ? Object.keys(backendData) : 'null');
+  console.log('Sample:', JSON.stringify(backendData, null, 2).substring(0, 500));
+  console.log('=======================');
+  
   // Handle different possible backend response formats
   let allDetections: any[] = [];
   
   // If backendData is directly an array, use it
   if (Array.isArray(backendData)) {
     allDetections = backendData;
+    console.log('Backend data is array, using directly');
   } 
   // If it has a detections property that's an array
   else if (backendData?.detections && Array.isArray(backendData.detections)) {
     allDetections = backendData.detections;
+    console.log('Found detections array in backend data');
   }
   // If multiple models return separate detection arrays
   else if (backendData) {
+    console.log('Checking for nested detection arrays...');
     // Check for model-specific detection arrays (model1, model2, model3, etc.)
     Object.keys(backendData).forEach(key => {
+      console.log(`Checking key: ${key}, is array: ${Array.isArray(backendData[key])}, has detections: ${backendData[key]?.detections ? 'yes' : 'no'}`);
       if (Array.isArray(backendData[key])) {
+        console.log(`Adding ${backendData[key].length} detections from ${key}`);
         allDetections = allDetections.concat(backendData[key]);
       } else if (backendData[key]?.detections && Array.isArray(backendData[key].detections)) {
+        console.log(`Adding ${backendData[key].detections.length} detections from ${key}.detections`);
         allDetections = allDetections.concat(backendData[key].detections);
       }
     });
   }
 
-  console.log('Processing detections from backend:', allDetections.length, 'total detections');
+  console.log('Total detections collected:', allDetections.length);
   
-  return allDetections.map((det: any) => {
+  const transformed = allDetections.map((det: any, idx: number) => {
+    console.log(`Detection ${idx}: class="${det.class_ || det.class}", display_name="${det.display_name}", confidence=${det.confidence}`);
+    
     const transformed: Detection = {
       class: det.class_ || det.class || '',
       display_name: det.display_name || det.class_ || det.class || '',
@@ -125,6 +140,9 @@ const transformBackendDetections = (backendData: any): Detection[] => {
 
     return transformed;
   });
+  
+  console.log('Transformed detections:', transformed.map(d => d.display_name).join(', '));
+  return transformed;
 };
 
 export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
@@ -162,9 +180,16 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
   };
   
   // Filter detections by confidence threshold
-  const filteredDetections = detections.filter(detection => 
-    detection.confidence >= currentAnalysis.confidence_threshold
-  );
+  const filteredDetections = detections.filter(detection => {
+    const passes = detection.confidence >= currentAnalysis.confidence_threshold;
+    if (!passes) {
+      console.log(`Filtering out ${detection.display_name} - confidence ${detection.confidence} below threshold ${currentAnalysis.confidence_threshold}`);
+    }
+    return passes;
+  });
+  
+  console.log('After confidence filtering:', filteredDetections.length, 'detections');
+  console.log('Filtered detection names:', filteredDetections.map(d => `${d.display_name} (${d.confidence.toFixed(2)})`).join(', '));
   
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -177,62 +202,93 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
   };
 
   const getDescription = (detection: Detection): string => {
-    // First try exact match
-    if (detection.display_name && DISEASE_DESCRIPTIONS[detection.display_name.toUpperCase()]) {
-      return DISEASE_DESCRIPTIONS[detection.display_name.toUpperCase()];
+    // Log what we're trying to match
+    console.log(`Looking up description for: "${detection.display_name}" (class: "${detection.class}")`);
+    
+    // First try exact match (case-insensitive)
+    const upperDisplayName = detection.display_name?.toUpperCase().trim();
+    const upperClass = detection.class?.toUpperCase().trim();
+    
+    if (upperDisplayName && DISEASE_DESCRIPTIONS[upperDisplayName]) {
+      console.log(`Found exact match for display_name: ${upperDisplayName}`);
+      return DISEASE_DESCRIPTIONS[upperDisplayName];
     }
     
-    // If not found, try case-insensitive matching
-    const normalizedName = detection.display_name.toLowerCase().trim();
+    if (upperClass && DISEASE_DESCRIPTIONS[upperClass]) {
+      console.log(`Found exact match for class: ${upperClass}`);
+      return DISEASE_DESCRIPTIONS[upperClass];
+    }
+    
+    // If not found, try case-insensitive matching with normalization
+    const normalizedName = detection.display_name?.toLowerCase().trim() || '';
+    const normalizedClass = detection.class?.toLowerCase().trim() || '';
     
     // Check for partial matches - order matters! More specific matches first
-    if (normalizedName.includes('mandibular') && normalizedName.includes('canal')) {
+    if (normalizedName.includes('mandibular') || normalizedClass.includes('mandibular')) {
+      console.log('Matched mandibular canal pattern');
       return DISEASE_DESCRIPTIONS['MANDIBULAR CANAL'];
     }
     
-    if (normalizedName.includes('missing') || normalizedName.includes('teeth')) {
+    if (normalizedName.includes('missing') || normalizedName.includes('teeth') || 
+        normalizedClass.includes('missing') || normalizedClass.includes('teeth')) {
+      console.log('Matched missing tooth pattern');
       return DISEASE_DESCRIPTIONS['MISSING TOOTH'];
     }
     
-    if (normalizedName.includes('restoration')) {
+    if (normalizedName.includes('restoration') || normalizedClass.includes('restoration') ||
+        normalizedClass.includes('filling')) {
+      console.log('Matched restoration pattern');
       return DISEASE_DESCRIPTIONS['RESTORATION'];
     }
     
-    if (normalizedName.includes('crown')) {
+    if (normalizedName.includes('crown') || normalizedClass.includes('crown')) {
+      console.log('Matched crown pattern');
       return DISEASE_DESCRIPTIONS['CROWNS'];
     }
     
-    if (normalizedName.includes('implant')) {
+    if (normalizedName.includes('implant') || normalizedClass.includes('implant')) {
+      console.log('Matched implant pattern');
       return DISEASE_DESCRIPTIONS['IMPLANTS'];
     }
     
-    if (normalizedName.includes('rct') || (normalizedName.includes('root') && normalizedName.includes('canal'))) {
+    if (normalizedName.includes('rct') || normalizedClass.includes('rct') ||
+        (normalizedName.includes('root') && normalizedName.includes('canal')) ||
+        (normalizedClass.includes('root') && normalizedClass.includes('canal'))) {
+      console.log('Matched RCT pattern');
       return DISEASE_DESCRIPTIONS['ROOT CANAL TREATMENT'];
     }
     
     // If still no match found, log it for debugging
-    console.warn('No description found for detection:', detection.display_name);
+    console.warn('No description found for detection:', {
+      display_name: detection.display_name,
+      class: detection.class
+    });
     return 'No description available.';
   };
 
   // Group filtered detections by display_name to avoid repetitive descriptions
   const groupedDetections = filteredDetections.reduce((acc, detection) => {
-    const name = detection.display_name;
+    const name = detection.display_name || 'Unknown';
+    console.log(`Grouping detection: ${name} (confidence: ${detection.confidence.toFixed(2)})`);
+    
     if (!acc[name]) {
+      const description = getDescription(detection);
       acc[name] = {
         display_name: name,
         count: 1,
-        description: getDescription(detection),
+        description: description,
         highest_confidence: detection.confidence,
         is_grossly_carious: detection.is_grossly_carious,
         color: getHexColor(detection),
         detections: [detection]
       };
+      console.log(`Created new group for ${name} with description length: ${description.length}`);
     } else {
       acc[name].count += 1;
       acc[name].highest_confidence = Math.max(acc[name].highest_confidence, detection.confidence);
       acc[name].detections.push(detection);
       if (detection.is_grossly_carious) acc[name].is_grossly_carious = true;
+      console.log(`Added to existing group ${name}, count now: ${acc[name].count}`);
     }
     return acc;
   }, {} as Record<string, any>);
@@ -240,9 +296,12 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
   // Convert to array for rendering
   const uniqueDetections = Object.values(groupedDetections);
   
-  console.log('Filtered detections:', filteredDetections.length);
-  console.log('Unique detections:', uniqueDetections.length);
-  console.log('Unique detection names:', uniqueDetections.map(d => d.display_name).join(', '));
+  console.log('=== FINAL DETECTION SUMMARY ===');
+  console.log('Total detections from API:', detections.length);
+  console.log('After confidence filter:', filteredDetections.length);
+  console.log('Unique detection groups:', uniqueDetections.length);
+  console.log('Unique detection names:', uniqueDetections.map(d => `${d.display_name} (${d.count}x)`).join(', '));
+  console.log('==============================');
 
   // Function to handle getting the annotated image for the report
   const handleGetAnnotatedImage = (dataUrl: string) => {

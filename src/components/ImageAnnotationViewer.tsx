@@ -127,28 +127,8 @@ export default function ImageAnnotationViewer({
         return;
       }
 
-      // 2) Prefer precomputed annotated image from backend if available
-      if (annotatedImageBase64 && !cancelled) {
-        try {
-          const dataUrl = annotatedImageBase64.startsWith('data:')
-            ? annotatedImageBase64
-            : `data:image/png;base64,${annotatedImageBase64}`;
-          const blob = dataUrlToBlob(dataUrl);
-          await cacheBlob(annoKey, blob);
-          const url = URL.createObjectURL(blob);
-          revokeUrl = url;
-          setAnnotatedImageUrl(url);
-          if (notifiedKeyRef.current !== annoKey && onAnnotated) {
-            notifiedKeyRef.current = annoKey;
-            onAnnotated(dataUrl);
-          }
-        } finally {
-          if (!cancelled) setLoading(false);
-        }
-        return;
-      }
-
-      // 3) Fallback: generate annotations client-side once
+      // 2) Always generate annotations client-side for consistent colors
+      // (Skip backend pre-rendered image to ensure color consistency)
       setLoading(true);
       try {
         const annotatedDataUrl = await drawAnnotations(originalImageUrl, detections);

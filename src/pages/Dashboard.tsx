@@ -47,16 +47,13 @@ export default function Dashboard() {
       const { data, error } = await supabase
         .from('analyses')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(5);
 
       if (error) throw error;
       setAnalyses(data || []);
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to load analysis history',
-        variant: 'destructive',
-      });
+      console.error('Failed to load analysis history:', error);
     } finally {
       setLoading(false);
     }

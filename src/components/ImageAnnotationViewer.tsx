@@ -66,17 +66,23 @@ export default function ImageAnnotationViewer({
   // Generate annotated image with persistent cache keyed by image + detections
   useEffect(() => {
     const generateAnnotatedImage = async () => {
-      const key = `anno:v1:${hashString(originalImageUrl)}:${hashString(JSON.stringify(detections))}`;
+      const key = `anno:v2:${hashString(originalImageUrl)}:${hashString(JSON.stringify(detections))}`;
+      
+      // Check persistent cache first
       const cachedUrl = await getCachedImageUrl(key);
       if (cachedUrl) {
         setAnnotatedImageUrl(cachedUrl);
         setLoading(false);
+        if (onAnnotated && !annotationCacheRef.current) {
+          // Only call onAnnotated once per unique analysis
+          annotationCacheRef.current = cachedUrl;
+          onAnnotated(cachedUrl);
+        }
         return;
       }
 
       // In-session cache to avoid regenerating within same mount
-      if (annotationCacheRef.current) {
-        setAnnotatedImageUrl(annotationCacheRef.current);
+      if (annotationCacheRef.current && annotatedImageUrl) {
         setLoading(false);
         return;
       }
@@ -97,8 +103,10 @@ export default function ImageAnnotationViewer({
       }
     };
 
-    if (originalImageUrl && detections.length > 0) generateAnnotatedImage();
-  }, [originalImageUrl, detections, onAnnotated]);
+    if (originalImageUrl && detections.length > 0 && !annotatedImageUrl) {
+      generateAnnotatedImage();
+    }
+  }, [originalImageUrl, detections]);
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 25, 400));
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 25, 50));

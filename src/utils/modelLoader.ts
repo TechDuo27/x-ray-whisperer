@@ -138,260 +138,6 @@ export const getHexColor = (detection: Detection): string => {
 };
 
 // Draw annotations on image
-// Shape type mapping based on detection class
-const SHAPE_MAPPING: Record<string, string> = {
-  'Dental caries': 'CIRCLE',
-  'Bone loss': 'SQUARE',
-  'Cyst': 'HEPTAGON',
-  'Impacted teeth': 'HEXAGON',
-  'Supernumerary teeth': 'RHOMBUS',
-  'Grossly carious': 'TRIANGLE',
-  'Spacing': 'OVAL',
-  'Root resorption': 'PENTAGON',
-  'Periapical pathology': 'DECAGON',
-  'Bone fracture': 'NONAGON',
-  'Tooth fracture': 'RING',
-  'Internal resorption': 'ARROW',
-  'Crowns': 'TRAPEZIUM',
-  'Implants': 'OCTAGON',
-  'RCT tooth': 'HEART',
-  'Restorations': 'CRESCENT',
-  'Retained deciduous tooth': 'SEMICIRCLE',
-  'Root stump': 'CROSS',
-  'Abrasion': 'RECTANGLE',
-  'Missing teeth': 'STAR'
-};
-
-// Helper function to draw polygon with n sides
-const drawPolygon = (ctx: CanvasRenderingContext2D, centerX: number, centerY: number, radius: number, sides: number, rotation: number = 0) => {
-  ctx.beginPath();
-  for (let i = 0; i <= sides; i++) {
-    const angle = (i * 2 * Math.PI / sides) - Math.PI / 2 + rotation;
-    const x = centerX + radius * Math.cos(angle);
-    const y = centerY + radius * Math.sin(angle);
-    if (i === 0) {
-      ctx.moveTo(x, y);
-    } else {
-      ctx.lineTo(x, y);
-    }
-  }
-  ctx.closePath();
-};
-
-// Shape drawing functions
-const drawShapeOnCanvas = (
-  ctx: CanvasRenderingContext2D, 
-  shape: string, 
-  x1: number, 
-  y1: number, 
-  x2: number, 
-  y2: number, 
-  colorStr: string
-) => {
-  const centerX = (x1 + x2) / 2;
-  const centerY = (y1 + y2) / 2;
-  const width = x2 - x1;
-  const height = y2 - y1;
-  const radius = Math.min(width, height) / 2;
-  const largerRadius = Math.sqrt(width * width + height * height) / 2;
-  
-  ctx.strokeStyle = colorStr;
-  ctx.lineWidth = 3;
-  
-  switch (shape) {
-    case 'CIRCLE':
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, largerRadius, 0, 2 * Math.PI);
-      ctx.stroke();
-      break;
-      
-    case 'SQUARE':
-      const squareSize = Math.min(width, height);
-      const squareX = centerX - squareSize / 2;
-      const squareY = centerY - squareSize / 2;
-      ctx.strokeRect(squareX, squareY, squareSize, squareSize);
-      break;
-      
-    case 'RECTANGLE':
-      ctx.strokeRect(x1, y1, width, height);
-      break;
-      
-    case 'TRIANGLE':
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY - largerRadius);
-      ctx.lineTo(centerX - largerRadius * 0.866, centerY + largerRadius * 0.5);
-      ctx.lineTo(centerX + largerRadius * 0.866, centerY + largerRadius * 0.5);
-      ctx.closePath();
-      ctx.stroke();
-      break;
-      
-    case 'PENTAGON':
-      drawPolygon(ctx, centerX, centerY, largerRadius, 5);
-      ctx.stroke();
-      break;
-      
-    case 'HEXAGON':
-      drawPolygon(ctx, centerX, centerY, largerRadius, 6);
-      ctx.stroke();
-      break;
-      
-    case 'HEPTAGON':
-      drawPolygon(ctx, centerX, centerY, largerRadius, 7);
-      ctx.stroke();
-      break;
-      
-    case 'OCTAGON':
-      drawPolygon(ctx, centerX, centerY, largerRadius, 8);
-      ctx.stroke();
-      break;
-      
-    case 'NONAGON':
-      drawPolygon(ctx, centerX, centerY, largerRadius, 9);
-      ctx.stroke();
-      break;
-      
-    case 'DECAGON':
-      drawPolygon(ctx, centerX, centerY, largerRadius, 10);
-      ctx.stroke();
-      break;
-      
-    case 'RHOMBUS':
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY - largerRadius);
-      ctx.lineTo(centerX + largerRadius, centerY);
-      ctx.lineTo(centerX, centerY + largerRadius);
-      ctx.lineTo(centerX - largerRadius, centerY);
-      ctx.closePath();
-      ctx.stroke();
-      break;
-      
-    case 'OVAL':
-      ctx.beginPath();
-      ctx.ellipse(centerX, centerY, width / 2, height / 2, 0, 0, 2 * Math.PI);
-      ctx.stroke();
-      break;
-      
-    case 'RING':
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, largerRadius, 0, 2 * Math.PI);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, largerRadius * 0.6, 0, 2 * Math.PI);
-      ctx.stroke();
-      break;
-      
-    case 'ARROW':
-      const arrowLength = largerRadius * 1.5;
-      const arrowWidth = arrowLength * 0.4;
-      ctx.beginPath();
-      // Arrow shaft
-      ctx.moveTo(centerX - arrowLength * 0.5, centerY);
-      ctx.lineTo(centerX + arrowLength * 0.2, centerY);
-      // Arrow head
-      ctx.lineTo(centerX + arrowLength * 0.2, centerY - arrowWidth * 0.5);
-      ctx.lineTo(centerX + arrowLength * 0.5, centerY);
-      ctx.lineTo(centerX + arrowLength * 0.2, centerY + arrowWidth * 0.5);
-      ctx.lineTo(centerX + arrowLength * 0.2, centerY);
-      ctx.stroke();
-      break;
-      
-    case 'TRAPEZIUM':
-      const topWidth = width * 0.6;
-      ctx.beginPath();
-      ctx.moveTo(centerX - topWidth / 2, centerY - height / 2);
-      ctx.lineTo(centerX + topWidth / 2, centerY - height / 2);
-      ctx.lineTo(centerX + width / 2, centerY + height / 2);
-      ctx.lineTo(centerX - width / 2, centerY + height / 2);
-      ctx.closePath();
-      ctx.stroke();
-      break;
-      
-    case 'HEART':
-      const heartSize = largerRadius;
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY + heartSize * 0.3);
-      // Left curve
-      ctx.bezierCurveTo(
-        centerX - heartSize, centerY - heartSize * 0.3,
-        centerX - heartSize, centerY - heartSize * 0.8,
-        centerX, centerY - heartSize * 0.5
-      );
-      // Right curve
-      ctx.bezierCurveTo(
-        centerX + heartSize, centerY - heartSize * 0.8,
-        centerX + heartSize, centerY - heartSize * 0.3,
-        centerX, centerY + heartSize * 0.3
-      );
-      ctx.stroke();
-      break;
-      
-    case 'CRESCENT':
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, largerRadius, 0, 2 * Math.PI);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(centerX + largerRadius * 0.3, centerY, largerRadius * 0.8, 0, 2 * Math.PI);
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0)';
-      ctx.fillStyle = 'white';
-      ctx.fill();
-      ctx.strokeStyle = colorStr;
-      ctx.stroke();
-      break;
-      
-    case 'SEMICIRCLE':
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, largerRadius, 0, Math.PI);
-      ctx.closePath();
-      ctx.stroke();
-      break;
-      
-    case 'CROSS':
-      const crossSize = largerRadius * 0.8;
-      const crossThickness = crossSize * 0.3;
-      ctx.beginPath();
-      // Vertical line
-      ctx.moveTo(centerX - crossThickness / 2, centerY - crossSize);
-      ctx.lineTo(centerX + crossThickness / 2, centerY - crossSize);
-      ctx.lineTo(centerX + crossThickness / 2, centerY + crossSize);
-      ctx.lineTo(centerX - crossThickness / 2, centerY + crossSize);
-      ctx.closePath();
-      ctx.stroke();
-      ctx.beginPath();
-      // Horizontal line
-      ctx.moveTo(centerX - crossSize, centerY - crossThickness / 2);
-      ctx.lineTo(centerX + crossSize, centerY - crossThickness / 2);
-      ctx.lineTo(centerX + crossSize, centerY + crossThickness / 2);
-      ctx.lineTo(centerX - crossSize, centerY + crossThickness / 2);
-      ctx.closePath();
-      ctx.stroke();
-      break;
-      
-    case 'STAR':
-      const spikes = 5;
-      const outerRadius = largerRadius;
-      const innerRadius = largerRadius * 0.4;
-      ctx.beginPath();
-      for (let i = 0; i < spikes * 2; i++) {
-        const radius = i % 2 === 0 ? outerRadius : innerRadius;
-        const angle = (i * Math.PI / spikes) - Math.PI / 2;
-        const x = centerX + radius * Math.cos(angle);
-        const y = centerY + radius * Math.sin(angle);
-        if (i === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
-      }
-      ctx.closePath();
-      ctx.stroke();
-      break;
-      
-    default:
-      // Default to rectangle if shape not found
-      ctx.strokeRect(x1, y1, width, height);
-  }
-};
-
 export const drawAnnotations = (
   originalImageUrl: string,
   detections: Detection[]
@@ -411,6 +157,9 @@ export const drawAnnotations = (
       // Draw original image
       ctx.drawImage(img, 0, 0);
       
+      // Log all detection classes for debugging
+      console.log("All detections:", detections.map(d => `${d.display_name} (class: ${d.class})`));
+      
       // Draw bounding boxes, segmentation masks, and labels
       detections.forEach((detection) => {
         // Skip if neither bbox nor segmentation data exists
@@ -419,7 +168,7 @@ export const drawAnnotations = (
           return;
         }
         
-        // Mapping for backward compatibility
+        // Mapping for backward compatibility - convert old class names to canonical display names
         const canonicalNameMap: Record<string, string> = {
           'Caries': 'Dental caries',
           'impacted tooth': 'Impacted teeth',
@@ -439,7 +188,7 @@ export const drawAnnotations = (
           'mandibular canal': 'Mandibular canal'
         };
         
-        // Determine the correct color key
+        // Determine the correct color key based on detection display_name or special cases
         let colorKey = detection.display_name;
         
         // Handle special cases first
@@ -449,9 +198,10 @@ export const drawAnnotations = (
           colorKey = 'Internal resorption';
         }
         
-        // Try to get RGB color
+        // Try to get RGB color from the mapping using display_name first
         let rgb = DETECTION_COLORS[colorKey];
         
+        // If not found, try using canonical mapping from class name
         if (!rgb) {
           const canonicalName = canonicalNameMap[detection.class];
           if (canonicalName) {
@@ -460,26 +210,36 @@ export const drawAnnotations = (
           }
         }
         
+        // If still not found, try using the class name directly
         if (!rgb) {
           rgb = DETECTION_COLORS[detection.class];
           colorKey = detection.class;
         }
         
-        const rgbArray = rgb || [0, 255, 0];
+        if (!rgb) {
+          console.warn(`No color found for display_name: ${detection.display_name} or class: ${detection.class}`);
+        }
+        
+        const rgbArray = rgb || [0, 255, 0]; // Default to green if not found
         const colorStr = `rgb(${rgbArray[0]}, ${rgbArray[1]}, ${rgbArray[2]})`;
         
-        // Check if this is a segmentation detection (Mandibular Canal)
+        // Log color assignment for debugging
+        console.log(`Drawing ${detection.display_name} with color ${colorKey}: ${colorStr}`);
+        
+        // Check if this is a segmentation detection
         if (detection.segmentation && (detection.type === 'segmentation' || detection.class === 'Mandibular Canal' || detection.display_name === 'Mandibular canal' || detection.display_name === 'Mandibular Canal')) {
           // Draw segmentation mask
-          ctx.fillStyle = `rgba(${rgbArray[0]}, ${rgbArray[1]}, ${rgbArray[2]}, 0.4)`;
+          ctx.fillStyle = `rgba(${rgbArray[0]}, ${rgbArray[1]}, ${rgbArray[2]}, 0.4)`; // Semi-transparent fill
           ctx.strokeStyle = colorStr;
           ctx.lineWidth = 2;
           
           // Parse segmentation data
           let points: number[][];
           if (Array.isArray(detection.segmentation[0])) {
+            // Already in [[x, y], [x, y], ...] format
             points = detection.segmentation as number[][];
           } else {
+            // Flattened format [x1, y1, x2, y2, ...] - convert to [[x, y], [x, y], ...]
             const flatArray = detection.segmentation as number[];
             points = [];
             for (let i = 0; i < flatArray.length; i += 2) {
@@ -488,6 +248,7 @@ export const drawAnnotations = (
           }
           
           if (points.length > 0) {
+            // Draw filled polygon
             ctx.beginPath();
             ctx.moveTo(points[0][0], points[0][1]);
             for (let i = 1; i < points.length; i++) {
@@ -498,10 +259,28 @@ export const drawAnnotations = (
             ctx.stroke();
           }
         } else if (detection.bbox) {
-          // Draw shape-based detection
+          // Draw bounding box detection
           const [x1, y1, x2, y2] = detection.bbox;
-          const shape = SHAPE_MAPPING[colorKey] || 'RECTANGLE';
-          drawShapeOnCanvas(ctx, shape, x1, y1, x2, y2, colorStr);
+          ctx.strokeStyle = colorStr;
+          ctx.lineWidth = 3;
+          
+          // Draw circle for Dental caries, rectangle for everything else
+          if (detection.display_name === 'Dental caries' || detection.class === 'Caries') {
+            // Calculate center and radius for circle
+            const centerX = (x1 + x2) / 2;
+            const centerY = (y1 + y2) / 2;
+            const width = x2 - x1;
+            const height = y2 - y1;
+            const radius = Math.sqrt(width * width + height * height) / 2;
+            
+            // Draw circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.stroke();
+          } else {
+            // Draw rectangle for all other detections
+            ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+          }
         }
       });
       

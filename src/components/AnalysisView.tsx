@@ -72,13 +72,41 @@ const DISEASE_DESCRIPTIONS: Record<string, string> = {
   'INTERNAL RESORPTION': 'Internal resorption is a rare condition where the tooth structure is resorbed from within the root canal space, typically appearing as a radiolucent enlargement of the root canal on radiographs. It usually results from trauma, extensive restorative procedures, or orthodontic movement and can lead to tooth weakening or perforation.'
 };
 
+// Transform backend detection format to frontend format
+const transformBackendDetections = (backendDetections: any[]): Detection[] => {
+  return backendDetections.map((det: any) => {
+    const transformed: Detection = {
+      class: det.class_ || det.class || '',
+      display_name: det.display_name || '',
+      confidence: det.confidence || 0,
+      is_grossly_carious: det.is_grossly_carious,
+      is_internal_resorption: det.is_internal_resorption,
+    };
+
+    // Handle segmentation data from mask_contours
+    if (det.has_mask && det.mask_contours && det.mask_contours.length > 0) {
+      transformed.type = 'segmentation';
+      // Convert {x, y} points to [x, y] array format
+      const firstContour = det.mask_contours[0];
+      if (firstContour && firstContour.points) {
+        transformed.segmentation = firstContour.points.map((p: any) => [p.x, p.y]);
+      }
+    } else if (det.bbox) {
+      transformed.type = 'bbox';
+      transformed.bbox = det.bbox;
+    }
+
+    return transformed;
+  });
+};
+
 export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('results');
   const [annotatedImageUrl, setAnnotatedImageUrl] = useState<string | null>(null);
   const [currentAnalysis, setCurrentAnalysis] = useState(analysis);
 
-  const detections = currentAnalysis.analysis_results?.detections || [];
+  const detections = transformBackendDetections(currentAnalysis.analysis_results?.detections || []);
 
   const refreshAnalysis = async () => {
     try {

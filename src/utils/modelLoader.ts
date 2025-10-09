@@ -34,7 +34,8 @@ export const TARGET_CLASSES = {
   'Filling': 'Restorations',
   'Primary teeth': 'Retained deciduous tooth',
   'Retained root': 'Root stump',
-  'Mandibular Canal': 'Mandibular canal'
+  'Mandibular Canal': 'Mandibular canal',
+  'Mandibular canal': 'Mandibular canal'
 };
 
 // Model 2 class mapping to target classes
@@ -91,7 +92,9 @@ export const getHexColor = (detection: Detection): string => {
     'Root Canal Treatment': 'RCT tooth',
     'Filling': 'Restorations',
     'Primary teeth': 'Retained deciduous tooth',
-    'Retained root': 'Root stump'
+    'Retained root': 'Root stump',
+    'Mandibular Canal': 'Mandibular canal',
+    'mandibular canal': 'Mandibular canal'
   };
 
   // First, determine the appropriate color key based on detection display_name or special cases
@@ -180,7 +183,9 @@ export const drawAnnotations = (
           'Root Canal Treatment': 'RCT tooth',
           'Filling': 'Restorations',
           'Primary teeth': 'Retained deciduous tooth',
-          'Retained root': 'Root stump'
+          'Retained root': 'Root stump',
+          'Mandibular Canal': 'Mandibular canal',
+          'mandibular canal': 'Mandibular canal'
         };
         
         // Determine the correct color key based on detection display_name or special cases
@@ -222,7 +227,7 @@ export const drawAnnotations = (
         console.log(`Drawing ${detection.display_name} with color ${colorKey}: ${colorStr}`);
         
         // Check if this is a segmentation detection
-        if (detection.segmentation && (detection.type === 'segmentation' || detection.class === 'Mandibular Canal')) {
+        if (detection.segmentation && (detection.type === 'segmentation' || detection.class === 'Mandibular Canal' || detection.display_name === 'Mandibular canal' || detection.display_name === 'Mandibular Canal')) {
           // Draw segmentation mask
           ctx.fillStyle = `rgba(${rgbArray[0]}, ${rgbArray[1]}, ${rgbArray[2]}, 0.4)`; // Semi-transparent fill
           ctx.strokeStyle = colorStr;

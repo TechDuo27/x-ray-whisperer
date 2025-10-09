@@ -195,11 +195,6 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
 
       setUploadProgress(100);
 
-      toast({
-        title: 'Analysis Complete!',
-        description: `Found ${results.detections?.length || 0} findings.`,
-      });
-
       onAnalysisComplete(analysisData);
       
       // Reset form

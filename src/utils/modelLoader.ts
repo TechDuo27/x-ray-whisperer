@@ -228,8 +228,7 @@ export const drawAnnotations = (
         
         // Check if this is a segmentation detection
         if (detection.segmentation && (detection.type === 'segmentation' || detection.class === 'Mandibular Canal' || detection.display_name === 'Mandibular canal' || detection.display_name === 'Mandibular Canal')) {
-          // Draw segmentation mask
-          ctx.fillStyle = `rgba(${rgbArray[0]}, ${rgbArray[1]}, ${rgbArray[2]}, 0.4)`; // Semi-transparent fill
+          // Draw segmentation outline only (no fill)
           ctx.strokeStyle = colorStr;
           ctx.lineWidth = 2;
           
@@ -248,14 +247,13 @@ export const drawAnnotations = (
           }
           
           if (points.length > 0) {
-            // Draw filled polygon
+            // Draw outline only
             ctx.beginPath();
             ctx.moveTo(points[0][0], points[0][1]);
             for (let i = 1; i < points.length; i++) {
               ctx.lineTo(points[i][0], points[i][1]);
             }
             ctx.closePath();
-            ctx.fill();
             ctx.stroke();
           }
         } else if (detection.bbox) {

@@ -208,6 +208,7 @@ export default function Dashboard() {
             
             {currentView === 'analysis' && selectedAnalysis && (
               <AnalysisView 
+                key={selectedAnalysis.id}
                 analysis={selectedAnalysis}
                 onBack={() => setCurrentView('upload')}
               />

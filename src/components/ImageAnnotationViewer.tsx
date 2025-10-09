@@ -30,6 +30,12 @@ export default function ImageAnnotationViewer({
   const annotatedImageRef = useRef<HTMLImageElement>(null);
   const annotationCacheRef = useRef<string>('');
 
+  // Reset annotation cache when image or detections change
+  useEffect(() => {
+    annotationCacheRef.current = '';
+    setAnnotatedImageUrl('');
+  }, [originalImageUrl, detections]);
+
   // Persistently cache the original image so it doesn't re-download on tab switches
   useEffect(() => {
     let revokeUrl: string | null = null;

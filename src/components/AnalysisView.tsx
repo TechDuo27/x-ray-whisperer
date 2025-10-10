@@ -135,8 +135,10 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
     }
   };
   
-  // Filter detections by confidence threshold
+  // Filter detections by confidence threshold (except mandibular canal)
   const filteredDetections = detections.filter(detection => 
+    detection.display_name === 'Mandibular canal' || 
+    detection.class === 'Mandibular Canal' ||
     detection.confidence >= currentAnalysis.confidence_threshold
   );
   
@@ -739,8 +741,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
             Analysis Results
           </CardTitle>
           <CardDescription>
-            Analysis completed on {formatDate(analysis.created_at)} • 
-            Confidence threshold: {(analysis.confidence_threshold * 100).toFixed(0)}%
+            Analysis completed on {formatDate(analysis.created_at)}
           </CardDescription>
         </CardHeader>
         <CardContent>

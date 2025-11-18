@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Download, FileText, Palette } from 'lucide-react';
 import ImageAnnotationViewer from '@/components/ImageAnnotationViewer';
 import FeedbackForm from '@/components/FeedbackForm';
-import { getHexColor, DETECTION_COLORS } from '@/utils/modelLoader';
+import { getHexColor } from '@/utils/modelLoader';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -633,9 +633,10 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                 <div class="legend">
                   <h2>Color Legend</h2>
                   <div class="legend-grid">
-                    ${Object.entries(DETECTION_COLORS).map(([name, rgb]) => `
+                    ${Array.from(new Map(filteredDetections.map(d => [d.display_name, d.color || '#00ff00'])).entries())
+                      .map(([name, color]) => `
                       <div class="legend-item">
-                        <div class="color-box" style="background-color: rgb(${rgb.join(',')});"></div>
+                        <div class="color-box" style="background-color: ${color};"></div>
                         <span class="legend-text">${name}</span>
                       </div>
                     `).join('')}
@@ -814,11 +815,12 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {Object.entries(DETECTION_COLORS).map(([name, rgb]) => (
+                    {Array.from(new Map(filteredDetections.map(d => [d.display_name, d.color || '#00ff00'])).entries())
+                      .map(([name, color]) => (
                       <div key={name} className="flex items-center space-x-3 p-2 rounded border">
                         <div
                           className="w-6 h-6 border border-gray-400 rounded"
-                          style={{ backgroundColor: `rgb(${rgb.join(',')})` }}
+                          style={{ backgroundColor: color }}
                         />
                         <span className="text-sm">{name}</span>
                       </div>

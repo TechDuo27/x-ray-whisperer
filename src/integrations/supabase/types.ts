@@ -86,6 +86,81 @@ export type Database = {
         }
         Relationships: []
       }
+      reality_check_entries: {
+        Row: {
+          compulsion_action: string | null
+          compulsion_done: boolean | null
+          confidence: number | null
+          created_at: string
+          entry_date: string
+          id: string
+          is_completed: boolean | null
+          reality_outcome: string | null
+          thought: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          compulsion_action?: string | null
+          compulsion_done?: boolean | null
+          confidence?: number | null
+          created_at?: string
+          entry_date?: string
+          id?: string
+          is_completed?: boolean | null
+          reality_outcome?: string | null
+          thought: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          compulsion_action?: string | null
+          compulsion_done?: boolean | null
+          confidence?: number | null
+          created_at?: string
+          entry_date?: string
+          id?: string
+          is_completed?: boolean | null
+          reality_outcome?: string | null
+          thought?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          completed_days: string[] | null
+          created_at: string
+          full_name: string | null
+          id: string
+          last_activity_date: string | null
+          streak: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_days?: string[] | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          last_activity_date?: string | null
+          streak?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_days?: string[] | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          last_activity_date?: string | null
+          streak?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

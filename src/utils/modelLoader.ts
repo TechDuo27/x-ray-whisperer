@@ -1,12 +1,16 @@
 // YOLO model loader and inference utilities
 export interface Detection {
-  class: string;
+  class_: string; // Note: API returns class_ (with underscore)
   confidence: number;
   bbox?: [number, number, number, number]; // [x1, y1, x2, y2] - for bounding box detections
-  segmentation?: number[][] | number[]; // For segmentation detections - array of [x, y] points or flattened array
+  mask_contours?: number[][] | number[] | null; // For segmentation detections - array of [x, y] points or flattened array
   display_name: string;
+  description?: string;
+  color?: string;
   is_grossly_carious?: boolean;
   is_internal_resorption?: boolean;
+  num_merged?: number;
+  source_models?: string[];
   type?: 'bbox' | 'segmentation'; // Detection type
 }
 
@@ -110,29 +114,29 @@ export const getHexColor = (detection: Detection): string => {
   // Try to get RGB color from the mapping using display_name first
   let rgb = DETECTION_COLORS[colorKey];
   
-  // If not found, try using canonical mapping from class name
+  // If not found, try using canonical mapping from class_ name
   if (!rgb) {
-    const canonicalName = canonicalNameMap[detection.class];
+    const canonicalName = canonicalNameMap[detection.class_];
     if (canonicalName) {
       rgb = DETECTION_COLORS[canonicalName];
       colorKey = canonicalName;
     }
   }
   
-  // If still not found, try using the class name directly
+  // If still not found, try using the class_ name directly
   if (!rgb) {
-    rgb = DETECTION_COLORS[detection.class];
-    colorKey = detection.class;
+    rgb = DETECTION_COLORS[detection.class_];
+    colorKey = detection.class_;
   }
   
   // Log for debugging
-  console.log(`Getting color for ${detection.display_name} (class: ${detection.class}), using key: ${colorKey}`);
+  console.log(`Getting color for ${detection.display_name} (class_: ${detection.class_}), using key: ${colorKey}`);
   
   // Convert RGB to hex or use green if no matching color found
   if (rgb) {
     return `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`;
   } else {
-    console.warn(`No color found for display_name: ${detection.display_name} or class: ${detection.class}`);
+    console.warn(`No color found for display_name: ${detection.display_name} or class_: ${detection.class_}`);
     return '#00ff00'; // Default to green
   }
 };
@@ -158,13 +162,13 @@ export const drawAnnotations = (
       ctx.drawImage(img, 0, 0);
       
       // Log all detection classes for debugging
-      console.log("All detections:", detections.map(d => `${d.display_name} (class: ${d.class})`));
+      console.log("All detections:", detections.map(d => `${d.display_name} (class_: ${d.class_})`));
       
       // Draw bounding boxes, segmentation masks, and labels
       detections.forEach((detection) => {
-        // Skip if neither bbox nor segmentation data exists
-        if (!detection.bbox && !detection.segmentation) {
-          console.warn('Detection missing both bbox and segmentation:', detection);
+        // Skip if neither bbox nor mask_contours data exists
+        if (!detection.bbox && !detection.mask_contours) {
+          console.warn('Detection missing both bbox and mask_contours:', detection);
           return;
         }
         
@@ -201,23 +205,23 @@ export const drawAnnotations = (
         // Try to get RGB color from the mapping using display_name first
         let rgb = DETECTION_COLORS[colorKey];
         
-        // If not found, try using canonical mapping from class name
+        // If not found, try using canonical mapping from class_ name
         if (!rgb) {
-          const canonicalName = canonicalNameMap[detection.class];
+          const canonicalName = canonicalNameMap[detection.class_];
           if (canonicalName) {
             rgb = DETECTION_COLORS[canonicalName];
             colorKey = canonicalName;
           }
         }
         
-        // If still not found, try using the class name directly
+        // If still not found, try using the class_ name directly
         if (!rgb) {
-          rgb = DETECTION_COLORS[detection.class];
-          colorKey = detection.class;
+          rgb = DETECTION_COLORS[detection.class_];
+          colorKey = detection.class_;
         }
         
         if (!rgb) {
-          console.warn(`No color found for display_name: ${detection.display_name} or class: ${detection.class}`);
+          console.warn(`No color found for display_name: ${detection.display_name} or class_: ${detection.class_}`);
         }
         
         const rgbArray = rgb || [0, 255, 0]; // Default to green if not found
@@ -227,19 +231,19 @@ export const drawAnnotations = (
         console.log(`Drawing ${detection.display_name} with color ${colorKey}: ${colorStr}`);
         
         // Check if this is a segmentation detection
-        if (detection.segmentation && (detection.type === 'segmentation' || detection.class === 'Mandibular Canal' || detection.display_name === 'Mandibular canal' || detection.display_name === 'Mandibular Canal')) {
+        if (detection.mask_contours && (detection.type === 'segmentation' || detection.class_ === 'Mandibular Canal' || detection.display_name === 'Mandibular canal' || detection.display_name === 'Mandibular Canal')) {
           // Draw segmentation outline only (no fill)
           ctx.strokeStyle = colorStr;
           ctx.lineWidth = 2;
           
-          // Parse segmentation data
+          // Parse mask_contours data
           let points: number[][];
-          if (Array.isArray(detection.segmentation[0])) {
+          if (Array.isArray(detection.mask_contours[0])) {
             // Already in [[x, y], [x, y], ...] format
-            points = detection.segmentation as number[][];
+            points = detection.mask_contours as number[][];
           } else {
             // Flattened format [x1, y1, x2, y2, ...] - convert to [[x, y], [x, y], ...]
-            const flatArray = detection.segmentation as number[];
+            const flatArray = detection.mask_contours as number[];
             points = [];
             for (let i = 0; i < flatArray.length; i += 2) {
               points.push([flatArray[i], flatArray[i + 1]]);
@@ -263,7 +267,7 @@ export const drawAnnotations = (
           ctx.lineWidth = 3;
           
           // Draw circle for Dental caries, rectangle for everything else
-          if (detection.display_name === 'Dental caries' || detection.class === 'Caries') {
+          if (detection.display_name === 'Dental caries' || detection.class_ === 'Caries') {
             // Calculate center and radius for circle
             const centerX = (x1 + x2) / 2;
             const centerY = (y1 + y2) / 2;

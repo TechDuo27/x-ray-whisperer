@@ -14,13 +14,17 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Detection {
-  class: string;
+  class_: string;
   confidence: number;
   bbox?: [number, number, number, number];
-  segmentation?: number[][] | number[];
+  mask_contours?: number[][] | number[] | null;
   display_name: string;
+  description?: string;
+  color?: string;
   is_grossly_carious?: boolean;
   is_internal_resorption?: boolean;
+  num_merged?: number;
+  source_models?: string[];
   type?: 'bbox' | 'segmentation';
 }
 
@@ -81,20 +85,21 @@ const transformBackendDetections = (backendData: any): Detection[] => {
   
   return detectionsArray.map((det: any) => {
     const transformed: Detection = {
-      class: det.class_ || '',
+      class_: det.class_ || '',
       display_name: det.display_name || det.class_ || '',
       confidence: det.confidence || 0,
+      description: det.description,
+      color: det.color,
       is_grossly_carious: det.is_grossly_carious,
       is_internal_resorption: det.is_internal_resorption,
+      num_merged: det.num_merged,
+      source_models: det.source_models,
     };
 
-    // Handle segmentation data from mask_contours
-    if (det.has_mask && det.mask_contours && det.mask_contours.length > 0) {
+    // Handle mask_contours data directly from API
+    if (det.mask_contours && det.mask_contours.length > 0) {
       transformed.type = 'segmentation';
-      const firstContour = det.mask_contours[0];
-      if (firstContour && firstContour.points) {
-        transformed.segmentation = firstContour.points.map((p: any) => [p.x, p.y]);
-      }
+      transformed.mask_contours = det.mask_contours;
     } else if (det.bbox) {
       transformed.type = 'bbox';
       transformed.bbox = det.bbox;
@@ -138,7 +143,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
   // Filter detections by confidence threshold (except mandibular canal)
   const filteredDetections = detections.filter(detection => 
     detection.display_name === 'Mandibular canal' || 
-    detection.class === 'Mandibular Canal' ||
+    detection.class_ === 'Mandibular Canal' ||
     detection.confidence >= currentAnalysis.confidence_threshold
   );
   
@@ -154,7 +159,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
 
   const getDescription = (detection: Detection): string => {
     const upperDisplayName = detection.display_name?.toUpperCase().trim();
-    const upperClass = detection.class?.toUpperCase().trim();
+    const upperClass = detection.class_?.toUpperCase().trim();
     
     // Exact match on display_name or class
     if (upperDisplayName && DISEASE_DESCRIPTIONS[upperDisplayName]) {

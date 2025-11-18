@@ -17,7 +17,7 @@ import { format, parseISO, subDays } from 'date-fns';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
 import { Link } from 'react-router-dom';
 import ImageAnnotationViewer from '@/components/ImageAnnotationViewer';
-import { DETECTION_COLORS, getHexColor } from '@/utils/modelLoader';
+import { getHexColor } from '@/utils/modelLoader';
 
 interface FeedbackData {
   id: string;

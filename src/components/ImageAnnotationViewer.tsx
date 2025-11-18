@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
-import { Detection, DETECTION_COLORS, drawAnnotations } from '@/utils/modelLoader';
+import { Detection, drawAnnotations } from '@/utils/modelLoader';
 import { cacheBlob, getCachedImageUrl, dataUrlToBlob, hashString } from '@/utils/imageCache';
 interface ImageAnnotationViewerProps {
   originalImageUrl: string;

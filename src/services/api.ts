@@ -2,9 +2,8 @@ export class DentalAnalysisService {
   baseUrl: string;
 
   constructor(baseUrl?: string) {
-    this.baseUrl = baseUrl || 'https://backend-service-cp46.onrender.com';
+    this.baseUrl = baseUrl || 'http://localhost:8000';  // ✅ CHANGED THIS LINE
   }
-
   /**
    * Analyze a dental image
    * @param {File} imageFile - The dental image file to analyze

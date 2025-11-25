@@ -65,29 +65,50 @@ export default function ImageAnnotationViewer({
   // Persistently cache the original image so it doesn't re-download on tab switches
   useEffect(() => {
     let revokeUrl: string | null = null;
+    let cancelled = false;
+
     const run = async () => {
-      try {
-        const key = `orig:${hashString(originalImageUrl)}`;
-        const cachedUrl = await getCachedImageUrl(key);
-        if (cachedUrl) {
-          setOriginalCachedUrl(cachedUrl);
-          return;
+      // If backend provided pre-rendered image, use it ALWAYS
+      if (annotatedImageBase64 && annotatedImageBase64.length > 0) {
+        setLoading(true);
+        try {
+          const annotatedDataUrl = annotatedImageBase64.startsWith('data:')
+            ? annotatedImageBase64
+            : `data:image/png;base64,${annotatedImageBase64}`;
+          
+          const blob = dataUrlToBlob(annotatedDataUrl);
+          await cacheBlob(annoKey, blob);
+          const url = URL.createObjectURL(blob);
+          revokeUrl = url;
+          if (!cancelled) {
+            setAnnotatedImageUrl(url);
+            if (notifiedKeyRef.current !== annoKey && onAnnotated) {
+              notifiedKeyRef.current = annoKey;
+              onAnnotated(annotatedDataUrl);
+            }
+          }
+        } catch (e) {
+          console.error('Failed to use backend annotated image:', e);
+        } finally {
+          if (!cancelled) setLoading(false);
         }
-        const res = await fetch(originalImageUrl, { cache: 'force-cache' });
-        const blob = await res.blob();
-        await cacheBlob(key, blob);
-        const url = URL.createObjectURL(blob);
-        revokeUrl = url;
-        setOriginalCachedUrl(url);
-      } catch {
-        setOriginalCachedUrl('');
+        return; // ALWAYS return here - never draw client-side
+      }
+
+      // No backend image - show original
+      if (!cancelled) {
+        setAnnotatedImageUrl(originalImageUrl);
+        setLoading(false);
       }
     };
-    if (originalImageUrl) run();
+
+    run();
+
     return () => {
+      cancelled = true;
       if (revokeUrl) URL.revokeObjectURL(revokeUrl);
     };
-  }, [originalImageUrl]);
+  }, [annoKey, annotatedImageBase64, originalImageUrl, onAnnotated]);
 
   // Generate or load annotated image with strong persistence and stable keys
   useEffect(() => {
@@ -129,6 +150,34 @@ export default function ImageAnnotationViewer({
 
       // 2) Always generate annotations client-side for consistent colors
       // (Skip backend pre-rendered image to ensure color consistency)
+      // 2) If backend provided annotated image, use it directly
+      if (annotatedImageBase64 && annotatedImageBase64.length > 0) {
+        setLoading(true);
+        try {
+          const annotatedDataUrl = annotatedImageBase64.startsWith('data:')
+            ? annotatedImageBase64
+            : `data:image/png;base64,${annotatedImageBase64}`;
+          
+          const blob = dataUrlToBlob(annotatedDataUrl);
+          await cacheBlob(annoKey, blob);
+          const url = URL.createObjectURL(blob);
+          revokeUrl = url;
+          setAnnotatedImageUrl(url);
+          
+          if (notifiedKeyRef.current !== annoKey && onAnnotated) {
+            notifiedKeyRef.current = annoKey;
+            onAnnotated(annotatedDataUrl);
+          }
+        } catch (e) {
+          console.error('Failed to use backend annotated image:', e);
+        } finally {
+          if (!cancelled) setLoading(false);
+        }
+  
+        return; // Use backend image, skip client-side drawing
+      }
+
+      // 3) Otherwise, generate annotations client-side
       setLoading(true);
       try {
         const annotatedDataUrl = await drawAnnotations(originalImageUrl, detections);
@@ -147,6 +196,7 @@ export default function ImageAnnotationViewer({
         if (!cancelled) setLoading(false);
       }
     };
+
 
     run();
 

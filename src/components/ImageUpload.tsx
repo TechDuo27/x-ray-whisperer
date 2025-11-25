@@ -34,7 +34,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
         const healthStatus = await dentalService.getHealthStatus();
         console.log('Backend health status:', healthStatus);
         
-        if (healthStatus && healthStatus.status === 'ok') {
+        if (healthStatus && healthStatus.status === 'healthy') {
           setBackendStatus('online');
           toast({
             title: 'Analysis Service Connected',

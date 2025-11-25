@@ -13,6 +13,34 @@ import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
+// Full fixed legend matching inference.py CLASS_COLORS
+const ALL_COLOR_CLASSES = [
+  { name: 'SUPERNUMERARY TEETH', color: '#C7F464' },
+  { name: 'GROSSLY DECAYED', color: '#FF4444' },
+  { name: 'GROSSLY CARIOUS', color: '#FF1111' },
+  { name: 'SPACING', color: '#FFD700' },
+  { name: 'ROOT RESORPTION', color: '#FF8C42' },
+  { name: 'ABRASION', color: '#FFB84D' },
+  { name: 'DENTAL CARIES', color: '#FF6B6B' },
+  { name: 'BONE LOSS', color: '#9B59B6' },
+  { name: 'CYST', color: '#E74C3C' },
+  { name: 'IMPACTED TEETH', color: '#00D4FF' },
+  { name: 'MISSING TOOTH', color: '#95A5A6' },
+  { name: 'CROWNS', color: '#3498DB' },
+  { name: 'ROOT CANAL TREATMENT', color: '#E67E22' },
+  { name: 'IMPLANTS', color: '#4ECDC4' },
+  { name: 'PERIAPICAL PATHOLOGY', color: '#C0392B' },
+  { name: 'BONE FRACTURE', color: '#8E44AD' },
+  { name: 'TOOTH FRACTURE', color: '#C0392B' },
+  { name: 'RCT TOOTH', color: '#FFB84D' },
+  { name: 'RESTORATIONS', color: '#FFD700' },
+  { name: 'RETAINED DECIDUOUS TOOTH', color: '#BDC3C7' },
+  { name: 'ROOT STUMP', color: '#7F8C8D' },
+  { name: 'INTERNAL RESORPTION', color: '#E74C3C' },
+  { name: 'MANDIBULAR CANAL', color: '#00D1B2' },
+];
+
+
 interface Detection {
   class_: string;
   confidence: number;
@@ -815,8 +843,7 @@ export default function AnalysisView({ analysis, onBack }: AnalysisViewProps) {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {Array.from(new Map(filteredDetections.map(d => [d.display_name, d.color || '#00ff00'])).entries())
-                      .map(([name, color]) => (
+                    {ALL_COLOR_CLASSES.map(({name, color}) => (
                       <div key={name} className="flex items-center space-x-3 p-2 rounded border">
                         <div
                           className="w-6 h-6 border border-gray-400 rounded"

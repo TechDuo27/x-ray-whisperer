@@ -11,9 +11,11 @@ import { Upload, FileImage, Loader2, AlertCircle } from 'lucide-react';
 import { dentalService } from '@/services/api';
 import { compressImage } from '@/utils/imageCompression';
 
+
 interface ImageUploadProps {
   onAnalysisComplete: (analysis: any) => void;
 }
+
 
 export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
   const { user } = useAuth();
@@ -63,6 +65,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
   }, []);
 
 
+
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (file) {
@@ -76,6 +79,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
         return;
       }
 
+
       // Validate file size (10MB limit)
       if (file.size > 10 * 1024 * 1024) {
         toast({
@@ -85,6 +89,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
         });
         return;
       }
+
 
       // Additional security checks
       const fileName = file.name.toLowerCase();
@@ -100,6 +105,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
         return;
       }
 
+
       // Check for suspicious file names
       if (fileName.includes('..') || fileName.includes('/') || fileName.includes('\\')) {
         toast({
@@ -110,12 +116,14 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
         return;
       }
 
+
       setUploadedImage(file);
       const reader = new FileReader();
       reader.onload = () => setImagePreview(reader.result as string);
       reader.readAsDataURL(file);
     }
   }, []);
+
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -125,38 +133,28 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
     multiple: false,
   });
 
+
+  // DEMO MODE: Storage upload disabled for investor demo
   const uploadToStorage = async (file: File, alreadyCompressed = false): Promise<string> => {
-    const toUpload = alreadyCompressed ? file : await compressImage(file, 1920, 0.85);
-    const fileName = `${user!.id}/${Date.now()}.jpg`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('xrays')
-      .upload(fileName, toUpload, {
-        cacheControl: '31536000',
-        upsert: false,
-        contentType: 'image/jpeg',
-      });
-
-    if (uploadError) throw uploadError;
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('xrays')
-      .getPublicUrl(fileName);
-
-    return publicUrl;
+    // Return a mock URL instead of uploading to Supabase storage
+    return 'demo-image-url';
   };
+
 
   const analyzeImage = async () => {
     if (!uploadedImage || !user) return;
+
 
     setUploading(true);
     setAnalyzing(true);
     setUploadProgress(0);
 
+
     try {
-      // Compress once, then upload and analyze in parallel with smaller payload
+      // Compress image for analysis
       const compressedFile = await compressImage(uploadedImage, 1920, 0.85);
-      const uploadPromise = uploadToStorage(compressedFile, true);
+      
+      // DEMO MODE: Skip storage upload, just analyze
       const analysisPromise = dentalService.analyzeImage(compressedFile);
       
       // Progress simulation
@@ -164,8 +162,9 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
         setUploadProgress(prev => Math.min(prev + 8, 90));
       }, 150);
 
-      // Wait for both to complete
-      const [imageUrl, results] = await Promise.all([uploadPromise, analysisPromise]);
+
+      // Wait for analysis to complete
+      const results = await analysisPromise;
       
       setUploadProgress(95);
       clearInterval(progressInterval);
@@ -178,28 +177,38 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
         throw new Error('Invalid response format from analysis API');
       }
       
-      // Save analysis to database
-      const { data: analysisData, error: dbError } = await supabase
-        .from('analyses')
-        .insert({
-          user_id: user.id,
-          image_url: imageUrl,
-          original_filename: uploadedImage.name,
-          analysis_results: results,
-          confidence_threshold: confidenceThreshold[0],
-        })
-        .select()
-        .single();
+      // DEMO MODE: Skip database save, create mock analysis object
+            // Create base64 of original image for preview
+      const reader = new FileReader();
+      const originalImageBase64 = await new Promise<string>((resolve) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsDataURL(uploadedImage);
+      });
 
-      if (dbError) throw dbError;
+      const analysisData = {
+        id: 'demo-' + Date.now(),
+        user_id: user.id,
+        image_url: originalImageBase64, // Use base64 instead of fake URL
+        original_filename: uploadedImage.name,
+        analysis_results: results,
+        confidence_threshold: confidenceThreshold[0],
+        created_at: new Date().toISOString(),
+      };
+
 
       setUploadProgress(100);
 
       onAnalysisComplete(analysisData);
       
+      toast({
+        title: 'Analysis Complete!',
+        description: `Found ${results.detections.length} findings in the X-ray.`,
+      });
+      
       // Reset form
       setUploadedImage(null);
       setImagePreview(null);
+
 
     } catch (error: any) {
       console.error('Analysis error:', error);
@@ -214,6 +223,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
       setUploadProgress(0);
     }
   };
+
 
   return (
     <div className="space-y-6">
@@ -278,15 +288,17 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
             </div>
           )}
 
+
           {uploading && (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span>Uploading image...</span>
+                <span>Processing image...</span>
                 <span>{uploadProgress}%</span>
               </div>
               <Progress value={uploadProgress} className="w-full" />
             </div>
           )}
+
 
           {analyzing && (
             <div className="flex items-center justify-center py-4">
@@ -296,6 +308,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
           )}
         </CardContent>
       </Card>
+
 
       <Card>
         <CardContent className="space-y-4 pt-6">
@@ -318,7 +331,7 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
             {uploading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Uploading...
+                Processing...
               </>
             ) : analyzing ? (
               <>

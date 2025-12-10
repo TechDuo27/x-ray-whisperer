@@ -13,6 +13,7 @@ import AnalysisView from '@/components/AnalysisView';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
 import ProfileModal from '@/components/ProfileModal';
 
+
 interface Analysis {
   id: string;
   original_filename: string;
@@ -22,36 +23,41 @@ interface Analysis {
   image_url: string;
 }
 
+
 export default function Dashboard() {
+  // DEMO MODE: Bypass authentication - use fake demo user
   const { user } = useAuth();
+  const demoUser = { 
+    email: 'demo@investor.com', 
+    user_metadata: { full_name: 'User' },
+    id: 'demo-id'
+  };
+  
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Set to false - no loading needed for demo
   const [currentView, setCurrentView] = useState<'upload' | 'analysis'>('upload');
   const [selectedAnalysis, setSelectedAnalysis] = useState<Analysis | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [userProfile, setUserProfile] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<any>({ admin: false });
 
-  useEffect(() => {
-    if (user) {
-      loadAnalyses();
-      loadUserProfile();
-    }
-  }, [user]);
+  // DEMO MODE: Disabled useEffect - no database operations needed
+  // useEffect(() => {
+  //   if (user) {
+  //     loadAnalyses();
+  //     loadUserProfile();
+  //   }
+  // }, [user]);
 
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
+  // DEMO MODE: Auth check disabled for investor demo
+  // if (!user) {
+  //   return <Navigate to="/auth" replace />;
+  // }
 
+  // DEMO MODE: Mock function - returns empty array
   const loadAnalyses = async () => {
     try {
-      const { data, error } = await supabase
-        .from('analyses')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      if (error) throw error;
-      setAnalyses(data || []);
+      // Database disabled for demo - return empty history
+      setAnalyses([]);
     } catch (error) {
       console.error('Failed to load analysis history:', error);
     } finally {
@@ -59,26 +65,21 @@ export default function Dashboard() {
     }
   };
 
+  // DEMO MODE: Mock function - returns basic profile
   const loadUserProfile = async () => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', user?.id)
-        .single();
-
-      if (error && error.code !== 'PGRST116') throw error;
-      setUserProfile(data);
+      // Database disabled for demo
+      setUserProfile({ admin: false });
     } catch (error) {
       console.error('Failed to load user profile:', error);
     }
   };
 
-
   const handleAnalysisComplete = (analysisData: any) => {
     setSelectedAnalysis(analysisData);
     setCurrentView('analysis');
-    loadAnalyses(); // Refresh the list
+    // DEMO MODE: Don't refresh from database
+    // loadAnalyses();
   };
 
   const handleViewAnalysis = (analysis: Analysis) => {
@@ -117,7 +118,8 @@ export default function Dashboard() {
             </Link>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-muted-foreground">
-                Welcome, {user.user_metadata?.full_name || user.email}
+                {/* DEMO MODE: Use demoUser instead of user */}
+                Welcome, {demoUser.user_metadata?.full_name || demoUser.email}
               </span>
               <Button variant="outline" onClick={() => setIsProfileModalOpen(true)}>
                 <User className="h-4 w-4 mr-2" />

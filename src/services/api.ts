@@ -2,7 +2,7 @@ export class DentalAnalysisService {
   baseUrl: string;
 
   constructor(baseUrl?: string) {
-    this.baseUrl = baseUrl || 'http://localhost:8000';  // ✅ CHANGED THIS LINE
+    this.baseUrl = baseUrl || 'https://backend-service-ard0.onrender.com'; 
   }
   /**
    * Analyze a dental image
@@ -91,4 +91,5 @@ export class DentalAnalysisService {
 }
 
 // Export a singleton instance
+
 export const dentalService = new DentalAnalysisService();

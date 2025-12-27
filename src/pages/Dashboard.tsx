@@ -12,6 +12,7 @@ import ImageUpload from '@/components/ImageUpload';
 import AnalysisView from '@/components/AnalysisView';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
 import ProfileModal from '@/components/ProfileModal';
+import { privacyPolicy } from './privacyPolicy';
 
 interface Analysis {
   id: string;
@@ -30,6 +31,7 @@ export default function Dashboard() {
   const [selectedAnalysis, setSelectedAnalysis] = useState<Analysis | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -61,14 +63,48 @@ export default function Dashboard() {
 
   const loadUserProfile = async () => {
     try {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', user?.id)
         .single();
 
+      // Handle race condition where profile trigger hasn't finished yet
+      if (!data && (error?.code === 'PGRST116' || !error)) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const retry = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', user?.id)
+          .single();
+        data = retry.data;
+        error = retry.error;
+      }
+
       if (error && error.code !== 'PGRST116') throw error;
       setUserProfile(data);
+
+      // Check metadata first to see if they accepted during signup
+      const metaDataAccepted = user?.user_metadata?.privacy_policy_accepted;
+
+      if (data && !(data as any).privacy_policy_accepted) {
+        if (metaDataAccepted && user?.id) {
+          // Sync metadata status to profile table if it was accepted during signup
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ privacy_policy_accepted: true } as any)
+            .eq('user_id', user.id);
+            
+          if (updateError) {
+            console.error('Failed to sync privacy policy status:', updateError);
+            setShowPrivacyModal(true);
+          } else {
+            setUserProfile({ ...data, privacy_policy_accepted: true });
+          }
+        } else {
+          setShowPrivacyModal(true);
+        }
+      }
     } catch (error) {
       console.error('Failed to load user profile:', error);
     }
@@ -99,6 +135,24 @@ export default function Dashboard() {
   const getAnalysisCount = (results: any) => {
     if (!results || !results.detections) return 0;
     return results.detections.length;
+  };
+
+  const handleAcceptPrivacy = async () => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ privacy_policy_accepted: true } as any)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+
+      setShowPrivacyModal(false);
+      setUserProfile({ ...userProfile, privacy_policy_accepted: true });
+      toast({ title: "Success", description: "Privacy policy accepted." });
+    } catch (error) {
+      console.error('Error accepting privacy policy:', error);
+      toast({ title: "Error", description: "Failed to update profile.", variant: "destructive" });
+    }
   };
 
   return (
@@ -221,6 +275,26 @@ export default function Dashboard() {
         isOpen={isProfileModalOpen} 
         onClose={() => setIsProfileModalOpen(false)} 
       />
+
+      {/* Privacy Policy Acceptance Modal */}
+      {showPrivacyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <Card className="w-full max-w-lg">
+            <CardHeader>
+              <CardTitle>Privacy Policy Update</CardTitle>
+              <CardDescription>Please accept our privacy policy to continue using the dashboard.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-4 bg-muted rounded-md text-sm space-y-2 max-h-60 overflow-y-auto">
+                {privacyPolicy.content.map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
+              </div>
+              <Button className="w-full" onClick={handleAcceptPrivacy}>I Accept the Privacy Policy</Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

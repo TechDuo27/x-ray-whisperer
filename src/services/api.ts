@@ -1,3 +1,5 @@
+import { supabase } from '@/integrations/supabase/client';
+
 export class DentalAnalysisService {
   baseUrl: string;
 
@@ -18,12 +20,20 @@ export class DentalAnalysisService {
     const formData = new FormData();
     formData.append('file', imageFile);
     
+    // Get the current session token
+    const { data: { session } } = await supabase.auth.getSession();
+    const headers: Record<string, string> = {};
+    if (session?.access_token) {
+      headers['Authorization'] = `Bearer ${session.access_token}`;
+    }
+
     try {
       console.log(`Calling API at ${this.baseUrl}/analyze`);
       
       // Make API call
       const response = await fetch(`${this.baseUrl}/analyze`, {
         method: 'POST',
+        headers,
         body: formData,
       });
       
@@ -69,11 +79,18 @@ export class DentalAnalysisService {
     try {
       console.log(`Calling API at ${this.baseUrl}/report`);
       
+      // Get the current session token
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+
       const response = await fetch(`${this.baseUrl}/report`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(analysisData),
       });
       

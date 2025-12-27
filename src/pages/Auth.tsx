@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
 import { supabase } from '@/integrations/supabase/client';
+import { privacyPolicy } from './privacyPolicy';
 
 export default function Auth() {
   const { user, signIn, signUp, signInWithGoogle } = useAuth();
@@ -19,6 +20,8 @@ export default function Auth() {
   const [activeTab, setActiveTab] = useState('signin');
   const [showUserTypeSelection, setShowUserTypeSelection] = useState(false);
   const [googleUserData, setGoogleUserData] = useState<{ email: string; fullName: string } | null>(null);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
   // Redirect authenticated users directly to dashboard
   if (user) {
@@ -62,6 +65,15 @@ export default function Auth() {
       });
       return;
     }
+
+    if (!privacyAccepted) {
+      toast({
+        title: 'Privacy Policy Required',
+        description: 'Please accept the privacy policy to create an account.',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     setLoading(true);
     
@@ -71,7 +83,7 @@ export default function Auth() {
     const fullName = formData.get('fullName') as string;
 
     // Add user type to metadata
-    const { error } = await signUp(email, password, fullName, { user_type: userType });
+    const { error } = await signUp(email, password, fullName, { user_type: userType, privacy_policy_accepted: true });
     
     if (error) {
       // Check if it's a duplicate email error
@@ -343,6 +355,26 @@ export default function Auth() {
                   </div>
                 </div>
                 
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="privacy"
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    checked={privacyAccepted}
+                    onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                  />
+                  <Label htmlFor="privacy" className="text-sm font-normal">
+                    I accept the{' '}
+                    <button
+                      type="button"
+                      className="text-primary hover:underline font-medium"
+                      onClick={() => setShowPrivacyPolicy(true)}
+                    >
+                      Privacy Policy
+                    </button>
+                  </Label>
+                </div>
+
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? (
                     <>
@@ -406,6 +438,24 @@ export default function Auth() {
           </Tabs>
         </CardContent>
       </Card>
+
+      {/* Privacy Policy Modal */}
+      {showPrivacyPolicy && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <Card className="w-full max-w-lg max-h-[80vh] overflow-y-auto">
+            <CardHeader>
+              <CardTitle>Privacy Policy</CardTitle>
+              <CardDescription>Last updated: {privacyPolicy.lastUpdated}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {privacyPolicy.content.map((paragraph, index) => (
+                <p key={index}>{paragraph}</p>
+              ))}
+              <Button className="w-full mt-4" onClick={() => setShowPrivacyPolicy(false)}>Close</Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

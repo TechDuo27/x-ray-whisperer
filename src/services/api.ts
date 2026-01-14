@@ -5,6 +5,7 @@ export class DentalAnalysisService {
 
   constructor(baseUrl?: string) {
     this.baseUrl = baseUrl || 'https://backend-service-ard0.onrender.com'; 
+    // this.baseUrl = baseUrl || 'http://localhost:8000'; 
   }
   /**
    * Analyze a dental image

@@ -34,11 +34,11 @@ export default function Dashboard() {
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       loadAnalyses();
       loadUserProfile();
     }
-  }, [user]);
+  }, [user?.id]);
 
   if (!user) {
     return <Navigate to="/auth" replace />;
@@ -48,7 +48,7 @@ export default function Dashboard() {
     try {
       const { data, error } = await supabase
         .from('analyses')
-        .select('*')
+        .select('id, original_filename, analysis_results, confidence_threshold, created_at, image_url')
         .order('created_at', { ascending: false })
         .limit(5);
 

@@ -1,148 +1,238 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ThumbsUp, ThumbsDown } from 'lucide-react';
+import {
+  Dialog, DialogContent, DialogDescription,
+  DialogFooter, DialogHeader, DialogTitle
+} from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { Loader2, PenTool, Eraser } from 'lucide-react';
 
 interface FeedbackFormProps {
+  isOpen: boolean;
+  onClose: () => void;
   analysisId: string;
-  onFeedbackSubmitted: () => void;
-  existingFeedback?: {
-    feedback_type: 'up' | 'down';
-    feedback_text: string;
-    feedback_submitted_at: string;
-  } | null;
+  imageUrl: string;
 }
 
-export default function FeedbackForm({ analysisId, onFeedbackSubmitted, existingFeedback }: FeedbackFormProps) {
-  const [feedbackType, setFeedbackType] = useState<'up' | 'down' | null>(existingFeedback?.feedback_type || null);
-  const [feedbackText, setFeedbackText] = useState(existingFeedback?.feedback_text || '');
+interface Point {
+  x: number;
+  y: number;
+}
+
+interface Stroke {
+  points: Point[];
+}
+
+export default function FeedbackForm({ isOpen, onClose, analysisId, imageUrl }: FeedbackFormProps) {
+  const [feedbackText, setFeedbackText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mode, setMode] = useState<'draw' | 'erase'>('draw');
 
-  const wordCount = feedbackText.trim().split(/\s+/).filter(word => word.length > 0).length;
-  const isValidLength = wordCount >= 50;
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const baseImageRef = useRef<HTMLImageElement | null>(null);
 
-  const handleSubmit = async () => {
-    if (!feedbackType || !isValidLength) return;
+  const strokesRef = useRef<Stroke[]>([]);
+  const currentStrokeRef = useRef<Stroke | null>(null);
 
-    setIsSubmitting(true);
-    try {
-      const { error } = await supabase
-        .from('analyses')
-        .update({
-          feedback_type: feedbackType,
-          feedback_text: feedbackText.trim(),
-          feedback_submitted_at: new Date().toISOString()
-        })
-        .eq('id', analysisId);
+  const [ready, setReady] = useState(false);
 
-      if (error) throw error;
+  // Load base image
+  useEffect(() => {
+    if (!isOpen) return;
 
-      toast({
-        title: 'Feedback Submitted',
-        description: 'Thank you for your feedback! It helps us improve our AI analysis.',
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      baseImageRef.current = img;
+      requestAnimationFrame(() => {
+        initializeCanvas();
       });
-
-      onFeedbackSubmitted();
-    } catch (error) {
-      console.error('Error submitting feedback:', error);
+    };
+    img.onerror = () => {
       toast({
-        title: 'Error',
-        description: 'Failed to submit feedback. Please try again.',
-        variant: 'destructive',
+        title: "Error",
+        description: "Could not load image for feedback.",
+        variant: "destructive",
       });
-    } finally {
-      setIsSubmitting(false);
+    };
+    img.src = imageUrl;
+  }, [isOpen, imageUrl]);
+
+  const initializeCanvas = () => {
+    const canvas = canvasRef.current;
+    const img = baseImageRef.current;
+    if (!canvas || !img) return;
+
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctxRef.current = ctx;
+    redraw();
+    setReady(true);
+  };
+
+  const getPos = (e: any) => {
+    const canvas = canvasRef.current!;
+    const rect = canvas.getBoundingClientRect();
+
+    let cx, cy;
+    if (e.touches) {
+      cx = e.touches[0].clientX;
+      cy = e.touches[0].clientY;
+    } else {
+      cx = e.clientX;
+      cy = e.clientY;
+    }
+
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    return { x: (cx - rect.left) * scaleX, y: (cy - rect.top) * scaleY };
+  };
+
+  const redraw = () => {
+    const canvas = canvasRef.current!;
+    const ctx = ctxRef.current!;
+    const img = baseImageRef.current;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (img) ctx.drawImage(img, 0, 0);
+
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineCap = 'round';
+
+    strokesRef.current.forEach(stroke => {
+      ctx.beginPath();
+      stroke.points.forEach((p, i) => {
+        i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+    });
+  };
+
+  const start = (e: any) => {
+    if (!ready) return;
+
+    const pos = getPos(e);
+
+    if (mode === 'erase') {
+      strokesRef.current = strokesRef.current.filter(
+        stroke => !stroke.points.some(p => Math.hypot(p.x - pos.x, p.y - pos.y) < 20)
+      );
+      redraw();
+      return;
+    }
+
+    currentStrokeRef.current = { points: [pos] };
+  };
+
+  const move = (e: any) => {
+    if (!currentStrokeRef.current || mode !== 'draw') return;
+
+    const pos = getPos(e);
+    currentStrokeRef.current.points.push(pos);
+
+    redraw();
+    const ctx = ctxRef.current!;
+    const pts = currentStrokeRef.current.points;
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    pts.forEach(p => ctx.lineTo(p.x, p.y));
+    ctx.stroke();
+  };
+
+  const end = () => {
+    if (currentStrokeRef.current) {
+      strokesRef.current.push(currentStrokeRef.current);
+      currentStrokeRef.current = null;
     }
   };
 
-  if (existingFeedback) {
-    return (
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            {existingFeedback.feedback_type === 'up' ? (
-              <ThumbsUp className="h-5 w-5 text-green-600" />
-            ) : (
-              <ThumbsDown className="h-5 w-5 text-red-600" />
-            )}
-            Feedback Submitted
-          </CardTitle>
-          <CardDescription>
-            You provided feedback on {new Date(existingFeedback.feedback_submitted_at).toLocaleDateString()}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="bg-muted p-4 rounded-lg">
-            <p className="text-sm text-muted-foreground mb-2">Your feedback:</p>
-            <p className="text-sm">{existingFeedback.feedback_text}</p>
-          </div>
-        </CardContent>
-      </Card>
+  const handleSubmit = async () => {
+    if (!feedbackText.trim()) {
+      return toast({ title: "Error", description: "Feedback cannot be empty.", variant: "destructive" });
+    }
+
+    setIsSubmitting(true);
+    let feedbackImageUrl = null;
+
+    const blob = await new Promise<Blob | null>(resolve =>
+      canvasRef.current?.toBlob(resolve, 'image/png')
     );
-  }
+
+    if (blob) {
+      const fileName = `feedback/${analysisId}_${Date.now()}.png`;
+      const { error } = await supabase.storage.from('xrays').upload(fileName, blob);
+      if (!error) {
+        const { data } = supabase.storage.from('xrays').getPublicUrl(fileName);
+        feedbackImageUrl = data.publicUrl;
+      }
+    }
+
+    await supabase.from('analyses')
+      .update({
+        feedback_text: feedbackText.trim(),
+        feedback_image_url: feedbackImageUrl,
+        feedback_submitted_at: new Date().toISOString(),
+      })
+      .eq('id', analysisId);
+
+    toast({ title: 'Feedback Submitted', description: 'Thank you!' });
+    setIsSubmitting(false);
+    onClose();
+  };
 
   return (
-    <Card className="mt-6">
-      <CardHeader>
-        <CardTitle>Rate This Analysis</CardTitle>
-        <CardDescription>
-          Help us improve by providing feedback on the accuracy of this analysis
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex gap-4">
-          <Button
-            variant={feedbackType === 'up' ? 'default' : 'outline'}
-            onClick={() => setFeedbackType('up')}
-            className="flex-1"
-          >
-            <ThumbsUp className="h-4 w-4 mr-2" />
-            Helpful
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle>Provide Feedback</DialogTitle>
+          <DialogDescription>Draw on the image and describe the feedback.</DialogDescription>
+        </DialogHeader>
+
+        <div className="flex gap-2 mb-3">
+          <Button variant={mode === 'draw' ? "default" : "outline"} onClick={() => setMode('draw')}>
+            <PenTool className="h-4 w-4 mr-2" /> Draw
           </Button>
-          <Button
-            variant={feedbackType === 'down' ? 'default' : 'outline'}
-            onClick={() => setFeedbackType('down')}
-            className="flex-1"
-          >
-            <ThumbsDown className="h-4 w-4 mr-2" />
-            Not Helpful
+          <Button variant={mode === 'erase' ? "default" : "outline"} onClick={() => setMode('erase')}>
+            <Eraser className="h-4 w-4 mr-2" /> Erase
           </Button>
         </div>
 
-        {feedbackType && (
-          <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Please explain your choice (minimum 50 words required):
-            </label>
-            <Textarea
-              value={feedbackText}
-              onChange={(e) => setFeedbackText(e.target.value)}
-              placeholder={
-                feedbackType === 'up'
-                  ? 'What aspects of the analysis were accurate and helpful? Please provide specific details about what worked well...'
-                  : 'What issues did you find with the analysis? Please describe any inaccuracies or missing detections...'
-              }
-              rows={4}
-              className="resize-none"
-            />
-            <div className="flex justify-between items-center text-sm">
-              <span className={wordCount >= 50 ? 'text-green-600' : 'text-muted-foreground'}>
-                {wordCount} / 50 words minimum
-              </span>
-              <Button
-                onClick={handleSubmit}
-                disabled={!isValidLength || isSubmitting}
-                size="sm"
-              >
-                {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
-              </Button>
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+        <div className="flex-1 overflow-auto border rounded-md bg-muted flex justify-center items-center p-2">
+          <canvas
+            ref={canvasRef}
+            className="touch-none max-w-full"
+            onMouseDown={start}
+            onMouseMove={move}
+            onMouseUp={end}
+            onTouchStart={start}
+            onTouchMove={move}
+            onTouchEnd={end}
+          />
+        </div>
+
+        <Textarea
+          value={feedbackText}
+          onChange={(e) => setFeedbackText(e.target.value)}
+          placeholder="Describe what should be corrected..."
+          className="mt-3 h-24 resize-none"
+        />
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button disabled={isSubmitting} onClick={handleSubmit}>
+            {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Submit Feedback
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

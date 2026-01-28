@@ -4,13 +4,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { Upload, FileText, User, Brain, Calendar, Download, Users } from 'lucide-react';
+import { Upload, FileText, User, Brain, Users } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
-import AnalysisView from '@/components/AnalysisView';
-import { DarkModeToggle } from '@/components/DarkModeToggle';
+import AdvancedAnalysisView from '@/components/AdvancedAnalysisView';
 import ProfileModal from '@/components/ProfileModal';
 import { privacyPolicy } from './privacyPolicy';
 
@@ -25,226 +23,170 @@ interface Analysis {
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const [analyses, setAnalyses] = useState<Analysis[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [currentView, setCurrentView] = useState<'upload' | 'analysis'>('upload');
-  const [selectedAnalysis, setSelectedAnalysis] = useState<Analysis | null>(null);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [userProfile, setUserProfile] = useState<any>(null);
-  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
+  const [analyses, setAnalyses] = useState<Analysis[]>([]);
+  const [selectedAnalysis, setSelectedAnalysis] = useState<Analysis | null>(null);
+  const [profile, setProfile] = useState<any>(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // ——————————————————————————
+  // Initial Data Load
+  // ——————————————————————————
   useEffect(() => {
-    if (user?.id) {
-      loadAnalyses();
-      loadUserProfile();
-    }
+    if (!user) return;
+    Promise.all([loadAnalyses(), loadProfile()]).finally(() => setLoading(false));
   }, [user?.id]);
 
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
+  if (!user) return <Navigate to="/auth" replace />;
 
+  // ——————————————————————————
+  // Fetch Analyses
+  // ——————————————————————————
   const loadAnalyses = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('analyses')
-        .select('id, original_filename, analysis_results, confidence_threshold, created_at, image_url')
-        .order('created_at', { ascending: false })
-        .limit(5);
+    const { data, error } = await supabase
+      .from('analyses')
+      .select('id, original_filename, analysis_results, confidence_threshold, created_at, image_url')
+      .order('created_at', { ascending: false })
+      .limit(5);
 
-      if (error) throw error;
-      setAnalyses(data || []);
-    } catch (error) {
-      console.error('Failed to load analysis history:', error);
-    } finally {
-      setLoading(false);
-    }
+    if (!error && data) setAnalyses(data);
   };
 
-  const loadUserProfile = async () => {
-    try {
-      let { data, error } = await supabase
+  // ——————————————————————————
+  // Fetch Profile + Privacy Sync
+  // ——————————————————————————
+  const loadProfile = async () => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+
+    // profile missing → prompt privacy
+    if (!data) {
+      setShowPrivacyModal(true);
+      return;
+    }
+
+    setProfile(data);
+
+    // metadata override for first signup
+    const acceptedFromMetadata = user.user_metadata?.privacy_policy_accepted;
+    if (acceptedFromMetadata && !data.privacy_policy_accepted) {
+      await supabase
         .from('profiles')
-        .select('*')
-        .eq('user_id', user?.id)
-        .single();
+        .update({ privacy_policy_accepted: true })
+        .eq('user_id', user.id);
 
-      // Handle race condition where profile trigger hasn't finished yet
-      if (!data && (error?.code === 'PGRST116' || !error)) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        const retry = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_id', user?.id)
-          .single();
-        data = retry.data;
-        error = retry.error;
-      }
+      setProfile({ ...data, privacy_policy_accepted: true });
+      return;
+    }
 
-      if (error && error.code !== 'PGRST116') throw error;
-      setUserProfile(data);
-
-      // Check metadata first to see if they accepted during signup
-      const metaDataAccepted = user?.user_metadata?.privacy_policy_accepted;
-
-      if (data && !(data as any).privacy_policy_accepted) {
-        if (metaDataAccepted && user?.id) {
-          // Sync metadata status to profile table if it was accepted during signup
-          const { error: updateError } = await supabase
-            .from('profiles')
-            .update({ privacy_policy_accepted: true } as any)
-            .eq('user_id', user.id);
-            
-          if (updateError) {
-            console.error('Failed to sync privacy policy status:', updateError);
-            setShowPrivacyModal(true);
-          } else {
-            setUserProfile({ ...data, privacy_policy_accepted: true });
-          }
-        } else {
-          setShowPrivacyModal(true);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to load user profile:', error);
+    if (!data.privacy_policy_accepted) {
+      setShowPrivacyModal(true);
     }
   };
 
-
-  const handleAnalysisComplete = (analysisData: any) => {
-    setSelectedAnalysis(analysisData);
-    setCurrentView('analysis');
-    loadAnalyses(); // Refresh the list
-  };
-
-  const handleViewAnalysis = (analysis: Analysis) => {
-    setSelectedAnalysis(analysis);
-    setCurrentView('analysis');
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const getAnalysisCount = (results: any) => {
-    if (!results || !results.detections) return 0;
-    return results.detections.length;
-  };
-
+  // ——————————————————————————
+  // Accept Privacy Policy
+  // ——————————————————————————
   const handleAcceptPrivacy = async () => {
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ privacy_policy_accepted: true } as any)
-        .eq('user_id', user?.id);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ privacy_policy_accepted: true })
+      .eq('user_id', user.id);
 
-      if (error) throw error;
-
+    if (!error) {
       setShowPrivacyModal(false);
-      setUserProfile({ ...userProfile, privacy_policy_accepted: true });
+      setProfile((prev: any) => ({ ...prev, privacy_policy_accepted: true }));
       toast({ title: "Success", description: "Privacy policy accepted." });
-    } catch (error) {
-      console.error('Error accepting privacy policy:', error);
-      toast({ title: "Error", description: "Failed to update profile.", variant: "destructive" });
     }
   };
 
+  // ——————————————————————————
+  // UI Helpers
+  // ——————————————————————————
+  const formatDate = (d: string) =>
+    new Date(d).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  const countFindings = (r: any) => r?.detections?.length ?? 0;
+
+  // ——————————————————————————
+  // Render
+  // ——————————————————————————
   return (
     <div className="min-h-screen bg-background">
-      <DarkModeToggle />
-      {/* Header */}
+
+      {/* Top Bar */}
       <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link 
-              to="/"
-              className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
-            >
-              <Brain className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold text-primary">Oral Health Analyzer</h1>
-            </Link>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-muted-foreground">
-                Welcome, {user.user_metadata?.full_name || user.email}
-              </span>
-              <Button variant="outline" onClick={() => setIsProfileModalOpen(true)}>
-                <User className="h-4 w-4 mr-2" />
-                Profile
-              </Button>
-            </div>
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <Link to="/" className="flex items-center space-x-2">
+            <Brain className="h-8 w-8 text-primary" />
+            <h1 className="text-2xl font-bold text-primary">Oral Health Analyzer</h1>
+          </Link>
+          <div className="flex items-center space-x-4">
+            <span className="text-sm text-muted-foreground">
+              Welcome, {profile?.full_name || user.email}
+            </span>
+            <Button variant="outline" onClick={() => setShowProfileModal(true)}>
+              <User className="h-4 w-4 mr-2" /> Profile
+            </Button>
           </div>
         </div>
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-12 gap-6">
-          {/* Sidebar */}
-          <div className="col-span-12 lg:col-span-3">
-            <div className="space-y-4">
+        {selectedAnalysis ? (
+          <AdvancedAnalysisView
+            analysis={selectedAnalysis}
+            onBack={() => setSelectedAnalysis(null)}
+          />
+        ) : (
+          <div className="grid grid-cols-12 gap-6">
+            {/* Sidebar */}
+            <div className="col-span-12 lg:col-span-3 space-y-4">
               <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Navigation</CardTitle>
-                </CardHeader>
+                <CardHeader><CardTitle>Navigation</CardTitle></CardHeader>
                 <CardContent className="space-y-2">
                   <Button
-                    variant={currentView === 'upload' ? 'default' : 'ghost'}
+                    variant={!selectedAnalysis ? 'default' : 'ghost'}
                     className="w-full justify-start"
-                    onClick={() => setCurrentView('upload')}
                   >
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload & Analyze
+                    <Upload className="h-4 w-4 mr-2" /> Upload & Analyze
                   </Button>
-                  {userProfile?.admin && (
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start"
-                      asChild
-                    >
+                  {profile?.admin && (
+                    <Button variant="ghost" className="w-full justify-start" asChild>
                       <Link to="/admin/feedback">
-                        <Users className="h-4 w-4 mr-2" />
-                        View Feedback Page
+                        <Users className="h-4 w-4 mr-2" /> View Feedback Page
                       </Link>
                     </Button>
                   )}
                 </CardContent>
               </Card>
 
-              {/* Analysis History */}
+              {/* Recent Analyses */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <FileText className="h-5 w-5 mr-2" />
-                    Latest 5 Analyses
-                  </CardTitle>
-                </CardHeader>
+                <CardHeader><CardTitle><FileText className="h-5 w-5 mr-2 inline" /> Latest 5 Analyses</CardTitle></CardHeader>
                 <CardContent className="space-y-2">
                   {loading ? (
                     <div className="text-sm text-muted-foreground">Loading...</div>
                   ) : analyses.length === 0 ? (
                     <div className="text-sm text-muted-foreground">No analyses yet</div>
                   ) : (
-                    analyses.slice(0, 5).map((analysis) => (
+                    analyses.map(a => (
                       <div
-                        key={analysis.id}
-                        className="p-3 rounded-md border bg-card hover:bg-accent cursor-pointer transition-colors"
-                        onClick={() => handleViewAnalysis(analysis)}
+                        key={a.id}
+                        className="p-3 rounded-md border bg-card hover:bg-accent cursor-pointer"
+                        onClick={() => setSelectedAnalysis(a)}
                       >
-                        <div className="font-medium text-sm truncate">
-                          {analysis.original_filename}
-                        </div>
-                        <div className="flex items-center justify-between mt-1">
+                        <div className="font-medium text-sm truncate">{a.original_filename}</div>
+                        <div className="flex justify-between mt-1">
                           <Badge variant="secondary" className="text-xs">
-                            {getAnalysisCount(analysis.analysis_results)} findings
+                            {countFindings(a.analysis_results)} findings
                           </Badge>
-                          <span className="text-xs text-muted-foreground">
-                            {formatDate(analysis.created_at)}
-                          </span>
+                          <span className="text-xs text-muted-foreground">{formatDate(a.created_at)}</span>
                         </div>
                       </div>
                     ))
@@ -252,45 +194,34 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
             </div>
-          </div>
 
-          {/* Main Content */}
-          <div className="col-span-12 lg:col-span-9">
-            {currentView === 'upload' && (
-              <ImageUpload onAnalysisComplete={handleAnalysisComplete} />
-            )}
-            
-            {currentView === 'analysis' && selectedAnalysis && (
-              <AnalysisView 
-                key={selectedAnalysis.id}
-                analysis={selectedAnalysis}
-                onBack={() => setCurrentView('upload')}
-              />
-            )}
+            {/* Main */}
+            <div className="col-span-12 lg:col-span-9">
+              <ImageUpload onAnalysisComplete={(a) => {
+                setSelectedAnalysis(a);
+                loadAnalyses();
+              }} />
+            </div>
           </div>
-        </div>
+        )}
       </div>
-      
-      <ProfileModal 
-        isOpen={isProfileModalOpen} 
-        onClose={() => setIsProfileModalOpen(false)} 
-      />
 
-      {/* Privacy Policy Acceptance Modal */}
+      <ProfileModal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} />
+
       {showPrivacyModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <Card className="w-full max-w-lg">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <Card className="max-w-lg w-full">
             <CardHeader>
               <CardTitle>Privacy Policy Update</CardTitle>
-              <CardDescription>Please accept our privacy policy to continue using the dashboard.</CardDescription>
+              <CardDescription>Please accept to continue.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="p-4 bg-muted rounded-md text-sm space-y-2 max-h-60 overflow-y-auto">
-                {privacyPolicy.content.map((paragraph, index) => (
-                  <p key={index}>{paragraph}</p>
-                ))}
+              <div className="p-4 bg-muted rounded-md text-sm max-h-60 overflow-y-auto">
+                {privacyPolicy.content.map((p: string, i: number) => <p key={i}>{p}</p>)}
               </div>
-              <Button className="w-full" onClick={handleAcceptPrivacy}>I Accept the Privacy Policy</Button>
+              <Button className="w-full" onClick={handleAcceptPrivacy}>
+                I Accept the Privacy Policy
+              </Button>
             </CardContent>
           </Card>
         </div>

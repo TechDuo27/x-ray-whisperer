@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import { DarkModeToggle } from '@/components/DarkModeToggle';
 import { supabase } from '@/integrations/supabase/client';
 import { privacyPolicy } from './privacyPolicy';
 
@@ -173,7 +172,6 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <DarkModeToggle />
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-3xl font-bold text-primary">🦷 Oral Health Analyzer</CardTitle>

@@ -15,8 +15,6 @@ import {
   Target,
   Award
 } from 'lucide-react';
-import { DarkModeToggle } from '@/components/DarkModeToggle';
-import placeholderImage from '@/assets/team-placeholder.png';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -34,7 +32,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <DarkModeToggle />
+      
       
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-background via-navy/80 to-teal/50 overflow-hidden">

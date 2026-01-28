@@ -10,6 +10,7 @@ interface ImageAnnotationViewerProps {
   filename: string;
   annotatedImageBase64?: string; // optional pre-rendered annotated image from backend
   onAnnotated?: (dataUrl: string) => void;
+  showOnlyAnnotated?: boolean;
 }
 
 export default function ImageAnnotationViewer({ 
@@ -17,7 +18,8 @@ export default function ImageAnnotationViewer({
   detections, 
   filename,
   annotatedImageBase64,
-  onAnnotated 
+  onAnnotated,
+  showOnlyAnnotated = false
 }: ImageAnnotationViewerProps) {
   const [annotatedImageUrl, setAnnotatedImageUrl] = useState<string>('');
   const [originalCachedUrl, setOriginalCachedUrl] = useState<string>('');
@@ -246,42 +248,44 @@ export default function ImageAnnotationViewer({
       </div>
 
       {/* Split View Images */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className={`grid grid-cols-1 ${!showOnlyAnnotated && 'lg:grid-cols-2'} gap-4`}>
         {/* Original Image */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Original X-Ray</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div 
-              className="overflow-auto max-h-96 border rounded-lg cursor-grab active:cursor-grabbing select-none"
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-            >
-              <img
-                ref={originalImageRef}
-                src={originalCachedUrl || originalImageUrl}
-                alt={`Original ${filename}`}
-                className="w-full h-auto transition-transform pointer-events-none"
-                style={{ 
-                  transform: `scale(${zoom / 100}) translate(${panX}px, ${panY}px)`,
-                  transformOrigin: 'center center'
-                }}
-                draggable={false}
-                loading="eager"
-                decoding="sync"
-              />
-            </div>
-          </CardContent>
-        </Card>
+        {!showOnlyAnnotated && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Original X-Ray</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div 
+                className="overflow-auto max-h-96 border rounded-lg cursor-grab active:cursor-grabbing select-none"
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+              >
+                <img
+                  ref={originalImageRef}
+                  src={originalCachedUrl || originalImageUrl}
+                  alt={`Original ${filename}`}
+                  className="w-full h-auto transition-transform pointer-events-none"
+                  style={{ 
+                    transform: `scale(${zoom / 100}) translate(${panX}px, ${panY}px)`,
+                    transformOrigin: 'center center'
+                  }}
+                  draggable={false}
+                  loading="eager"
+                  decoding="sync"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Annotated Image */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">
-              AI Analysis ({detections.length} findings)
+              {showOnlyAnnotated ? 'Annotated Image' : `AI Analysis (${detections.length} findings)`}
             </CardTitle>
           </CardHeader>
           <CardContent>

@@ -8,7 +8,7 @@ interface ImageAnnotationViewerProps {
   originalImageUrl: string;
   detections: Detection[];
   filename: string;
-  annotatedImageBase64?: string; // optional pre-rendered annotated image from backend
+  annotatedImageBase64?: string; 
   onAnnotated?: (dataUrl: string) => void;
   showOnlyAnnotated?: boolean;
 }
@@ -32,7 +32,6 @@ export default function ImageAnnotationViewer({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const originalImageRef = useRef<HTMLImageElement>(null);
 
-  // Stable stringify to avoid flicker when objects re-create with same content
   const stableStringify = (value: any): string => {
     const seen = new WeakSet();
     const normalize = (val: any): any => {
@@ -64,13 +63,11 @@ export default function ImageAnnotationViewer({
 
   const notifiedKeyRef = useRef<string>('');
 
-  // Persistently cache the original image so it doesn't re-download on tab switches
   useEffect(() => {
     let revokeUrl: string | null = null;
     let cancelled = false;
 
     const run = async () => {
-      // If backend provided pre-rendered image, use it ALWAYS
       if (annotatedImageBase64 && annotatedImageBase64.length > 0) {
         setLoading(true);
         try {
@@ -94,10 +91,9 @@ export default function ImageAnnotationViewer({
         } finally {
           if (!cancelled) setLoading(false);
         }
-        return; // ALWAYS return here - never draw client-side
+        return; 
       }
 
-      // No backend image - show original
       if (!cancelled) {
         setAnnotatedImageUrl(originalImageUrl);
         setLoading(false);
@@ -112,24 +108,20 @@ export default function ImageAnnotationViewer({
     };
   }, [annoKey, annotatedImageBase64, originalImageUrl, onAnnotated]);
 
-  // Generate or load annotated image with strong persistence and stable keys
   useEffect(() => {
     let revokeUrl: string | null = null;
     let cancelled = false;
 
     const run = async () => {
-      // If nothing to draw and no precomputed image, do nothing
       if (!originalImageUrl || (detections.length === 0 && !annotatedImageBase64)) {
         setLoading(false);
         return;
       }
 
-      // 1) Persistent cache by annoKey
       const cachedUrl = await getCachedImageUrl(annoKey);
       if (!cancelled && cachedUrl) {
         setAnnotatedImageUrl(cachedUrl);
         setLoading(false);
-        // Convert blob URL to data URL for report generation
         if (notifiedKeyRef.current !== annoKey && onAnnotated) {
           notifiedKeyRef.current = annoKey;
           try {
@@ -150,9 +142,7 @@ export default function ImageAnnotationViewer({
         return;
       }
 
-      // 2) Always generate annotations client-side for consistent colors
-      // (Skip backend pre-rendered image to ensure color consistency)
-      // 2) If backend provided annotated image, use it directly
+
       if (annotatedImageBase64 && annotatedImageBase64.length > 0) {
         setLoading(true);
         try {
@@ -176,10 +166,9 @@ export default function ImageAnnotationViewer({
           if (!cancelled) setLoading(false);
         }
   
-        return; // Use backend image, skip client-side drawing
+        return; 
       }
 
-      // 3) Otherwise, generate annotations client-side
       setLoading(true);
       try {
         const annotatedDataUrl = await drawAnnotations(originalImageUrl, detections);

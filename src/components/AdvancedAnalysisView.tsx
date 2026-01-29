@@ -68,6 +68,14 @@ export default function AdvancedAnalysisView({ analysis, onBack }: AdvancedAnaly
   const drawing = useRef(false);
   const hasDrawn = useRef(false);
 
+  // panning refs/state
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const transformRef = useRef<HTMLDivElement>(null);
+  const isPanning = useRef(false);
+  const panStart = useRef({ x: 0, y: 0 });
+  const panOrigin = useRef({ x: 0, y: 0 });
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+
   const detections = analysis.analysis_results?.detections || [];
 
   const filteredDetections = useMemo(
@@ -107,25 +115,125 @@ export default function AdvancedAnalysisView({ analysis, onBack }: AdvancedAnaly
     const img = imgRef.current;
     const canvas = canvasRef.current;
     if (!img || !canvas) return;
-    canvas.width = img.clientWidth;
-    canvas.height = img.clientHeight;
+    const width = img.clientWidth;
+    const height = img.clientHeight;
+    // set both the internal pixel size and the CSS size so hit-testing and drawing scale correctly
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+
     const ctx = canvas.getContext('2d');
     if (ctx) {
       ctx.lineWidth = 3;
       ctx.lineCap = 'round';
       ctx.strokeStyle = 'rgba(255,0,0,0.9)';
     }
+
+    // ensure pan bounds/centering updates when canvas sizing changes
+    const clamped = clampPan(pan.x, pan.y);
+    setPan(clamped);
   };
 
+  // keep canvas in sync when source/zoom/viewport change
+  useEffect(() => {
+    setupCanvas();
+  }, [annotatedImageUrl, zoom]);
+
+  useEffect(() => {
+    const onResize = () => setupCanvas();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  const getPanConstraints = () => {
+    const img = imgRef.current;
+    const vp = viewportRef.current;
+    if (!img || !vp) return { minX: 0, maxX: 0, minY: 0, maxY: 0, scaledW: 0, scaledH: 0, vpW: 0, vpH: 0 };
+    const scale = zoom / 100;
+    const scaledW = img.clientWidth * scale;
+    const scaledH = img.clientHeight * scale;
+    const vpW = vp.clientWidth;
+    const vpH = vp.clientHeight;
+
+    // when image is centered, allowed pan is half the overflow on each side
+    let minX = 0;
+    let maxX = 0;
+    if (scaledW > vpW) {
+      const overflowX = scaledW - vpW;
+      minX = -overflowX / 2;
+      maxX = overflowX / 2;
+    }
+
+    let minY = 0;
+    let maxY = 0;
+    if (scaledH > vpH) {
+      const overflowY = scaledH - vpH;
+      minY = -overflowY / 2;
+      maxY = overflowY / 2;
+    }
+
+    return { minX, maxX, minY, maxY, scaledW, scaledH, vpW, vpH };
+  };
+
+  const clampPan = (x: number, y: number) => {
+    const { minX, maxX, minY, maxY } = getPanConstraints();
+    return {
+      x: Math.min(maxX, Math.max(minX, x)),
+      y: Math.min(maxY, Math.max(minY, y)),
+    };
+  };
+
+  const startPan = (e: React.MouseEvent | React.TouchEvent) => {
+    if (isDrawingMode) return;
+    isPanning.current = true;
+    const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
+    panStart.current = { x: clientX, y: clientY };
+    panOrigin.current = { x: pan.x, y: pan.y };
+
+    const handleMove = (ev: globalThis.MouseEvent) => {
+      if (!isPanning.current) return;
+      const dx = ev.clientX - panStart.current.x;
+      const dy = ev.clientY - panStart.current.y;
+      const clamped = clampPan(panOrigin.current.x + dx, panOrigin.current.y + dy);
+      setPan(clamped);
+    };
+
+    const handleUp = () => {
+      isPanning.current = false;
+      document.removeEventListener('mousemove', handleMove);
+      document.removeEventListener('mouseup', handleUp);
+    };
+
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleUp);
+  };
+
+  const startPanTouch = (e: React.TouchEvent) => startPan(e);
+
+  useEffect(() => {
+    // keep pan within bounds when zoom or image changes
+    setPan(p => {
+      const { minX, maxX, minY, maxY } = getPanConstraints();
+      const x = Math.min(maxX, Math.max(minX, p.x));
+      const y = Math.min(maxY, Math.max(minY, p.y));
+      return { x, y };
+    });
+  }, [annotatedImageUrl, zoom]);
   const startDraw = (e: MouseEvent<HTMLCanvasElement>) => {
     if (!isDrawingMode) return;
     drawing.current = true;
     hasDrawn.current = true;
     const rect = canvasRef.current!.getBoundingClientRect();
     const ctx = canvasRef.current?.getContext('2d');
-    if (ctx) {
+    if (ctx && canvasRef.current) {
+      // account for CSS scaling (transform) by mapping client coordinates to canvas internal pixels
+      const scaleX = canvasRef.current.width / rect.width;
+      const scaleY = canvasRef.current.height / rect.height;
       ctx.beginPath();
-      ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+      ctx.moveTo((e.clientX - rect.left) * scaleX, (e.clientY - rect.top) * scaleY);
     }
   };
 
@@ -133,8 +241,10 @@ export default function AdvancedAnalysisView({ analysis, onBack }: AdvancedAnaly
     if (!drawing.current) return;
     const rect = canvasRef.current!.getBoundingClientRect();
     const ctx = canvasRef.current?.getContext('2d');
-    if (ctx) {
-      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    if (ctx && canvasRef.current) {
+      const scaleX = canvasRef.current.width / rect.width;
+      const scaleY = canvasRef.current.height / rect.height;
+      ctx.lineTo((e.clientX - rect.left) * scaleX, (e.clientY - rect.top) * scaleY);
       ctx.stroke();
     }
   };
@@ -267,12 +377,24 @@ Generated by Oral Health Analyzer • ${new Date().toLocaleDateString()}
 
       <div className="flex gap-4">
         <div className="flex-1 flex flex-col gap-4">
-          <div className="relative flex justify-center bg-muted/20 p-4 rounded border select-none">
-            <div style={{filter:`brightness(${brightness}%) contrast(${contrast}%)`,transform:`scale(${zoom/100})`,transformOrigin:'center'}}>
-              <img ref={imgRef} src={annotatedImageUrl || analysis.image_url} onLoad={setupCanvas} className="max-h-[70vh] pointer-events-none"/>
+          <div ref={viewportRef} className="relative flex justify-center bg-muted/20 p-4 rounded border select-none overflow-hidden">
+            <div
+              ref={transformRef}
+              onMouseDown={startPan}
+              onTouchStart={startPanTouch}
+              style={{
+                filter:`brightness(${brightness}%) contrast(${contrast}%)`,
+                transform:`translate(${pan.x}px, ${pan.y}px) scale(${zoom/100})`,
+                transformOrigin:'center',
+                position:'relative',
+                display:'inline-block'
+              }}
+            >
+              <img ref={imgRef} src={annotatedImageUrl || analysis.image_url} onLoad={() => { setupCanvas(); }} className="max-h-[70vh] pointer-events-none"/>
               {!showOriginal && (
                 <canvas ref={canvasRef}
                   className="absolute top-0 left-0"
+                  style={{position:'absolute',top:0,left:0, pointerEvents: isDrawingMode ? 'auto' : 'none'}}
                   onMouseDown={startDraw}
                   onMouseMove={draw}
                   onMouseUp={endDraw}

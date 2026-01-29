@@ -22,7 +22,6 @@ export default function Auth() {
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
-  // Redirect authenticated users directly to dashboard
   if (user) {
     return <Navigate to="/dashboard" replace />;
   }
@@ -81,11 +80,9 @@ export default function Auth() {
     const password = formData.get('password') as string;
     const fullName = formData.get('fullName') as string;
 
-    // Add user type to metadata
     const { error } = await signUp(email, password, fullName, { user_type: userType, privacy_policy_accepted: true });
     
     if (error) {
-      // Check if it's a duplicate email error
       const isEmailExists = error.message.toLowerCase().includes('user already registered') || 
                            error.message.toLowerCase().includes('email already exists') ||
                            error.message.toLowerCase().includes('already registered');
@@ -124,7 +121,6 @@ export default function Auth() {
       });
       setGoogleLoading(false);
     }
-    // Don't set loading to false here - it will be handled by the auth state change
   };
 
   const handleUserTypeSubmission = async () => {
@@ -140,7 +136,6 @@ export default function Auth() {
     setLoading(true);
     
     try {
-      // Update user metadata with user type
       const { error } = await supabase.auth.updateUser({
         data: { user_type: userType }
       });

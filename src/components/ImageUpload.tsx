@@ -154,17 +154,14 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
     setUploadProgress(0);
 
     try {
-      // Compress once, then upload and analyze in parallel with smaller payload
       const compressedFile = await compressImage(uploadedImage, 1920, 0.85);
       const uploadPromise = uploadToStorage(compressedFile, true);
       const analysisPromise = dentalService.analyzeImage(compressedFile);
       
-      // Progress simulation
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => Math.min(prev + 8, 90));
       }, 150);
 
-      // Wait for both to complete
       const [imageUrl, results] = await Promise.all([uploadPromise, analysisPromise]);
       
       setUploadProgress(95);
@@ -172,13 +169,11 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
       
       console.log('Analysis results:', results);
       
-      // Verify valid results
       if (!results || !results.detections) {
         console.error('Invalid results format from API:', results);
         throw new Error('Invalid response format from analysis API');
       }
       
-      // Save analysis to database
       const { data: analysisData, error: dbError } = await supabase
         .from('analyses')
         .insert({
@@ -197,7 +192,6 @@ export default function ImageUpload({ onAnalysisComplete }: ImageUploadProps) {
 
       onAnalysisComplete(analysisData);
       
-      // Reset form
       setUploadedImage(null);
       setImagePreview(null);
 
